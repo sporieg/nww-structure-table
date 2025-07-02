@@ -1,3 +1,18 @@
 {
-    "MODULE.hello": "hello"
+    "LANCER-ALT-STRUCTURE": {
+        "StructureDescriptions": {
+            "glancingBlow": "Emergency systems kick in and stabilize your mech. However, choose your mech is either @Compendium[world.status-items.Slowed] or @Compendium[world.status-items.Impaired].",
+            "systemTrauma": "Choose @Compendium[world.status-items.Jammed] or Trauma: Destroy a weapon or system of your choice.",
+            "directHit": "Choose @Compendium[world.status-items.Stunned] or Trauma: Destroy a weapon or system of your choice",
+            "crushingHit": "Roll a <strong>HULL</strong> check or destroyed. Each lost Structure adds one difficulty. On a success, treat it as a single 1",
+            "noStructure": "Your mech is damaged beyond repair – it is destroyed. You may still exit it as normal."
+        },
+        "StressDescriptions": {
+            "emergencyShunt": "Your mech’s cooling systems manage to contain the increasing heat; however, your mech becomes @Compendium[world.status-items.Impaired] until the end of your next turn.",
+            "powerFail": "Your mech suffers catastrophic disruption to power regulation as it tries to divert energy to critical safety systems. Your mech is Choose @Compendium[world.status-items.Jammed] or @Compendium[world.status-items.Exposed].",
+            "meltdown": "@Compendium[world.status-items.Exposed]",
+            "criticalFail": " @Compendium[world.status-items.Exposed]. Additionally, make an <strong>ENGINEERING</strong> check or meltdown at the end of your next turn. Each lost Stress adds one difficulty. Meltdowns initiated this way can be canceled via Shut Down.  ",
+            "noStress": "The reactor goes critical – your mech suffers a reactor meltdown at the end of your next turn."
+        }
+    }
 }
