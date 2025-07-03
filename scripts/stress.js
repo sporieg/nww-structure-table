@@ -111,18 +111,11 @@ export async function insertEngheckButton(state) {
     return false;
   }
 
-  let show_button = false;
   const result = state.data.result;
   if (!result) throw new TypeError(`Stress check hasn't been rolled yet!`);
 
   const roll = result.roll;
-  const stress = state.data.remStress;
 
-  switch (roll.total) {
-    case 1:
-      show_button = true;
-      break;
-  }
 
   let one_count = getRollCount(roll, 1);
 

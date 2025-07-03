@@ -96,27 +96,15 @@ export async function insertHullCheckButton(state) {
     return false;
   }
 
-  let show_button = false;
   const result = state.data.result;
   if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
 
   const roll = result.roll;
   const structure = state.data.remStruct;
 
-  switch (roll.total) {
-    case 1:
-      switch (structure) {
-        case 1:
-        case 2:
-          show_button = true;
-          break;
-      }
-      break;
-  }
-
   let one_count = getRollCount(roll, 1);
 
-  if (show_button || one_count > 1) {
+  if (one_count > 1) {
     state.data.embedButtons = state.data.embedButtons || [];
     state.data.embedButtons.push(`<a
           class="flow-button lancer-button"
