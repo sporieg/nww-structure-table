@@ -44,7 +44,7 @@ export async function altRollStructure(state: State) {
   let formula = `${damage}d6kl1`;
   // If it's an NPC with legendary, change the formula to roll twice and keep the best result.
   if (actor.is_npc() &&
-    actor.items.some((i) => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid)
+    actor.items.some((i: any) => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid)
     )) {
     formula = `{${formula}, ${formula}}kh`;
   }
