@@ -1,5 +1,5 @@
 {
-  "id": "lancer-alt-structure",
+  "id": "nww-lancer-alt-structure",
   "title": "LANCER Alternative Structure",
   "description": "Implements alternative structure rulesets for Lancer",
   "version": "#{VERSION}#",
@@ -7,7 +7,7 @@
   "manifestPlusVersion": "1.0.0",
   "compatibility": {
     "minimum": 11,
-    "verified": 11
+    "verified": 12
   },
   "authors": [
     {

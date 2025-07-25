@@ -1,4 +1,9 @@
-function stressTableDescriptions(roll) {
+// import type { FlowState } from "foundryvtt-lancer/src/module/flows/flow";
+// import type { LancerFlowState } from "foundryvtt-lancer/src/module/flows/interfaces";
+
+type State = any
+
+function stressTableDescriptions(roll: number) {
   switch (roll) {
     // Used for multiple ones
     case 0:
@@ -15,12 +20,12 @@ function stressTableDescriptions(roll) {
   }
   return "";
 }
-const getRollCount = (roll, num_to_count) => {
+const getRollCount = (roll: Roll, num_to_count: number) => {
   return roll
-    ? roll.terms[0].results.filter((v) => v.result === num_to_count).length
+    ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count).length
     : 0;
 };
-export async function altRollStress(state) {
+export async function altRollStress(state: State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
@@ -33,7 +38,7 @@ export async function altRollStress(state) {
     const one_roll = 3
     const one_stress = 1
     state.data = {
-      type: "Reactor Stress",
+      type: "overheat",
       desc: stressTableDescriptions(one_roll),
       remStress: one_stress,
       val: actor.system.stress.value,
@@ -57,18 +62,18 @@ export async function altRollStress(state) {
   let formula = `${damage}d6kl1`;
   // If it's an NPC with legendary, change the formula to roll twice and keep the best result.
   if (actor.is_npc() &&
-    actor.items.some((i) => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid)
+    actor.items.some((i: { system: { lid: string; }; }) => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid)
     )) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  let roll = await new Roll(formula).evaluate({ async: true });
+  let roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
   if (result === undefined) return false;
 
   state.data = {
-    type: "stress",
-    desc: stressTableDescriptions(result, remStress),
+    type: "overheat",
+    desc: stressTableDescriptions(result),
     remStress: remStress,
     val: actor.system.stress.value,
     max: actor.system.stress.max,
@@ -82,7 +87,8 @@ export async function altRollStress(state) {
 
   return true;
 }
-export async function stressCheckMultipleOnes(state) {
+
+export async function stressCheckMultipleOnes(state:  State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
 
   let actor = state.actor;
@@ -102,7 +108,8 @@ export async function stressCheckMultipleOnes(state) {
 
   return true;
 }
-export async function insertEngheckButton(state) {
+
+export async function insertEngheckButton(state: State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
 
   let actor = state.actor;

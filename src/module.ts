@@ -1,7 +1,7 @@
 import { altRollStress, insertEngheckButton, stressCheckMultipleOnes } from "./stress.js";
 import { altRollStructure, structCheckMultipleOnes, insertHullCheckButton, insertSecondaryRollButton } from "./structure.js";
 
-Hooks.once("lancer.registerFlows", (flowSteps, flows) => {
+Hooks.once("lancer.registerFlows", (flowSteps: any, flows: any) => {
 
   //Structure flow steps
   flowSteps.set("rollStructureTable", altRollStructure);

@@ -1,4 +1,7 @@
-function structTableDescriptions(roll) {
+
+type State = any
+
+function structTableDescriptions(roll: number) {
   switch (roll) {
     // Used for multiple ones
     case 0:
@@ -15,12 +18,12 @@ function structTableDescriptions(roll) {
   }
   return "";
 }
-const getRollCount = (roll, num_to_count) => {
+const getRollCount = (roll: Roll, num_to_count: number) => {
   return roll
-    ? roll.terms[0].results.filter((v) => v.result === num_to_count).length
+    ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count).length
     : 0;
 };
-export async function altRollStructure(state) {
+export async function altRollStructure(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
@@ -45,7 +48,7 @@ export async function altRollStructure(state) {
     )) {
     formula = `{${formula}, ${formula}}kh`;
   }
-  let roll = await new Roll(formula).evaluate({ async: true });
+  let roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
   if (result === undefined) return false;
@@ -67,7 +70,7 @@ export async function altRollStructure(state) {
 
   return true;
 }
-export async function structCheckMultipleOnes(state) {
+export async function structCheckMultipleOnes(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
 
   let actor = state.actor;
@@ -87,7 +90,7 @@ export async function structCheckMultipleOnes(state) {
 
   return true;
 }
-export async function insertHullCheckButton(state) {
+export async function insertHullCheckButton(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
 
   let actor = state.actor;
@@ -117,7 +120,7 @@ export async function insertHullCheckButton(state) {
   }
   return true;
 }
-export async function insertSecondaryRollButton(state) {
+export async function insertSecondaryRollButton(state: State) {
   if (!state.data || !state.data)
     throw new TypeError(`Structure roll flow data missing!`);
 
