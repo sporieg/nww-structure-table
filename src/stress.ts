@@ -1,100 +1,51 @@
-// import type { FlowState } from "foundryvtt-lancer/src/module/flows/flow";
-// import type { LancerFlowState } from "foundryvtt-lancer/src/module/flows/interfaces";
+import type {LancerFlowState, FlowState} from "./foundryvtt-lancer/flows";
+import {isValidTarget, localize} from "./extensions";
 
-type State = any
+type State = FlowState<LancerFlowState.OverheatRollData>
 
 function stressTableDescriptions(roll: number) {
   switch (roll) {
     // Used for multiple ones
     case 0:
-      return game.i18n.localize("LANCER-ALT-STRUCTURE.StressDescriptions.criticalFail");
+      return localize("StressDescriptions.criticalFail");
     case 1:
     case 2:
-      return game.i18n.localize("LANCER-ALT-STRUCTURE.StressDescriptions.meltdown");
+      return localize("StressDescriptions.meltdown");
     case 3:
     case 4:
-      return game.i18n.localize("LANCER-ALT-STRUCTURE.StressDescriptions.powerFail");
+      return localize("StressDescriptions.powerFail");
     case 5:
     case 6:
-      return game.i18n.localize("LANCER-ALT-STRUCTURE.StressDescriptions.emergencyShunt");
+      return localize("StressDescriptions.emergencyShunt");
   }
   return "";
 }
+
 const getRollCount = (roll: Roll, num_to_count: number) => {
   return roll
     ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count).length
     : 0;
 };
-export async function altRollStress(state: State) {
+
+export async function rewordStressCard(state: State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
   const actor = state.actor;
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications.warn("Only npcs and mechs can roll stress.");
-    return false;
-  }
-
-  // Skip this step for 1-stress NPCs.
-  if (actor.is_npc() && actor.system.stress.max === 1) {
-    const one_roll = 3
-    const one_stress = 1
-    state.data = {
-      type: "overheat",
-      desc: stressTableDescriptions(one_roll),
-      remStress: one_stress,
-      val: actor.system.stress.value,
-      max: actor.system.stress.max,
-      roll_str: String(one_roll),
-      result: undefined,
-    };
+  if (!isValidTarget(actor)) {
     return true;
   }
 
-  if ((state.data?.reroll_data?.stress ?? actor.system.stress.value) >=
-    actor.system.stress.max) {
-    ui.notifications.info(
-      "The mech is at full Stress, no stress check to roll."
-    );
-    return false;
-  }
-
-  let remStress = state.data?.reroll_data?.stress ?? actor.system.stress.value;
-  let damage = actor.system.stress.max - remStress;
-  let formula = `${damage}d6kl1`;
-  // If it's an NPC with legendary, change the formula to roll twice and keep the best result.
-  if (actor.is_npc() &&
-    actor.items.some((i: { system: { lid: string; }; }) => ["npcf_legendary_ultra", "npcf_legendary_veteran"].includes(i.system.lid)
-    )) {
-    formula = `{${formula}, ${formula}}kh`;
-  }
-  let roll = await new Roll(formula).evaluate();
-
-  let result = roll.total;
-  if (result === undefined) return false;
-
-  state.data = {
-    type: "overheat",
-    desc: stressTableDescriptions(result),
-    remStress: remStress,
-    val: actor.system.stress.value,
-    max: actor.system.stress.max,
-    roll_str: roll.formula,
-    result: {
-      roll: roll,
-      tt: await roll.getTooltip(),
-      total: (roll.total ?? 0).toString(),
-    },
-  };
+  const stressRoll = parseInt(state.data.result?.total) || state.data.val;
+  state.data.desc = stressTableDescriptions(stressRoll);
 
   return true;
 }
 
-export async function stressCheckMultipleOnes(state:  State) {
+export async function rewordStressMultipleOnes(state: State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
 
   let actor = state.actor;
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications.warn("Only npcs and mechs can roll stress.");
-    return false;
+  if (!isValidTarget(actor)) {
+    return true;
   }
 
   const roll = state.data.result?.roll;
@@ -109,19 +60,20 @@ export async function stressCheckMultipleOnes(state:  State) {
   return true;
 }
 
-export async function insertEngheckButton(state: State) {
+export async function replaceEngineeringCheckButton(state: State) {
   if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
 
   let actor = state.actor;
-  if (!actor.is_mech() && !actor.is_npc()) {
-    ui.notifications.warn("Only npcs and mechs can roll stress.");
-    return false;
+  if (!isValidTarget(actor)) {
+    return true;
   }
 
   const result = state.data.result;
   if (!result) throw new TypeError(`Stress check hasn't been rolled yet!`);
 
   const roll = result.roll;
+  const structure = state.data.remStress;
+  const difficulty = 4 - structure;
 
 
   let one_count = getRollCount(roll, 1);
@@ -134,7 +86,7 @@ export async function insertEngheckButton(state: State) {
             data-check-type="engineering"
             data-actor-id="${actor.uuid}"
           >
-            <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING
+            <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING with ${difficulty} Difficulty
           </a>`);
   }
   return true;

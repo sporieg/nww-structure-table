@@ -1,18 +1,38 @@
-import { altRollStress, insertEngheckButton, stressCheckMultipleOnes } from "./stress.js";
-import { altRollStructure, structCheckMultipleOnes, insertHullCheckButton, insertSecondaryRollButton } from "./structure.js";
+import {rewordStressCard, replaceEngineeringCheckButton, rewordStressMultipleOnes} from "./stress";
+import {rewordStructureCard, structCheckMultipleOnes, insertHullCheckButton, removeSystemTraumaButton} from "./structure";
+import {Flow, Step} from "./foundryvtt-lancer/flows";
+import {MODULE_ID} from "./const";
 
-Hooks.once("lancer.registerFlows", (flowSteps: any, flows: any) => {
+Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
+  const structureFlow = flows.get("StructureFlow");
+  if(structureFlow) {
+    /**
+     * Adjust the structure flow by changing how the card is assembled.
+     * The leaves the rolls alone.
+     */
+    flowSteps.set(`${MODULE_ID}:rewordStructureCard`, rewordStructureCard);
+    structureFlow.insertStepAfter("rollStructureTable", `${MODULE_ID}:rewordStructureCard`);
 
-  //Structure flow steps
-  flowSteps.set("rollStructureTable", altRollStructure);
-  flowSteps.set("checkStructureMultipleOnes", structCheckMultipleOnes);
-  flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
-  flowSteps.set(
-    "structureInsertSecondaryRollButton",
-    insertSecondaryRollButton
-  );
-  //Stress flow steps
-  flowSteps.set("rollOverheatTable", altRollStress);
-  flowSteps.set("checkOverheatMultipleOnes", stressCheckMultipleOnes);
-  flowSteps.set("overheatInsertEngCheckButton", insertEngheckButton);
+    // NWW Does not have a secondary structure flow.
+    flowSteps.set(`${MODULE_ID}:removeSystemTraumaButton`, removeSystemTraumaButton);
+    structureFlow.insertStepAfter("structureInsertSecondaryRollButton", `${MODULE_ID}:removeSystemTraumaButton`);
+
+    // However, if you hit snake eyes, you need to roll.
+    flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
+    structureFlow.insertStepAfter("checkStructureMultipleOnes", `${MODULE_ID}:checkStructureMultipleOnes`);
+
+    flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
+  }
+  const stressFlow = flows.get("OverheatFlow");
+  if(stressFlow) {
+    //Stress flow steps
+    flowSteps.set(`${MODULE_ID}:rewordStressCard`, rewordStressCard)
+    stressFlow.insertStepAfter("rollOverheatTable", `${MODULE_ID}:rewordStressCard`);
+
+    flowSteps.set(`${MODULE_ID}:rewordStressMultipleOnes`, rewordStressMultipleOnes);
+    stressFlow.insertStepAfter("checkOverheatMultipleOnes", `${MODULE_ID}:rewordStressMultipleOnes`);
+
+
+    flowSteps.set("overheatInsertEngCheckButton", replaceEngineeringCheckButton);
+  }
 });

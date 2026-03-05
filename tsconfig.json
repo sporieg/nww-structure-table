@@ -1,30 +1,29 @@
 {
   "compilerOptions": {
-    "moduleResolution": "bundler",      
-    "target": "esnext",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "moduleResolution": "bundler",
+    "target": "esnext",
     "isolatedModules": false,
     "lib": [
       "DOM",
       "ESNext"
-    ],                                        
-    
+    ],
     /* Modules */
     "module": "esnext",
-    "sourceMap": true,
-    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
-                   
+    "sourceMap": false,
+    "rootDir": "./src",
     "types": [
-      "fvtt-types"
-    ],                                      
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-
+      "fvtt-types",
+      "jquery"
+    ],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     /* Type Checking */
-    "strict": true,                                      /* Enable all strict type-checking options. */
+    "strict": false,
     "strictNullChecks": false,
     "skipLibCheck": true,
-    "noEmit": true,
-    "resolveJsonModule": true
+    "noEmit": false,
+    "resolveJsonModule": true,
+    "outDir": "./scripts", //Pretty common for modules in vtt to be in scripts folder.
   },
   "include": [
     "src/**/*.ts"
