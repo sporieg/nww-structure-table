@@ -1,2 +1,5 @@
 .pnp.*
 node_modules
+scripts
+.idea
+.devbox
