@@ -1,5 +1,5 @@
-import type {LancerFlowState, FlowState} from "./foundryvtt-lancer/flows";
-import {isValidTarget, localize} from "./extensions";
+import type {LancerFlowState, FlowState} from "foundryvtt-lancer/flows";
+import {isValidTarget, localize} from "./extensions.js";
 
 type State = FlowState<LancerFlowState.OverheatRollData>
 

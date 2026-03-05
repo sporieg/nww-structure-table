@@ -1,7 +1,7 @@
-import {rewordStressCard, replaceEngineeringCheckButton, rewordStressMultipleOnes} from "./stress";
-import {rewordStructureCard, structCheckMultipleOnes, insertHullCheckButton, removeSystemTraumaButton} from "./structure";
-import {Flow, Step} from "./foundryvtt-lancer/flows";
-import {MODULE_ID} from "./const";
+import {rewordStressCard, replaceEngineeringCheckButton, rewordStressMultipleOnes} from "./stress.js";
+import {rewordStructureCard, structCheckMultipleOnes, insertHullCheckButton, removeSystemTraumaButton} from "./structure.js";
+import {Flow, Step} from "foundryvtt-lancer/flows";
+import {MODULE_ID} from "./const.js";
 
 Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
   const structureFlow = flows.get("StructureFlow");

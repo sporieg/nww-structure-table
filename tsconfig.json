@@ -24,6 +24,11 @@
     "noEmit": false,
     "resolveJsonModule": true,
     "outDir": "./scripts", //Pretty common for modules in vtt to be in scripts folder.
+    "paths": {
+      "foundryvtt-lancer/*": [
+        "./foundryvtt-lancer/*"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts"
