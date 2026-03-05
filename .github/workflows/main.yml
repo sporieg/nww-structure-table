@@ -72,6 +72,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      # Install Dependencies
+      - name: Install Dependencies
+        run: npm ci
+
+      # Build the code and packs for distribution
+      - name: Build For Distribution
+        run: |
+          npm run build
 
       # Extract version embedded in the tag.
       # This step expects the tag to be one of the following formats:

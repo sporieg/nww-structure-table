@@ -22,6 +22,8 @@ Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow
     structureFlow.insertStepAfter("checkStructureMultipleOnes", `${MODULE_ID}:checkStructureMultipleOnes`);
 
     flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
+  } else {
+    console.error("Lancer | Could not find StructureFlow");
   }
   const stressFlow = flows.get("OverheatFlow");
   if(stressFlow) {

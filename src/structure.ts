@@ -13,6 +13,7 @@ export async function rewordStructureCard(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   // We are not changing the roll flow.
+  console.log("My structure card.")
   if (!isValidTarget(actor)) {
     return true;
   }
@@ -22,21 +23,26 @@ export async function rewordStructureCard(state: State) {
   switch (structRoll) {
     // Used for multiple ones
     case 0:
-      state.data.desc = localize("StructureDescriptions.crushingHit");
+      state.data.title = localize("StructureDescriptions.crushingHit.title")
+      state.data.desc = localize("StructureDescriptions.crushingHit.description");
       break;
     case 1:
     case 2:
-      state.data.desc = localize("StructureDescriptions.directHit");
+      state.data.title = localize("StructureDescriptions.directHit.title")
+      state.data.desc = localize("StructureDescriptions.directHit.description");
       break;
     case 3:
     case 4:
-      state.data.desc = localize("StructureDescriptions.systemTrauma");
+      state.data.title = localize("StructureDescriptions.systemTrauma.title")
+      state.data.desc = localize("StructureDescriptions.systemTrauma.description");
       break;
     case 5:
     case 6:
-      state.data.desc = localize("StructureDescriptions.glancingBlow");
+      state.data.title = localize("StructureDescriptions.glancingBlow.title")
+      state.data.desc = localize("StructureDescriptions.glancingBlow.description");
       break;
   }
+  console.log("My structure card.", state.data)
   return true;
 }
 
@@ -54,7 +60,8 @@ export async function structCheckMultipleOnes(state: State) {
   // Crushing hits
   let one_count = getRollCount(roll, 1);
   if (one_count > 1) {
-    state.data.desc = localize("StructureDescriptions.crushingHit");
+    state.data.title = localize("StructureDescriptions.crushingHit.title")
+    state.data.desc = localize("StructureDescriptions.crushingHit.description");
   }
 
   return true;

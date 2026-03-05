@@ -3,7 +3,7 @@ import en from "../language/en.json";
 
 type LocalizeKeys = keyof typeof en["LANCER-ALT-STRUCTURE"] extends infer S
   ? S extends keyof typeof en["LANCER-ALT-STRUCTURE"]
-    ? `${S & string}.${keyof typeof en["LANCER-ALT-STRUCTURE"][S] & string}`
+    ? `${S & string}.${keyof typeof en["LANCER-ALT-STRUCTURE"][S] & string}.${"title" | "description"}`
     : never
   : never;
 

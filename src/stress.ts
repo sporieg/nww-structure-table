@@ -3,22 +3,34 @@ import {isValidTarget, localize} from "./extensions";
 
 type State = FlowState<LancerFlowState.OverheatRollData>
 
-function stressTableDescriptions(roll: number) {
+function stressTableDescriptions(roll: number): { title: string, description: string } | null {
   switch (roll) {
     // Used for multiple ones
     case 0:
-      return localize("StressDescriptions.criticalFail");
+      return {
+        title: localize("StressDescriptions.criticalFail.title"),
+        description: localize("StressDescriptions.criticalFail.description")
+      };
     case 1:
     case 2:
-      return localize("StressDescriptions.meltdown");
+      return {
+        title: localize("StressDescriptions.meltdown.title"),
+        description: localize("StressDescriptions.meltdown.description")
+      };
     case 3:
     case 4:
-      return localize("StressDescriptions.powerFail");
+      return {
+        title: localize("StressDescriptions.powerFail.title"),
+        description: localize("StressDescriptions.powerFail.description")
+      };
     case 5:
     case 6:
-      return localize("StressDescriptions.emergencyShunt");
+      return {
+        title: localize("StressDescriptions.emergencyShunt.title"),
+        description: localize("StressDescriptions.emergencyShunt.description")
+      };
   }
-  return "";
+  return null;
 }
 
 const getRollCount = (roll: Roll, num_to_count: number) => {
@@ -35,7 +47,11 @@ export async function rewordStressCard(state: State) {
   }
 
   const stressRoll = parseInt(state.data.result?.total) || state.data.val;
-  state.data.desc = stressTableDescriptions(stressRoll);
+  const result = stressTableDescriptions(stressRoll);
+  if (result) {
+    state.data.title = result.title;
+    state.data.desc = result.description;
+  }
 
   return true;
 }
@@ -54,7 +70,11 @@ export async function rewordStressMultipleOnes(state: State) {
   // Crushing hits
   let one_count = getRollCount(roll, 1);
   if (one_count > 1) {
-    state.data.desc = stressTableDescriptions(0);
+    const result = stressTableDescriptions(0);
+    if (result) {
+      state.data.title = result.title;
+      state.data.desc = result.description;
+    }
   }
 
   return true;
