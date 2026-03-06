@@ -14,7 +14,7 @@
                 "description": "Choose @Compendium[world.status-items.Stunned] or Trauma: Destroy a weapon or system of your choice"
             },
             "crushingHit": {
-                "title": "Crushing Hit:",
+                "title": "Crushing Hit",
                 "description": "Roll a <strong>HULL</strong> check or destroyed. Each lost Structure adds one difficulty. On a success, treat it as a single 1"
             }
         },
