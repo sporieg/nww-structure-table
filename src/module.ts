@@ -3,6 +3,7 @@ import {rewordStructureCard, structCheckMultipleOnes, insertHullCheckButton, rem
 import {Flow, Step} from "foundryvtt-lancer/flows";
 import {MODULE_ID} from "./const.js";
 
+// @ts-ignore
 Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
   const structureFlow = flows.get("StructureFlow");
   if(structureFlow) {

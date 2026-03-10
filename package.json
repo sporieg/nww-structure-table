@@ -3,7 +3,7 @@
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.1.0",
     "@massif/lancer-data": "^3.1.7",
-    "fvtt-types": "npm:@league-of-foundry-developers/foundry-vtt-types",
+    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
     "typescript": "5.4.5"
   },
   "scripts": {
