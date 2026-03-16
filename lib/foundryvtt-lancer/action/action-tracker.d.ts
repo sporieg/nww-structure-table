@@ -1,7 +1,7 @@
 /**
  * Module class for moderation of actor action data.
  */
-import { ActionTrackingData, ActionType } from ".";
+import { ActionTrackingData, ActionType } from "./index";
 import { LancerActor } from "../actor/lancer-actor";
 /**
  * Similar to activationIcon, but for action tracking data

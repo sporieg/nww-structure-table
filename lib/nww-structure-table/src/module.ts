@@ -1,6 +1,6 @@
 import {rewordStressCard, replaceEngineeringCheckButton, rewordStressMultipleOnes} from "./stress.js";
 import {rewordStructureCard, structCheckMultipleOnes, insertHullCheckButton, removeSystemTraumaButton} from "./structure.js";
-import {Flow, Step} from "foundryvtt-lancer/flows";
+import {Flow, Step} from "../../foundryvtt-lancer/flows";
 import {MODULE_ID} from "./const.js";
 
 // @ts-ignore

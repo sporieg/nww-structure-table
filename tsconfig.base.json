@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "isolatedModules": false,
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    /* Modules */
+    "module": "esnext",
+    "sourceMap": false,
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types",
+      "jquery"
+    ],
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": false,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
+    "noEmit": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "foundryvtt-lancer/*": [
+        "./foundryvtt-lancer/*"
+      ]
+    }
+  }
+}

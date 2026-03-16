@@ -1,4 +1,4 @@
-import type { ActionTrackingData } from ".";
+import type { ActionTrackingData } from "./index";
 import type { LancerActor } from "../actor/lancer-actor";
 declare global {
     interface FlagConfig {

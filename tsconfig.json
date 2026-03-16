@@ -1,36 +1,8 @@
 {
-  "compilerOptions": {
-    "moduleResolution": "bundler",
-    "target": "esnext",
-    "isolatedModules": false,
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
-    /* Modules */
-    "module": "esnext",
-    "sourceMap": false,
-    "rootDir": "./src",
-    "types": [
-      "@league-of-foundry-developers/foundry-vtt-types",
-      "jquery"
-    ],
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    /* Type Checking */
-    "strict": false,
-    "strictNullChecks": false,
-    "skipLibCheck": true,
-    "noEmit": false,
-    "resolveJsonModule": true,
-    "outDir": "./scripts", //Pretty common for modules in vtt to be in scripts folder.
-    "paths": {
-      "foundryvtt-lancer/*": [
-        "./foundryvtt-lancer/*"
-      ]
+  "files": [],
+  "references": [
+    {
+      "path": "./lib/nww-structure-table"
     }
-  },
-  "include": [
-    "src/**/*.ts"
   ]
 }

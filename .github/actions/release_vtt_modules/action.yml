@@ -1,0 +1,82 @@
+name: 'Release FoundryVTT Module'
+description: 'Prepare a FoundryVTT module for release by modifying manifest, archiving, and updating release'
+inputs:
+  module_dir:
+    description: 'The directory containing the module'
+    required: true
+  version:
+    description: 'The version to set in the manifest'
+    required: true
+  project_url:
+    description: 'The project URL'
+    required: true
+  latest_manifest_url:
+    description: 'The latest manifest URL'
+    required: true
+  release_module_url:
+    description: 'The release module URL'
+    required: true
+  github_token:
+    description: 'GitHub token'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Modify Module Manifest With Release-Specific Values
+      id: sub_manifest_link_version
+      uses: cschleiden/replace-tokens@v1
+      with:
+        files: '${{ inputs.module_dir }}/module.json'
+      env:
+        VERSION: ${{ inputs.version }}
+        URL: ${{ inputs.project_url }}
+        MANIFEST: ${{ inputs.latest_manifest_url }}
+        DOWNLOAD: ${{ inputs.release_module_url }}
+
+    - name: Create Module Archive
+      shell: bash
+      run: |
+        # Store absolute paths for module.zip and root LICENSE
+        MODULE_ZIP_PATH="$(pwd)/${{ inputs.module_dir }}/module.zip"
+        ROOT_LICENSE_PATH="$(pwd)/LICENSE"
+
+        cd ${{ inputs.module_dir }}
+
+        # Note that `zip` will only emit warnings when a file or directory
+        # doesn't exist, it will not fail.
+        zip                                    \
+          `# Options`                          \
+          --recurse-paths                      \
+          `# The name of the output file`      \
+          "$MODULE_ZIP_PATH"                   \
+          `# The files that will be included.` \
+          module.json                          \
+          README.md                            \
+          templates                            \
+          scripts/                             \
+          styles/                              \
+          packs/                               \
+          language/                            \
+          lang/
+
+        # Don't forget to add a backslash at the end of the line for any
+        # additional files or directories!
+
+        # For LICENSE that is in the project root, reference it directly
+        # and place it at the root of the zip. Using -j (junk-paths)
+        # to ensure it's not nested.
+        zip --junk-paths "$MODULE_ZIP_PATH" "$ROOT_LICENSE_PATH"
+
+    - name: Update Release With Files
+      id: create_version_release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        name: ${{ github.event.release.name }}
+        draft: ${{ github.event.release.unpublished }}
+        prerelease: ${{ github.event.release.prerelease }}
+        token: ${{ inputs.github_token }}
+        artifacts: '${{ inputs.module_dir }}/module.json, ${{ inputs.module_dir }}/module.zip'
+        tag: ${{ github.event.release.tag_name }}
+        body: ${{ github.event.release.body }}

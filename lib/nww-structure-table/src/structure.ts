@@ -1,4 +1,4 @@
-import type {FlowState, LancerFlowState} from "foundryvtt-lancer/flows";
+import type {FlowState, LancerFlowState} from "../../foundryvtt-lancer/flows";
 import {isValidTarget, localize} from "./extensions.js";
 
 type State = FlowState<LancerFlowState.PrimaryStructureRollData>
