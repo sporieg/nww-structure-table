@@ -10,12 +10,6 @@ inputs:
   project_url:
     description: 'The project URL'
     required: true
-  latest_manifest_url:
-    description: 'The latest manifest URL'
-    required: true
-  release_module_url:
-    description: 'The release module URL'
-    required: true
   github_token:
     description: 'GitHub token'
     required: true
@@ -31,8 +25,14 @@ runs:
       env:
         VERSION: ${{ inputs.version }}
         URL: ${{ inputs.project_url }}
-        MANIFEST: ${{ inputs.latest_manifest_url }}
-        DOWNLOAD: ${{ inputs.release_module_url }}
+        # A URL that will always point to the latest manifest.
+        # FoundryVTT uses this URL to check whether the current module version that
+        # is installed is the latest version. This URL should NOT change,
+        # otherwise FoundryVTT won't be able to perform this check.
+        MANIFEST: "https://github.com/${{github.repository}}/releases/latest/download/module.json"
+        # The URL to the module archive associated with the module release being
+        # processed by this workflow.
+        DOWNLOAD: "https://github.com/${{github.repository}}/releases/download/${{github.event.release.tag_name}}/module.zip"
 
     - name: Create Module Archive
       shell: bash
@@ -77,6 +77,6 @@ runs:
         draft: ${{ github.event.release.unpublished }}
         prerelease: ${{ github.event.release.prerelease }}
         token: ${{ inputs.github_token }}
-        artifacts: '${{ inputs.module_dir }}/module.json, ${{ inputs.module_dir }}/module.zip'
+        artifacts: '${{ inputs.module_dir }}/module.json, ${{ inputs.S }}/module.zip'
         tag: ${{ github.event.release.tag_name }}
         body: ${{ github.event.release.body }}

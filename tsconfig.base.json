@@ -24,7 +24,8 @@
     "resolveJsonModule": true,
     "paths": {
       "foundryvtt-lancer/*": [
-        "./foundryvtt-lancer/*"
+        "./foundryvtt-lancer/*",
+        "./FoundryVTT-Sequencer/*"
       ]
     }
   }
