@@ -1,0 +1,1821 @@
+{
+  "name": "Mercy",
+  "type": "mech",
+  "folder": "vpK54Xg97H9tCNDU",
+  "ownership": {
+    "default": 2,
+    "rRDbAeu1Aw3hE23P": 3
+  },
+  "system": {
+    "pilot": "Actor.8oYQfmoHHIDevAfj",
+    "overcharge": 3,
+    "repairs": {
+      "min": 0,
+      "max": 5,
+      "value": 0
+    },
+    "core_active": false,
+    "core_energy": 0,
+    "loadout": {
+      "frame": "pxMsSrp3q55LgC3f",
+      "weapon_mounts": [
+        {
+          "bracing": false,
+          "type": "Main",
+          "slots": [
+            {
+              "mod": null,
+              "weapon": "8fIk54EEd4P9cmz1",
+              "size": "Main"
+            }
+          ]
+        },
+        {
+          "bracing": false,
+          "type": "Heavy",
+          "slots": [
+            {
+              "mod": null,
+              "weapon": "2dZModyTJgYAHYHV",
+              "size": "Heavy"
+            }
+          ]
+        }
+      ],
+      "systems": [
+        "A4wswDn1LM0E60nF",
+        "7HS8Un0baEC26Ggt",
+        "tMubMWhB5Eg9eNVC",
+        "fJSmRr8zDtsHr9ff",
+        "dzggxaz81e8KRdVJ"
+      ]
+    },
+    "meltdown_timer": null,
+    "notes": "",
+    "burn": 0,
+    "activations": 1,
+    "custom_counters": [],
+    "hp": {
+      "min": 0,
+      "max": 10,
+      "value": 19
+    },
+    "overshield": {
+      "min": 0,
+      "max": 14,
+      "value": 3
+    },
+    "inherited_effects": {
+      "from_uuid": "Actor.8oYQfmoHHIDevAfj",
+      "data": [
+        {
+          "name": "The Lesson of the Open Door",
+          "flags": {
+            "lancer": {
+              "target_type": "mech",
+              "ephemeral": true,
+              "deep_origin": "Actor.8oYQfmoHHIDevAfj.Item.yivi7k8flzfdTMvR"
+            }
+          },
+          "changes": [
+            {
+              "mode": 2,
+              "value": "2",
+              "priority": 20,
+              "key": "system.save"
+            }
+          ],
+          "transfer": true,
+          "disabled": false,
+          "origin": "Actor.8oYQfmoHHIDevAfj",
+          "_id": null,
+          "img": null,
+          "type": "base",
+          "system": {},
+          "duration": {
+            "startTime": null,
+            "seconds": null,
+            "combat": null,
+            "rounds": null,
+            "turns": null,
+            "startRound": null,
+            "startTurn": null
+          },
+          "description": "",
+          "tint": "#ffffff",
+          "statuses": [],
+          "sort": 0,
+          "_stats": {
+            "coreVersion": "12.331",
+            "systemId": "lancer",
+            "systemVersion": "2.11.1",
+            "createdTime": null,
+            "modifiedTime": null,
+            "lastModifiedBy": null,
+            "compendiumSource": null,
+            "duplicateSource": null
+          }
+        },
+        {
+          "name": "Drone Commander",
+          "flags": {
+            "lancer": {
+              "target_type": "only_drone",
+              "ephemeral": true,
+              "deep_origin": "Actor.8oYQfmoHHIDevAfj.Item.Vt2bbF5SxEQjngv0"
+            }
+          },
+          "changes": [
+            {
+              "mode": 2,
+              "value": "5",
+              "priority": 20,
+              "key": "system.hp_bonus"
+            }
+          ],
+          "transfer": true,
+          "disabled": false,
+          "origin": "Actor.8oYQfmoHHIDevAfj",
+          "_id": null,
+          "img": null,
+          "type": "base",
+          "system": {},
+          "duration": {
+            "startTime": null,
+            "seconds": null,
+            "combat": null,
+            "rounds": null,
+            "turns": null,
+            "startRound": null,
+            "startTurn": null
+          },
+          "description": "",
+          "tint": "#ffffff",
+          "statuses": [],
+          "sort": 0,
+          "_stats": {
+            "coreVersion": "12.331",
+            "systemId": "lancer",
+            "systemVersion": "2.11.1",
+            "createdTime": null,
+            "modifiedTime": null,
+            "lastModifiedBy": null,
+            "compendiumSource": null,
+            "duplicateSource": null
+          }
+        },
+        {
+          "name": "Pilot → Mech Bonuses",
+          "changes": [
+            {
+              "mode": 5,
+              "key": "system.hull",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.hp.max",
+              "priority": 30,
+              "value": "7"
+            },
+            {
+              "mode": 2,
+              "key": "system.repairs.max",
+              "priority": 30,
+              "value": "1"
+            },
+            {
+              "mode": 5,
+              "key": "system.agi",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.evasion",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.speed",
+              "priority": 30,
+              "value": "1"
+            },
+            {
+              "mode": 5,
+              "key": "system.sys",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.edef",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.tech_attack",
+              "priority": 30,
+              "value": "2"
+            },
+            {
+              "mode": 2,
+              "key": "system.save",
+              "priority": 30,
+              "value": "3"
+            },
+            {
+              "mode": 2,
+              "key": "system.loadout.sp.max",
+              "priority": 30,
+              "value": "4"
+            },
+            {
+              "mode": 5,
+              "key": "system.eng",
+              "priority": 30,
+              "value": "1"
+            },
+            {
+              "mode": 2,
+              "key": "system.heat.max",
+              "priority": 30,
+              "value": "1"
+            },
+            {
+              "mode": 2,
+              "key": "system.loadout.limited_bonus",
+              "priority": 30,
+              "value": "0"
+            },
+            {
+              "mode": 5,
+              "key": "system.grit",
+              "priority": 30,
+              "value": "3"
+            },
+            {
+              "mode": 5,
+              "key": "system.level",
+              "priority": 30,
+              "value": "5"
+            }
+          ],
+          "img": "pc/Lily/Lily.jpg",
+          "origin": "Actor.8oYQfmoHHIDevAfj",
+          "flags": {
+            "lancer": {
+              "target_type": "mech",
+              "ephemeral": true,
+              "deep_origin": "Actor.8oYQfmoHHIDevAfj"
+            }
+          },
+          "_id": null,
+          "type": "base",
+          "system": {},
+          "disabled": false,
+          "duration": {
+            "startTime": null,
+            "seconds": null,
+            "combat": null,
+            "rounds": null,
+            "turns": null,
+            "startRound": null,
+            "startTurn": null
+          },
+          "description": "",
+          "tint": "#ffffff",
+          "transfer": true,
+          "statuses": [],
+          "sort": 0,
+          "_stats": {
+            "coreVersion": "12.331",
+            "systemId": "lancer",
+            "systemVersion": "2.11.1",
+            "createdTime": null,
+            "modifiedTime": null,
+            "lastModifiedBy": null,
+            "compendiumSource": null,
+            "duplicateSource": null
+          }
+        },
+        {
+          "name": "Pilot → Deployable Bonuses",
+          "changes": [
+            {
+              "mode": 5,
+              "key": "system.grit",
+              "priority": 30,
+              "value": "3"
+            },
+            {
+              "mode": 5,
+              "key": "system.level",
+              "priority": 30,
+              "value": "5"
+            }
+          ],
+          "img": "pc/Lily/Lily.jpg",
+          "origin": "Actor.8oYQfmoHHIDevAfj",
+          "flags": {
+            "lancer": {
+              "target_type": "deployable",
+              "ephemeral": true,
+              "deep_origin": "Actor.8oYQfmoHHIDevAfj"
+            }
+          },
+          "_id": null,
+          "type": "base",
+          "system": {},
+          "disabled": false,
+          "duration": {
+            "startTime": null,
+            "seconds": null,
+            "combat": null,
+            "rounds": null,
+            "turns": null,
+            "startRound": null,
+            "startTurn": null
+          },
+          "description": "",
+          "tint": "#ffffff",
+          "transfer": true,
+          "statuses": [],
+          "sort": 0,
+          "_stats": {
+            "coreVersion": "12.331",
+            "systemId": "lancer",
+            "systemVersion": "2.11.1",
+            "createdTime": null,
+            "modifiedTime": null,
+            "lastModifiedBy": null,
+            "compendiumSource": null,
+            "duplicateSource": null
+          }
+        }
+      ],
+      "visible": true
+    },
+    "action_tracker": {
+      "protocol": false,
+      "move": 0,
+      "full": false,
+      "quick": false,
+      "reaction": true,
+      "free": false,
+      "used_reactions": []
+    },
+    "heat": {
+      "min": 0,
+      "max": 6,
+      "value": 2
+    },
+    "stress": {
+      "min": 0,
+      "max": 1,
+      "value": 4
+    },
+    "structure": {
+      "min": 0,
+      "max": 1,
+      "value": 3
+    },
+    "lid": "8c3c2c36-29a9-4c70-a071-ae0b446452e0"
+  },
+  "_id": "7waXlDKVU2nj7F13",
+  "img": "pc/Lily/Balor%20(by%20BlindDuke).png",
+  "prototypeToken": {
+    "name": "Dr. Mercy",
+    "displayName": 0,
+    "actorLink": true,
+    "appendNumber": false,
+    "prependAdjective": false,
+    "width": 1,
+    "height": 1,
+    "texture": {
+      "src": "pc/Lily/Balor%20(by%20BlindDuke).png",
+      "anchorX": 0.5,
+      "anchorY": 0.5,
+      "offsetX": 0,
+      "offsetY": 0,
+      "fit": "contain",
+      "scaleX": 1,
+      "scaleY": 1,
+      "rotation": 0,
+      "tint": "#ffffff",
+      "alphaThreshold": 0.75
+    },
+    "hexagonalShape": 0,
+    "lockRotation": false,
+    "rotation": 0,
+    "alpha": 1,
+    "disposition": 1,
+    "displayBars": 50,
+    "bar1": {
+      "attribute": "heat"
+    },
+    "bar2": {
+      "attribute": "stress"
+    },
+    "light": {
+      "negative": false,
+      "priority": 0,
+      "alpha": 0.5,
+      "angle": 360,
+      "bright": 0,
+      "color": null,
+      "coloration": 1,
+      "dim": 0,
+      "attenuation": 0.5,
+      "luminosity": 0.5,
+      "saturation": 0,
+      "contrast": 0,
+      "shadows": 0,
+      "animation": {
+        "type": null,
+        "speed": 5,
+        "intensity": 5,
+        "reverse": false
+      },
+      "darkness": {
+        "min": 0,
+        "max": 1
+      }
+    },
+    "sight": {
+      "enabled": false,
+      "range": 0,
+      "angle": 360,
+      "visionMode": "basic",
+      "color": null,
+      "attenuation": 0.1,
+      "brightness": 0,
+      "saturation": 0,
+      "contrast": 0
+    },
+    "detectionModes": [],
+    "occludable": {
+      "radius": 0
+    },
+    "ring": {
+      "enabled": false,
+      "colors": {
+        "ring": null,
+        "background": null
+      },
+      "effects": 1,
+      "subject": {
+        "scale": 1,
+        "texture": null
+      }
+    },
+    "flags": {
+      "barbrawl": {
+        "resourceBars": {
+          "bar1": {
+            "order": 0,
+            "id": "bar1",
+            "attribute": "heat",
+            "mincolor": "#873b3b",
+            "maxcolor": "#FF0000",
+            "position": "top-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": false,
+            "hideNoCombat": false,
+            "indentLeft": 30,
+            "indentRight": null,
+            "shareHeight": true,
+            "style": "fraction",
+            "label": "HEAT",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": null,
+            "subdivisionsOwner": false,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          },
+          "hp": {
+            "order": 2,
+            "id": "bar3",
+            "attribute": "hp",
+            "mincolor": "#FF0000",
+            "maxcolor": "#80FF00",
+            "position": "top-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": false,
+            "hideNoCombat": false,
+            "indentLeft": 30,
+            "indentRight": null,
+            "shareHeight": true,
+            "style": "fraction",
+            "label": "HP",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": null,
+            "subdivisionsOwner": false,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          },
+          "bar2": {
+            "order": 1,
+            "id": "bar2",
+            "attribute": "stress",
+            "mincolor": "#FF0000",
+            "maxcolor": "#FF0000",
+            "position": "top-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": false,
+            "hideNoCombat": false,
+            "indentLeft": null,
+            "indentRight": 70,
+            "shareHeight": false,
+            "style": "none",
+            "label": "",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": 4,
+            "subdivisionsOwner": true,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          },
+          "structure": {
+            "order": 3,
+            "id": "bar4",
+            "attribute": "structure",
+            "mincolor": "#80FF00",
+            "maxcolor": "#80FF00",
+            "position": "top-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": false,
+            "hideNoCombat": false,
+            "indentLeft": null,
+            "indentRight": 70,
+            "shareHeight": false,
+            "style": "none",
+            "label": "",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": 4,
+            "subdivisionsOwner": true,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          },
+          "burn": {
+            "order": 5,
+            "id": "bar6",
+            "attribute": "burn",
+            "mincolor": "#ffa200",
+            "maxcolor": "#ffa200",
+            "position": "bottom-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": true,
+            "hideNoCombat": true,
+            "indentLeft": null,
+            "indentRight": null,
+            "shareHeight": false,
+            "style": "none",
+            "label": "",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": null,
+            "subdivisionsOwner": false,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          },
+          "overshield": {
+            "order": 4,
+            "id": "bar5",
+            "attribute": "overshield",
+            "mincolor": "#0040ff",
+            "maxcolor": "#0040ff",
+            "position": "bottom-outer",
+            "otherVisibility": 50,
+            "ownerVisibility": 50,
+            "gmVisibility": -1,
+            "hideFull": false,
+            "hideEmpty": false,
+            "hideCombat": true,
+            "hideNoCombat": true,
+            "indentLeft": null,
+            "indentRight": null,
+            "shareHeight": false,
+            "style": "none",
+            "label": "",
+            "invert": false,
+            "invertDirection": false,
+            "subdivisions": null,
+            "subdivisionsOwner": false,
+            "fgImage": "",
+            "bgImage": "",
+            "opacity": null,
+            "hideHud": false
+          }
+        }
+      }
+    },
+    "randomImg": false
+  },
+  "items": [
+    {
+      "name": "PUPPETMASTER",
+      "type": "mech_system",
+      "system": {
+        "lid": "ms_puppetmaster",
+        "actions": [
+          {
+            "activation": "Quick Tech",
+            "cost": 0,
+            "damage": [],
+            "detail": "Move any number of drones within Sensors – including those belonging to other characters – up to 4 spaces in any direction.",
+            "frequency": null,
+            "heat_cost": 0,
+            "init": "",
+            "lid": "",
+            "mech": true,
+            "name": "Guide the Flock",
+            "pilot": false,
+            "range": [],
+            "synergy_locations": [],
+            "terse": "",
+            "trigger": "",
+            "tech_attack": false
+          },
+          {
+            "activation": "Quick Tech",
+            "cost": 0,
+            "damage": [],
+            "detail": "Characters of your choice within Sensors adjacent to any Drone or Deployable, even those they own, take 2 energy damage.",
+            "frequency": null,
+            "heat_cost": 0,
+            "init": "",
+            "lid": "",
+            "mech": true,
+            "name": "Electropulse",
+            "pilot": false,
+            "range": [],
+            "synergy_locations": [],
+            "terse": "",
+            "trigger": "",
+            "tech_attack": false
+          }
+        ],
+        "bonuses": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [],
+        "description": "Developed by HORUS collectivists, H0r_OS-Rv60 EXP PUPPETMASTER is an interesting piece of anti-drone software. It doesn’t invade a target’s main systems, instead attacking their auxiliary drone-command systems. This sideways attack evades most electronic countermeasures by targeting the subcognitive networks of enemy drones. Once inside a network, PUPPETMASTER spreads ontological-kill memes like wildfire through enemy swarms, eventually following the network traces back to their origin and corrupting the parent nexus.",
+        "destroyed": false,
+        "effect": "",
+        "integrated": [],
+        "license": "mf_hydra",
+        "license_level": 1,
+        "manufacturer": "HORUS",
+        "sp": 2,
+        "synergies": [],
+        "tags": [
+          {
+            "lid": "tg_unique",
+            "val": ""
+          }
+        ],
+        "type": "Tech",
+        "ammo": [],
+        "uses": 0
+      },
+      "folder": "gwRvNKUgR4tsCZoG",
+      "_id": "A4wswDn1LM0E60nF",
+      "img": "systems/lancer/assets/icons/mech_system.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130585102,
+        "modifiedTime": 1769130585102,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Hive Drone",
+      "type": "mech_system",
+      "system": {
+        "lid": "ms_hive_drone",
+        "actions": [],
+        "bonuses": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [
+          "dep_hive_drone"
+        ],
+        "description": "It looks, at first, like a roiling cloud of gray fog, churning and fizzing – smoking soda water spilled across concrete. It advances with curious motion, stretching and snapping back. A confusion of snakes, writhing forward with speed that betrays intent.<br />Color flashes across the gray cloud, a swarm-luminescence – the light created by millions of nanites glowing with heat as they consume whatever they cross.<br />This is greywash, and it is never sated.",
+        "destroyed": false,
+        "effect": "This hive drone can be deployed to a free space within Sensors and line of sight, where it releases a burst 2 greywash swarm with the following effects:<ul><li>Allied characters at least partially within the affected area gain soft cover, as does the hive drone.</li><li>Hostile characters take 1 AP kinetic damage when they start their turn in the affected area or enter it for the first time in a round. Damage from areas created by multiple hive drones does not stack.</li></ul>The drone can be deployed to a different space or recalled as a quick action.",
+        "integrated": [],
+        "license": "mf_balor",
+        "license_level": 1,
+        "manufacturer": "HORUS",
+        "sp": 2,
+        "synergies": [],
+        "tags": [],
+        "type": "Drone",
+        "ammo": [],
+        "uses": 0
+      },
+      "folder": "gwRvNKUgR4tsCZoG",
+      "_id": "7HS8Un0baEC26Ggt",
+      "img": "systems/lancer/assets/icons/mech_system.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130588928,
+        "modifiedTime": 1769130588928,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Tempest Drone",
+      "type": "mech_system",
+      "system": {
+        "lid": "ms_tempest_drone",
+        "actions": [],
+        "bonuses": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [
+          "dep_tempest_drone"
+        ],
+        "description": "The Tempest protocol is a cunning little piece of code that can be uploaded to any broadcast-forward drone, making it – in true HORUS fashion – difficult to detect prior to activation. The protocol is a simple one: an aggressive zone-denial memetic that blasts target systems and NHPs with a strong subjective override, instilling a sharp aversion to certain subjects, areas, and ideas.",
+        "destroyed": false,
+        "effect": "This large, armored tempest drone may be deployed to a free space within Sensors and line of sight.",
+        "integrated": [],
+        "license": "mf_hydra",
+        "license_level": 2,
+        "manufacturer": "HORUS",
+        "sp": 2,
+        "synergies": [],
+        "tags": [
+          {
+            "lid": "tg_resistall",
+            "val": ""
+          },
+          {
+            "lid": "tg_drone",
+            "val": "0"
+          }
+        ],
+        "type": "Drone",
+        "ammo": [],
+        "uses": 0
+      },
+      "folder": "gwRvNKUgR4tsCZoG",
+      "_id": "tMubMWhB5Eg9eNVC",
+      "img": "systems/lancer/assets/icons/mech_system.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130591883,
+        "modifiedTime": 1769130591883,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Tempest Drone",
+      "type": "mech_system",
+      "system": {
+        "lid": "ms_tempest_drone",
+        "actions": [],
+        "bonuses": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [
+          "dep_tempest_drone"
+        ],
+        "description": "The Tempest protocol is a cunning little piece of code that can be uploaded to any broadcast-forward drone, making it – in true HORUS fashion – difficult to detect prior to activation. The protocol is a simple one: an aggressive zone-denial memetic that blasts target systems and NHPs with a strong subjective override, instilling a sharp aversion to certain subjects, areas, and ideas.",
+        "destroyed": false,
+        "effect": "This large, armored tempest drone may be deployed to a free space within Sensors and line of sight.",
+        "integrated": [],
+        "license": "mf_hydra",
+        "license_level": 2,
+        "manufacturer": "HORUS",
+        "sp": 2,
+        "synergies": [],
+        "tags": [
+          {
+            "lid": "tg_resistall",
+            "val": ""
+          },
+          {
+            "lid": "tg_drone",
+            "val": "0"
+          }
+        ],
+        "type": "Drone",
+        "ammo": [],
+        "uses": 0
+      },
+      "folder": "gwRvNKUgR4tsCZoG",
+      "_id": "fJSmRr8zDtsHr9ff",
+      "img": "systems/lancer/assets/icons/mech_system.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130594892,
+        "modifiedTime": 1769130594892,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Hive Drone",
+      "type": "mech_system",
+      "system": {
+        "lid": "ms_hive_drone",
+        "actions": [],
+        "bonuses": [],
+        "cascading": false,
+        "counters": [],
+        "deployables": [
+          "dep_hive_drone"
+        ],
+        "description": "It looks, at first, like a roiling cloud of gray fog, churning and fizzing – smoking soda water spilled across concrete. It advances with curious motion, stretching and snapping back. A confusion of snakes, writhing forward with speed that betrays intent.<br />Color flashes across the gray cloud, a swarm-luminescence – the light created by millions of nanites glowing with heat as they consume whatever they cross.<br />This is greywash, and it is never sated.",
+        "destroyed": false,
+        "effect": "This hive drone can be deployed to a free space within Sensors and line of sight, where it releases a burst 2 greywash swarm with the following effects:<ul><li>Allied characters at least partially within the affected area gain soft cover, as does the hive drone.</li><li>Hostile characters take 1 AP kinetic damage when they start their turn in the affected area or enter it for the first time in a round. Damage from areas created by multiple hive drones does not stack.</li></ul>The drone can be deployed to a different space or recalled as a quick action.",
+        "integrated": [],
+        "license": "mf_balor",
+        "license_level": 1,
+        "manufacturer": "HORUS",
+        "sp": 2,
+        "synergies": [],
+        "tags": [],
+        "type": "Drone",
+        "ammo": [],
+        "uses": 0
+      },
+      "folder": "gwRvNKUgR4tsCZoG",
+      "_id": "dzggxaz81e8KRdVJ",
+      "img": "systems/lancer/assets/icons/mech_system.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130598000,
+        "modifiedTime": 1773971802121,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Swarm/Hive Nanites",
+      "type": "mech_weapon",
+      "system": {
+        "cascading": false,
+        "deployables": [],
+        "destroyed": false,
+        "integrated": [],
+        "license": "mf_balor",
+        "license_level": 3,
+        "lid": "mw_swarm_hive_nanites",
+        "loaded": true,
+        "manufacturer": "HORUS",
+        "no_attack": false,
+        "no_bonuses": false,
+        "no_core_bonuses": false,
+        "no_mods": false,
+        "no_synergies": false,
+        "actions": [],
+        "profiles": [
+          {
+            "damage": [
+              {
+                "type": "Kinetic",
+                "val": "2"
+              },
+              {
+                "type": "Burn",
+                "val": "2"
+              }
+            ],
+            "range": [
+              {
+                "type": "Range",
+                "val": 5
+              }
+            ],
+            "tags": [
+              {
+                "lid": "tg_smart",
+                "val": ""
+              },
+              {
+                "lid": "tg_seeking",
+                "val": ""
+              }
+            ],
+            "cost": 1,
+            "barrageable": true,
+            "skirmishable": true,
+            "actions": [],
+            "bonuses": [],
+            "counters": [],
+            "description": "SWARM/HIVE nanites are among the more insidious weapons produced by HORUS: dispatched in maniples – single “swarm” units carrying enough nanites to fill a square meter – SWARM/HIVE nanites combine the systemic invasion properties of BOOST/HIVE code with the aggressive consumption of a CONSUME/HIVE maniple. Launched from mounted blisters, SWARM/HIVE nanite maniples fall upon their targets as great clouds of teeth, infiltrating sensitive compartments and modules before consuming any organic and inorganic material they touch.",
+            "name": "Swarm/Hive Nanites",
+            "synergies": [],
+            "type": "Nexus"
+          }
+        ],
+        "selected_profile_index": 0,
+        "size": "Main",
+        "sp": 0,
+        "uses": 0
+      },
+      "folder": "2lJt9ycSxZ025REd",
+      "_id": "8fIk54EEd4P9cmz1",
+      "img": "systems/lancer/assets/icons/mech_weapon.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130601166,
+        "modifiedTime": 1769130606152,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Ghast Nexus",
+      "type": "mech_weapon",
+      "system": {
+        "cascading": false,
+        "deployables": [
+          "dep_ghast_drone"
+        ],
+        "destroyed": false,
+        "integrated": [],
+        "license": "mf_hydra",
+        "license_level": 2,
+        "lid": "mw_ghast_nexus",
+        "loaded": true,
+        "manufacturer": "HORUS",
+        "no_attack": false,
+        "no_bonuses": false,
+        "no_core_bonuses": false,
+        "no_mods": false,
+        "no_synergies": false,
+        "actions": [],
+        "profiles": [
+          {
+            "damage": [
+              {
+                "type": "Explosive",
+                "val": "1d6+3"
+              }
+            ],
+            "range": [
+              {
+                "type": "Range",
+                "val": 10
+              }
+            ],
+            "tags": [
+              {
+                "lid": "tg_smart",
+                "val": ""
+              },
+              {
+                "lid": "tg_drone",
+                "val": "0"
+              }
+            ],
+            "effect": "This weapon may be used to attack as normal, or deployed as a Drone",
+            "cost": 1,
+            "barrageable": true,
+            "skirmishable": true,
+            "actions": [],
+            "bonuses": [],
+            "counters": [],
+            "description": "The Ghast is an up-armored, up-armed version of the smaller Ghoul drone; Ghast drones boast an upgraded flight system capable of wielding mech-tier weapons within optimum parameters, and can operate independently from their host chassis or as an integrated weapon. In Hydras, Ghast drones generally act as thoracic segments, providing armor to core systems: powerplant, cockpit, NHP caskets, etc.",
+            "name": "Ghast Nexus",
+            "synergies": [],
+            "type": "Nexus"
+          }
+        ],
+        "selected_profile_index": 0,
+        "size": "Heavy",
+        "sp": 0,
+        "uses": 0
+      },
+      "folder": "2lJt9ycSxZ025REd",
+      "_id": "2dZModyTJgYAHYHV",
+      "img": "systems/lancer/assets/icons/mech_weapon.svg",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130603743,
+        "modifiedTime": 1769130606152,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    },
+    {
+      "name": "Balor",
+      "type": "frame",
+      "img": "systems/lancer/assets/retrograde-minis/Retrograde-Minis-Horus-BALOR.png",
+      "system": {
+        "core_system": {
+          "activation": "Protocol",
+          "active_actions": [],
+          "active_bonuses": [],
+          "active_effect": "Your nanites switch into a hyperactive mode, causing the following effects until the end of the scene:<ul><li>You and adjacent allies gain soft cover.</li><li>Scouring Swarm deals 4 kinetic, instead of 2.</li><li>Regeneration restores 1/2 of your total HP, instead of 1/4.</li><li>If you would take structure damage, roll 1d6: on 6, your mech hellishly pulls itself together, taking no structure damage, returning to 1 HP, and gaining Immunity to all damage until the end of the current turn.</li><li>You become Shredded and cannot clear this condition for the duration.</li></ul>",
+          "active_name": "Hive Frenzy",
+          "active_synergies": [],
+          "counters": [],
+          "deactivation": null,
+          "deployables": [],
+          "description": "In a moment, with aught but desire, the pilot of a Balor may quick-print a cloak comprised of countless minuscule drones: a hellswarm cloak – living shield and fluid-dynamic knife, cutting and guarding, in one shimmering wave. They become Hivemaster, and their will is obeyed by millions.",
+          "integrated": [],
+          "name": "Hellswarm",
+          "passive_actions": [],
+          "passive_bonuses": [],
+          "passive_effect": "",
+          "passive_synergies": [],
+          "tags": [],
+          "use": "Encounter"
+        },
+        "description": "As is the case with most HORUS pattern groups, the Balor has a thousand faces. The Balor pattern group, like all HORUS PGs, doesn’t describe a single recognizable silhouette so much as it gestures toward a combination of schemata that share a role in combat. These schemata can be printed according to pilot specifications and applied to a fully custom physical scaffolding. Notably, the Balor pattern group is only stable on large platforms (Schedule 2 and up) that are able to provide the raw energy output it demands – preferably ones with multiple redundancies, in case of catastrophic systems failure.<br />The Balor PG was first encountered during the joint Albatross–DoJ/HR pursuit of the Maw – a Free Company turned decentralized hive-being — across Khayradin’s Blanca Desert after the end of the Sanjak Rebellion. It was there that the joint force encountered, engaged with, and ultimately defeated the Maw and its Balors – and there that Union’s CentComm hoped the nanowash outbreak could be contained. Of course, subsequent Balor outbreaks on Khayradin have proven this hope to be in vain, and the pattern group continues to terrorize Karrakin commanders throughout Baronic space.<br />In the field, the Balor’s neurosynced hellswarm and greywash nanites form an undulating shroud that can pour out of its chassis at a moment’s notice, swirling in maddening patterns to form both eschatologic defensive and offensive systems. A Balor in its most active state is held together more by undulating, flame-like masses of nanite swarms than any physical structure. This has the effect of distributing kinetic and coherent-particle energy out across and through the chassis – making attacks against a Balor “like shooting angry water”, as one after-action report put it.",
+        "license": "mf_balor",
+        "license_level": 2,
+        "lid": "mf_balor",
+        "manufacturer": "HORUS",
+        "mechtype": [
+          "Striker",
+          "Defender"
+        ],
+        "mounts": [
+          "Main",
+          "Heavy"
+        ],
+        "stats": {
+          "size": 2,
+          "structure": 4,
+          "stress": 4,
+          "armor": 0,
+          "hp": 12,
+          "evasion": 6,
+          "edef": 10,
+          "heatcap": 4,
+          "repcap": 4,
+          "sensor_range": 5,
+          "tech_attack": 1,
+          "save": 10,
+          "speed": 3,
+          "sp": 6
+        },
+        "traits": [
+          {
+            "actions": [],
+            "bonuses": [],
+            "counters": [],
+            "deployables": [],
+            "description": "The Balor deals 2 kinetic to characters of its choice that start their turn grappled by or adjacent to it.",
+            "integrated": [],
+            "name": "Scouring Swarm",
+            "synergies": [],
+            "use": "?"
+          },
+          {
+            "actions": [],
+            "bonuses": [],
+            "counters": [],
+            "deployables": [],
+            "description": "At the end of its turn, the Balor regains 1/4 of its total HP. When it takes stress or structure damage, this effect ceases until the end of its next turn.",
+            "integrated": [],
+            "name": "Regeneration",
+            "synergies": [],
+            "use": "?"
+          },
+          {
+            "actions": [],
+            "bonuses": [],
+            "counters": [],
+            "deployables": [],
+            "description": "When you rest, the Balor regains full HP automatically and without REPAIRS.",
+            "integrated": [],
+            "name": "Self-Perpetuating",
+            "synergies": [],
+            "use": "?"
+          }
+        ]
+      },
+      "folder": "4sxgWWmc9zkwPALh",
+      "_id": "pxMsSrp3q55LgC3f",
+      "effects": [],
+      "sort": 0,
+      "ownership": {
+        "default": 0,
+        "Sua75qBa14wyv9vC": 3,
+        "rRDbAeu1Aw3hE23P": 3
+      },
+      "flags": {},
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1769130633809,
+        "modifiedTime": 1769130633809,
+        "lastModifiedBy": "rRDbAeu1Aw3hE23P"
+      }
+    }
+  ],
+  "effects": [
+    {
+      "name": "Tier 2",
+      "img": "systems/lancer/assets/icons/white/npc_tier_2.svg",
+      "statuses": [
+        "npc_tier_2"
+      ],
+      "_id": "OQoCAc4sWblsKnPh",
+      "type": "base",
+      "system": {},
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": 0,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": 1,
+        "startTurn": 2
+      },
+      "description": "",
+      "origin": null,
+      "tint": "#ffffff",
+      "transfer": false,
+      "sort": 0,
+      "flags": {
+        "statuscounter": {
+          "value": 1,
+          "config": {
+            "type": "default"
+          },
+          "visible": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1773974523651,
+        "modifiedTime": 1773974523651,
+        "lastModifiedBy": "Sua75qBa14wyv9vC"
+      }
+    },
+    {
+      "name": "Prone",
+      "img": "systems/lancer/assets/icons/white/status_prone.svg",
+      "description": "Attacks against PRONE targets receive +1 accuracy.<br />Additionally, PRONE characters are SLOWED and count as moving in difficult terrain. Characters can remove PRONE by standing up instead of taking their standard move, unless they’re IMMOBILIZED. Standing up doesn’t count as movement, so doesn’t trigger OVERWATCH or other effects.",
+      "statuses": [
+        "prone"
+      ],
+      "_id": "dE8R9NhkrxY1J3lr",
+      "type": "base",
+      "system": {},
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": 0,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": 1,
+        "startTurn": 0
+      },
+      "origin": null,
+      "tint": "#ffffff",
+      "transfer": false,
+      "sort": 0,
+      "flags": {
+        "statuscounter": {
+          "value": 1,
+          "config": {
+            "type": "default"
+          },
+          "visible": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1774911541414,
+        "modifiedTime": 1774911541414,
+        "lastModifiedBy": "Sua75qBa14wyv9vC"
+      }
+    },
+    {
+      "name": "Overshield",
+      "img": "systems/lancer/assets/icons/alt-status/hayleyutil/overshield.webp",
+      "statuses": [
+        "overshield"
+      ],
+      "_id": "HY3BqWKe36679mCg",
+      "type": "base",
+      "system": {},
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": 0,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": 1,
+        "startTurn": 0
+      },
+      "description": "",
+      "origin": null,
+      "tint": "#ffffff",
+      "transfer": false,
+      "sort": 0,
+      "flags": {
+        "statuscounter": {
+          "value": 1,
+          "config": {
+            "type": "default"
+          },
+          "visible": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1774912342552,
+        "modifiedTime": 1774912342552,
+        "lastModifiedBy": "Sua75qBa14wyv9vC"
+      }
+    },
+    {
+      "name": "Cover - Soft",
+      "img": "systems/lancer/assets/icons/white/cover_soft.svg",
+      "statuses": [
+        "cover_soft"
+      ],
+      "_id": "u3gd1UJF0gOdOBN7",
+      "type": "base",
+      "system": {},
+      "changes": [],
+      "disabled": false,
+      "duration": {
+        "startTime": 0,
+        "seconds": null,
+        "combat": null,
+        "rounds": null,
+        "turns": null,
+        "startRound": 1,
+        "startTurn": 0
+      },
+      "description": "",
+      "origin": null,
+      "tint": "#ffffff",
+      "transfer": false,
+      "sort": 0,
+      "flags": {
+        "statuscounter": {
+          "value": 1,
+          "config": {
+            "type": "default"
+          },
+          "visible": false
+        }
+      },
+      "_stats": {
+        "compendiumSource": null,
+        "duplicateSource": null,
+        "coreVersion": "12.331",
+        "systemId": "lancer",
+        "systemVersion": "2.11.1",
+        "createdTime": 1774913946818,
+        "modifiedTime": 1774913946818,
+        "lastModifiedBy": "Sua75qBa14wyv9vC"
+      }
+    }
+  ],
+  "sort": 0,
+  "flags": {
+    "core": {
+      "sheetClass": "lancer-alternative-sheets.LAMechSheet"
+    },
+    "cinematic-cut-ins": {
+      "config": {
+        "groupId": "",
+        "groupName": {
+          "qQ1AT2Q5Bzv0soZf": "NPC",
+          "0i98yTlAbkiAyArf": "Player Mechs",
+          "zEOERmKctxbFYpWs": "Players Crit"
+        },
+        "groupDefault": {
+          "qQ1AT2Q5Bzv0soZf": "",
+          "0i98yTlAbkiAyArf": "bGLANi0BWclJCprg",
+          "zEOERmKctxbFYpWs": "CnLjIXHkZ92Hy9Xn"
+        },
+        "img": "pc/Lily/Balor%20(by%20BlindDuke).png",
+        "theme": "blitz",
+        "customDuration": 2,
+        "format": "popout",
+        "hideBackground": false,
+        "localOnly": false,
+        "videoLoop": true,
+        "videoAudio": false,
+        "screenPosX": 80,
+        "screenPos": 20,
+        "charScale": 1,
+        "charOffsetX": 0,
+        "charOffsetY": 0,
+        "charRotation": 0,
+        "charMirror": false,
+        "text": "PLACEHOLD",
+        "hideMainText": false,
+        "mainFontSize": 8,
+        "mainOffsetX": 0,
+        "mainOffsetY": 0,
+        "subText": "{{name}}",
+        "hideSubText": false,
+        "subFontSize": 2,
+        "subOffsetX": 0,
+        "subOffsetY": 0,
+        "fontFamily": "Teko",
+        "fontBold": true,
+        "fontItalic": false,
+        "subFontFamily": "Teko",
+        "subFontBold": true,
+        "subFontItalic": false,
+        "mainTextColor": "#ffffff",
+        "subTextColor": "#ffffffff",
+        "color": "#e61c34",
+        "borderWidth": 0,
+        "borderColor": "#ffffff",
+        "charShadowColor": "#5f1089",
+        "hideCharShadow": false,
+        "shakeIntensity": 0,
+        "dimIntensity": 0,
+        "soundList": {
+          "0": ""
+        },
+        "sfxList": {
+          "0": "worlds/dayquil/assets/bgm/Battle%20Zoom%20In.mp3"
+        },
+        "soundVolume": 80,
+        "sfxVolume": 80,
+        "keepAudioPlaying": false,
+        "audioOnly": false,
+        "triggers": {
+          "defaultSpellPreset": "",
+          "chat": {
+            "0": {
+              "trigger": "keyword",
+              "value": "CORE ACTIVATION",
+              "rollIndex": null,
+              "operator": ">=",
+              "presetId": "y2S0ROIF1s8TuYh5",
+              "macroId": ""
+            },
+            "1": {
+              "trigger": "rollKeyword",
+              "value": "CRIT",
+              "rollIndex": null,
+              "operator": ">=",
+              "presetId": "ozfJH35T6HmZ5CqH",
+              "macroId": ""
+            }
+          },
+          "resources": [],
+          "turnStart": {
+            "0": {
+              "round": "",
+              "presetId": "rGNHekrDkMeO4CRW",
+              "macroId": ""
+            }
+          },
+          "turnEnd": [],
+          "turnStartPreset": null,
+          "turnStartRound": null,
+          "turnEndPreset": null,
+          "turnEndRound": null
+        },
+        "sound": "",
+        "sfx": "worlds/dayquil/assets/bgm/Battle%20Zoom%20In.mp3",
+        "variations": [],
+        "layers": [],
+        "triggerOnRoundStart": false,
+        "triggerOnCombatStart": false,
+        "triggerOnCombatEnd": false,
+        "id": "bGLANi0BWclJCprg",
+        "presetName": "G. Turn Start"
+      },
+      "triggers": {
+        "chat": [
+          {
+            "trigger": "keyword",
+            "value": "CORE ACTIVATION",
+            "rollIndex": null,
+            "operator": ">=",
+            "presetId": "y2S0ROIF1s8TuYh5",
+            "macroId": ""
+          },
+          {
+            "trigger": "rollKeyword",
+            "value": "CRIT",
+            "rollIndex": null,
+            "operator": ">=",
+            "presetId": "ozfJH35T6HmZ5CqH",
+            "macroId": ""
+          }
+        ],
+        "resources": [],
+        "defaultSpellPreset": "",
+        "turnStart": [
+          {
+            "round": "",
+            "presetId": "rGNHekrDkMeO4CRW",
+            "macroId": ""
+          }
+        ],
+        "turnEnd": [],
+        "turnStartPreset": null,
+        "turnStartRound": null,
+        "turnEndPreset": null,
+        "turnEndRound": null
+      },
+      "presets": {
+        "y2S0ROIF1s8TuYh5": {
+          "groupId": "",
+          "img": "pc/Lily/Balor%20(by%20BlindDuke).png",
+          "theme": "eclipse",
+          "customDuration": 3.5,
+          "format": "popout",
+          "hideBackground": false,
+          "localOnly": false,
+          "videoLoop": true,
+          "videoAudio": false,
+          "screenPosX": 50,
+          "screenPos": 50,
+          "charScale": 1,
+          "charOffsetX": 0,
+          "charOffsetY": 0,
+          "charRotation": 0,
+          "charMirror": false,
+          "text": "{{name}}!",
+          "hideMainText": false,
+          "mainFontSize": 8,
+          "mainOffsetX": 0,
+          "mainOffsetY": 0,
+          "subText": "CORE POWER",
+          "hideSubText": false,
+          "subFontSize": 3,
+          "subOffsetX": 0,
+          "subOffsetY": 0,
+          "fontFamily": "Teko",
+          "fontBold": true,
+          "fontItalic": false,
+          "subFontFamily": "Teko",
+          "subFontBold": true,
+          "subFontItalic": false,
+          "mainTextColor": "#ffffff",
+          "subTextColor": "#ffd700",
+          "color": "#851aa2",
+          "borderWidth": 0,
+          "borderColor": "#ffffff",
+          "charShadowColor": "#f50000",
+          "hideCharShadow": false,
+          "shakeIntensity": 0,
+          "dimIntensity": 0,
+          "soundList": {
+            "0": ""
+          },
+          "sfxList": {
+            "0": "worlds/dayquil/assets/bgm/Player%20Phase.mp3"
+          },
+          "soundVolume": 83,
+          "sfxVolume": 100,
+          "keepAudioPlaying": false,
+          "audioOnly": false,
+          "triggers": {
+            "defaultSpellPreset": "",
+            "chat": {
+              "0": {
+                "trigger": "keyword",
+                "value": "CORE ACTIVATION",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "",
+                "macroId": ""
+              },
+              "1": {
+                "trigger": "rollKeyword",
+                "value": "CRIT",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "",
+                "macroId": ""
+              }
+            }
+          },
+          "variations": [],
+          "layers": [],
+          "presetName": "G. Core Activation",
+          "id": "y2S0ROIF1s8TuYh5",
+          "sound": "",
+          "sfx": "worlds/dayquil/assets/bgm/Player%20Phase.mp3"
+        },
+        "ozfJH35T6HmZ5CqH": {
+          "groupId": "",
+          "img": "pc/Lily/Balor%20(by%20BlindDuke).png",
+          "theme": "scope",
+          "customDuration": 3.5,
+          "format": "boxed",
+          "hideBackground": false,
+          "localOnly": false,
+          "videoLoop": true,
+          "videoAudio": false,
+          "screenPosX": 50,
+          "screenPos": 15,
+          "charScale": 1,
+          "charOffsetX": 0,
+          "charOffsetY": 0,
+          "charRotation": 0,
+          "charMirror": false,
+          "text": "{{name}}",
+          "hideMainText": false,
+          "mainFontSize": 8,
+          "mainOffsetX": 0,
+          "mainOffsetY": 0,
+          "subText": "Critical Hit",
+          "hideSubText": false,
+          "subFontSize": 2,
+          "subOffsetX": 0,
+          "subOffsetY": 0,
+          "fontFamily": "Teko",
+          "fontBold": true,
+          "fontItalic": false,
+          "subFontFamily": "Teko",
+          "subFontBold": true,
+          "subFontItalic": false,
+          "mainTextColor": "#ffffff",
+          "subTextColor": "#ffffff",
+          "color": "#5c1881",
+          "borderWidth": 0,
+          "borderColor": "#ffffff",
+          "charShadowColor": "#000000",
+          "hideCharShadow": false,
+          "shakeIntensity": 0,
+          "dimIntensity": 0,
+          "soundList": {
+            "0": ""
+          },
+          "sfxList": {
+            "0": "worlds/dayquil/assets/bgm/Critical%20%E2%81%84%20Skill%20activation.mp3"
+          },
+          "soundVolume": 80,
+          "sfxVolume": 80,
+          "keepAudioPlaying": false,
+          "audioOnly": false,
+          "triggers": {
+            "defaultSpellPreset": "",
+            "chat": {
+              "0": {
+                "trigger": "keyword",
+                "value": "CORE ACTIVATION",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "",
+                "macroId": ""
+              },
+              "1": {
+                "trigger": "rollKeyword",
+                "value": "CRIT",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "",
+                "macroId": ""
+              }
+            }
+          },
+          "variations": [],
+          "layers": [],
+          "presetName": "G. Crit",
+          "id": "ozfJH35T6HmZ5CqH",
+          "sound": "",
+          "sfx": "worlds/dayquil/assets/bgm/Critical%20%E2%81%84%20Skill%20activation.mp3"
+        },
+        "rGNHekrDkMeO4CRW": {
+          "groupId": "",
+          "img": "pc/Lily/Balor%20(by%20BlindDuke).png",
+          "theme": "blitz",
+          "customDuration": 2,
+          "hideBackground": false,
+          "localOnly": false,
+          "videoLoop": true,
+          "videoAudio": false,
+          "screenPosX": 80,
+          "screenPos": 20,
+          "charScale": 1,
+          "charOffsetX": 0,
+          "charOffsetY": -65,
+          "charRotation": 0,
+          "charMirror": false,
+          "text": "PLACEHOLD",
+          "hideMainText": false,
+          "mainFontSize": 8,
+          "mainOffsetX": 0,
+          "mainOffsetY": 0,
+          "subText": "{{name}}",
+          "hideSubText": false,
+          "subFontSize": 2,
+          "subOffsetX": 0,
+          "subOffsetY": 0,
+          "fontFamily": "Teko",
+          "fontBold": true,
+          "fontItalic": false,
+          "subFontFamily": "Teko",
+          "subFontBold": true,
+          "subFontItalic": false,
+          "mainTextColor": "#ffffff",
+          "subTextColor": "#ffffffff",
+          "color": "#e61c34",
+          "borderWidth": 0,
+          "borderColor": "#ffffff",
+          "charShadowColor": "#5f1089",
+          "hideCharShadow": false,
+          "shakeIntensity": 0,
+          "dimIntensity": 0,
+          "soundList": {
+            "0": ""
+          },
+          "sfxList": {
+            "0": "worlds/dayquil/assets/bgm/Battle%20Zoom%20In.mp3"
+          },
+          "soundVolume": 80,
+          "sfxVolume": 80,
+          "keepAudioPlaying": false,
+          "audioOnly": false,
+          "triggers": {
+            "defaultSpellPreset": "",
+            "chat": {
+              "0": {
+                "trigger": "keyword",
+                "value": "CORE ACTIVATION",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "y2S0ROIF1s8TuYh5",
+                "macroId": ""
+              },
+              "1": {
+                "trigger": "rollKeyword",
+                "value": "CRIT",
+                "rollIndex": null,
+                "operator": ">=",
+                "presetId": "ozfJH35T6HmZ5CqH",
+                "macroId": ""
+              }
+            },
+            "turnStart": {
+              "0": {
+                "round": "",
+                "presetId": "rGNHekrDkMeO4CRW",
+                "macroId": ""
+              }
+            }
+          },
+          "variations": [],
+          "layers": [],
+          "presetName": "G. Turn Start",
+          "id": "rGNHekrDkMeO4CRW",
+          "sound": "",
+          "sfx": "worlds/dayquil/assets/bgm/Battle%20Zoom%20In.mp3"
+        }
+      }
+    }
+  },
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "coreVersion": "12.331",
+    "systemId": "lancer",
+    "systemVersion": "2.11.1",
+    "createdTime": 1749167232323,
+    "modifiedTime": 1774912341965,
+    "lastModifiedBy": "Sua75qBa14wyv9vC"
+  }
+}

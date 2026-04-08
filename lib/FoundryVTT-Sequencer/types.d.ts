@@ -3,7 +3,7 @@ import type {
   AnyArray,
   AnyObject,
   PropertiesOfType,
-} from "fvtt-types/utils";
+} from "@league-of-foundry-developers/foundry-vtt-types/utils";
 import type { Writable } from "svelte/store";
 
 interface CoreMethods {

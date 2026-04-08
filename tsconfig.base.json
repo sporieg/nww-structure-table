@@ -18,14 +18,31 @@
     "forceConsistentCasingInFileNames": true,
     /* Type Checking */
     "strict": false,
-    "strictNullChecks": false,
+
     "skipLibCheck": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+
+    "useUnknownInCatchVariables": false,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+
+    "allowJs": true,
     "noEmit": false,
     "resolveJsonModule": true,
     "paths": {
       "foundryvtt-lancer/*": [
-        "./foundryvtt-lancer/*",
-        "./FoundryVTT-Sequencer/*"
+        "./lib/foundryvtt-lancer/*",
+      ],
+      "Sequencer": [
+        "./lib/FoundryVTT-Sequencer/*"
       ]
     }
   }

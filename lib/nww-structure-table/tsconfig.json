@@ -5,6 +5,7 @@
     "outDir": "./scripts"
   },
   "include": [
-    "src/**/*.ts"
+    "src/**/*.ts",
+    "../stylish-cheat/stylish-action-hud.d.ts"
   ]
 }

@@ -4,7 +4,6 @@
   "description": "Implements alternative structure rulesets for Lancer",
   "version": "#{VERSION}#",
   "library": "false",
-  "manifestPlusVersion": "1.0.0",
   "compatibility": {
     "minimum": 11,
     "verified": 12
@@ -28,9 +27,6 @@
     }
     }]
   },
-  "system": [
-    "lancer"
-  ],
   "esmodules": [
     "scripts/module.js"
   ],

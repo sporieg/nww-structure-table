@@ -5,6 +5,7 @@
   "dependencies": {
   },
   "scripts": {
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "watch": "tsc -w"
   }
 }
