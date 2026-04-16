@@ -14,19 +14,16 @@
       "@league-of-foundry-developers/foundry-vtt-types",
       "jquery"
     ],
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     /* Type Checking */
-    "strict": false,
-
+    "strict": true,
+    "strictNullChecks": false,
+    "importsNotUsedAsValues": "remove",
+    "erasableSyntaxOnly": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "noImplicitAny": false,
-    "strictNullChecks": false,
-    "strictFunctionTypes": false,
-    "strictBindCallApply": false,
-    "strictPropertyInitialization": false,
     "noImplicitThis": false,
-    "alwaysStrict": false,
 
     "useUnknownInCatchVariables": false,
     "exactOptionalPropertyTypes": false,

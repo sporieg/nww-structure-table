@@ -1,15 +1,17 @@
-import {LancerActor, LancerMECH} from "../../foundryvtt-lancer/actor/lancer-actor";
-import {LancerActiveEffect} from "../../foundryvtt-lancer/effects/lancer-active-effect";
-// @ts-ignore
-import {BaseSystemAdapter, configProps} from "../../stylish-action-hud/scripts/systems/base.js "
-import {LancerItem, LancerMECH_SYSTEM, LancerWEAPON_MOD} from "foundryvtt-lancer/item/lancer-item";
-import {ActionData} from "foundryvtt-lancer/models/bits/action";
-import {Tag} from "foundryvtt-lancer/models/bits/tag";
-import {SourceData} from "foundryvtt-lancer/source-template";
-import {SystemData} from "foundryvtt-lancer/system-template";
-// @ts-ignore
+import type {LancerActor, LancerMECH, LancerNPC, LancerPILOT} from "foundryvtt-lancer/actor/lancer-actor";
+import type {LancerActiveEffect} from "foundryvtt-lancer/effects/lancer-active-effect";
+import type {LancerItem, LancerTALENT, LancerWEAPON_MOD} from "foundryvtt-lancer/item/lancer-item";
+import type {ActionData} from "foundryvtt-lancer/models/bits/action";
+import type {Tag} from "foundryvtt-lancer/models/bits/tag";
+import {debug} from "./log.js";
+import {LancerToken} from "foundryvtt-lancer/token";
+import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
+
 export const DEFAULT_ACTION_NAME = "New action"
 export const NO_ACTION_NAME = "Action"
+
+const QuickIcon = `<i class="mdi mdi-hexagon-slice-3" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
+const FullIcon = `<i class="mdi mdi-hexagon-slice-6" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
 // Edit search css?
 // Ad somethign to fix it?
 export const ENTRY_TYPE = {
@@ -47,20 +49,20 @@ const STAT_PATHS = {
 };
 
 // Copied from foundryvtt-lancer/enums, actual values get borked in foundry loading.
-export enum ActivationType {
-  Core = "Core Power",
+export const ActivationType = {
+  Core: "Core Power",
   // Core Foundry, retain all for funzies.
-  None = "None",
-  Passive = "Passive",
-  Quick = "Quick",
-  QuickTech = "Quick Tech",
-  Invade = "Invade",
-  Full = "Full",
-  FullTech = "Full Tech",
-  Other = "Other",
-  Reaction = "Reaction",
-  Protocol = "Protocol",
-  Free = "Free",
+  None: "None",
+  Passive: "Passive",
+  Quick: "Quick",
+  QuickTech: "Quick Tech",
+  Invade: "Invade",
+  Full: "Full",
+  FullTech: "Full Tech",
+  Other: "Other",
+  Reaction: "Reaction",
+  Protocol: "Protocol",
+  Free: "Free",
 }
 
 function isLancerActor(x: any): x is LancerActor {
@@ -70,12 +72,12 @@ function isLancerActor(x: any): x is LancerActor {
 const isInvade = (a: ActionData) => a.activation === "Invade"
 
 // Lancer icons at: https://github.com/massif-press/compcon/blob/master/src/assets/glyphs/glyphs.css
-const invadeMacroFlow = "macro-o3nZI3EidYMVc9UX";
+const invadeMacroFlow = "Macro.o3nZI3EidYMVc9UX";
 
 let macroInvade: SubMenuItem = {
   id: invadeMacroFlow,
   name: "Invasion Flow",
-  img: "cci cci-full-tech",
+  img: "systems/lancer/assets/icons/activation_full.svg",
   cost: "Quick/Full",
   description: "Trigger the invasion flow chart"
 }
@@ -87,7 +89,7 @@ let macroInvade: SubMenuItem = {
  * @param tags
  */
 function tagsCostAndDescription(value: any, tags: Tag[]) {
-  let cost = []
+  let cost: string[] = []
   let descriptions = tags.map(t => {
     // I dunno what happens with is_limited tag and not is_limited, save me jon lancer.
     if (t.is_limited && value.isLimited()) {
@@ -105,7 +107,7 @@ function tagsCostAndDescription(value: any, tags: Tag[]) {
   }
 }
 
-export function logInvalidItem(item: unknown, actor = null, context = "") {
+export function logInvalidItem(item: unknown, actor?: LancerActor, context = "") {
   if (!item) {
     const actorName = actor?.name || "Unknown Actor";
     const actorUuid = actor?.uuid || "Unknown UUID";
@@ -125,6 +127,13 @@ const Groups = {
   weapon: {
     id: "weapons",
     systemId: "weapons",
+    label: "Weapons",
+    icon: "cci cci-weapon",
+    type: "submenu"
+  },
+  npcAttacks: {
+    id: "weapons",
+    systemId: "npc-weapons",
     label: "Weapons",
     icon: "cci cci-weapon",
     type: "submenu"
@@ -150,20 +159,57 @@ const Groups = {
     icon: "cci cci-mech-system",
     type: "submenu"
   },
-  system: {
-    id: "utility",
-    systemId: "utility-systems",
-    label: "System?",
-    icon: "cci cci-mech-system",
+  activate: {
+    id: "activate",
+    systemId: "activate-player",
+    label: "Start Turn",
+    icon: "cci cci-activate",
+    type: "system"
+  },
+  endTurn: {
+    id: "end-turn",
+    systemId: "end-turn",
+    label: "End Turn",
+    icon: "cci cci-deactivate",
     type: "system"
   },
   sheet: {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
 } satisfies Record<string, ActionMenuCategory>
 
+const UtilityActions = {
+  stabilize: {
+    id: "stabilize",
+    name: "Stabilize",
+    cost: ActivationType.Full,
+    img: "systems/lancer/assets/icons/macro-icons/marker.svg",
+    description: `When you STABILIZE, you enact emergency protocols to purge your mech’s systems of excess heat, repair your chassis where you can, or eliminate hostile code.`
+  },
+  overcharge: {
+    id: "overcharge",
+    name: "Overcharge",
+    cost: ActivationType.Free,
+    img: "systems/lancer/assets/icons/macro-icons/overcharge.svg",
+    description: `Heat for Actions, why not?`
+  },
+  deploy_drone: {
+    id: "Macro.ByD82cBFckjJIl3q",
+    name: "Deploy Drone System",
+    cost: ActivationType.Quick,
+    img: "systems/lancer/assets/icons/white/deployable.svg",
+    description: `Deploy a drone?`
+  },
+  /*mission_rest: {
+    id: "Macro.MiJ9OGiYsgtHulQQ",
+    name: "Mission Rest",
+    img: "systems/lancer/assets/icons/white/repair.svg",
+    description: `Short rest during a mission, spend repairs on structure/mounts.  Rebuild a mech [never happened]`
+  }*/
+} satisfies Record<string, SubMenuItem>
+
 function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
   let {cost, description} = tagsCostAndDescription(m.system, m.system.tags)
 
-  return <SubMenuItem>{
+  return {
     id: m.id,
     name: "^[Mod]" + m.name,
     description: [m.system.description, description].join(" "),
@@ -203,6 +249,13 @@ function activateCoreSystem(actor: LancerActor, actionId: string) {
 }
 
 /**
+ * We will
+ */
+type _SubMenuData = Omit<SubMenuData, "title">
+
+
+// @ts-ignore
+/**
  * Categories
  *
  * * Weapon Actions
@@ -210,544 +263,689 @@ function activateCoreSystem(actor: LancerActor, actionId: string) {
  * * Deployables
  * * Other Systems
  */
+// @ts-ignore
+Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
+  debug("Registering Lancer System Adapter");
 
-// Deprecated since Version 12
-export class LancerSystemAdapter extends BaseSystemAdapter {
-  private systemId: string;
+  class LancerSystemAdapter {
+    private systemId: string;
+    private base: LancerSystemAdapter;
 
-  constructor() {
-    super();
-    this.systemId = "lancer-system";
-  }
+    constructor() {
+      // Close enough lol
+      // @ts-ignore
+      let adapter = api.getRegisteredAdapters("generic")[0].adapter;
+      // @ts-ignore
+      this.base = (new adapter());
+      this.systemId = "lancer-system";
+    }
 
-  getStats(actor: LancerActor, configAttributes: any) {
-    if (!configAttributes?.length) return [];
+    getStats(actor: LancerActor, configAttributes: any) {
+      return this.base.getStats(actor, configAttributes);
+    }
 
-    return configAttributes.map((attr) => {
-      const raw: any = foundry.utils.getProperty(actor, attr.path);
-      let value = 0;
-      let max = 0;
+    getConditions(actor: LancerActor) {
+      // @ts-ignore
+      return (actor.temporaryEffects || [])
+        .filter((e) => e.img)
+        .map((e) => {
+          return ({
+            id: e.id || e.name,
+            src: e.img,
+            name: e.name || "Unknown",
+            // value: e.value ?? null,
+          });
+        });
+    }
 
-      if (typeof raw === "object" && raw !== null) {
-        value = raw.value ?? 0;
-        max = raw.max ?? 0;
-      } else if (typeof raw === "number") {
-        value = raw;
+    updateAttribute(actor: LancerActor, path: string, input: string) {
+      return this.base.updateAttribute(actor, path, input);
+    }
+
+    async removeCondition(actor: LancerActor, conditionId: string) {
+      // @ts-ignore
+      const effect = actor.effects.find(
+        // @ts-ignore
+        (e: LancerActiveEffect) => e.id === conditionId || e.name === conditionId
+      );
+      if (effect) {
+        await effect.delete();
+      }
+    }
+
+    rollStat(actor: LancerActor, path: string, event: any) {
+      if (this.isStatRollable(path)) {
+        return actor.beginStatFlow(path);
+      }
+      return null;
+    }
+
+    isStatRollable(path: string) {
+      return /^system\.(hull|agi|sys|eng|grit)$/.test(path);
+    }
+
+
+    async useItem(actor: LancerActor, itemId: string) {
+      if (itemId.startsWith("Macro.") || itemId.startsWith("macro-")) {
+        const macro = game.macros?.get(itemId
+          // If you copy a UUID from foundry
+          .replace("Macro.", "")
+          // Stylish does this to macros for some reason.
+          .replace("macro-", "")
+        );
+        // @ts-ignore
+        return macro?.execute({actor});
+      }
+      switch (itemId) {
+        case UtilityActions.stabilize.id:
+          return actor.beginStabilizeFlow();
+        case UtilityActions.overcharge.id:
+          return actor.beginOverchargeFlow();
+      }
+      // We built an encoded id for system activations.  Go specialized to general purpose system. flows.
+      if (itemId.includes("system.core_system") //Your active core bonus.
+        && !itemId.includes("system.core_system.active_actions")
+        && !itemId.includes("system.core_system.passive_actions")  // Passives are used like normal systems.
+      ) {
+        return activateCoreSystem(actor, itemId);
+      }
+      if (itemId.includes("system")) {
+        return activateSystem(actor, itemId);
       }
 
+      const item = actor.items.get(itemId) as LancerItem;
+      if (!item) {
+        switch (itemId) {
+          case "basic-attack":
+            return actor.beginBasicAttackFlow("Basic Attack");
+          case "basic-tech-attack":
+            return actor.beginBasicTechAttackFlow("Basic Tech");
+        }
+        ui.notifications?.warn(`Item not found: ${itemId}`);
+        return;
+      }
 
-      return {
-        path: attr.path,
-        label: attr.label,
-        value,
-        max,
-        percent: max > 0 ? Math.clamp((value / max) * 100, 0, 100) : 0,
-        subtype: "resource",
-        ...configProps(attr)
-      };
-    });
-  }
+      /*if (typeof item.use === "function") return item.use();
+      if (typeof item.roll === "function") return item.roll();*/
 
-  getConditions(actor: LancerActor) {
-    // @ts-ignore
-    return (actor.temporaryEffects || [])
-      .filter((e) => e.img)
-      .map((e) => ({
-        id: e.id || e.name,
-        src: e.img,
-        name: e.name || "Unknown",
-        // value: e.value ?? null,
-      }));
-  }
-
-  async removeCondition(actor: LancerActor, conditionId: string) {
-    // @ts-ignore
-    const effect = actor.effects.find(
-      // @ts-ignore
-      (e: LancerActiveEffect) => e.id === conditionId || e.name === conditionId
-    );
-    if (effect) {
-      await effect.delete();
+      if (item.is_weapon()) return item.beginWeaponAttackFlow();
+      if (item.is_weapon_mod()) return item.beginActivationFlow()
+      return item.sheet.render(true);
     }
-  }
 
-  getActionCategories(actor: LancerActor): ActionMenuCategory[] {
-    // @ts-ignore this is if you set the config globally, why though?  You don't have actove method access then, just macro.
-    const config = game.settings.get("stylish-action-hud", "configuration");
-    let options: ActionMenuCategory[];
+    async executeAction(actor: LancerActor, actionId: string) {
+      // I am not checking for combat, assume combat is active when using this class.
+      // There is probably a problem if you put your token on like, 5 times?
+      // @ts-ignore
+      const yourToken = canvas.tokens.controlled.filter((t: LancerToken) => {
+        return t.actor.id === actor.id
+      })[0];
+      if (!yourToken)
+        ui.notifications?.warn("You must have a token selected to use this action.");
+      switch (actionId) {
+        case Groups.activate.id:
+          // @ts-ignore
+          return await game.combat.activateCombatant(yourToken.combatant.id);
+      }
+    }
 
-    if (actor.is_deployable()) return [];
-    if (actor.is_mech()) {
+    getCoreLancerActions(actor: LancerActor): ActionMenuCategory[] {
+      if (actor.is_deployable()) return [];
+      if (actor.is_mech()) {
+        return [
+          //Groups.attacks,
+          Groups.weapon,
+          Groups.invade,
+          Groups.tech,
+          Groups.utility
+        ];
+      }
+      if (actor.is_npc()) {
+        return [
+          //Groups.npcAttacks,
+        ]
+      }
+      if (actor.is_pilot()) {
+        return [];
+      }
       return [
-        //Groups.attacks,
-        Groups.weapon,
-        Groups.invade,
-        Groups.tech,
-        Groups.utility,
-        Groups.system,
-        Groups.sheet
+        {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
       ];
     }
-    return <ActionMenuCategory[]>[
-      {id: "combat", systemId: "combat", label: "Combat", icon: "cci cci-mech-weapon", type: "submenu"},
-      {id: "magic", systemId: "magic", label: "Magic", icon: "cci fa-hat-wizard", type: "submenu"},
-      {id: "items", systemId: "items", label: "Items", icon: "cci fa-backpack", type: "submenu"},
-      {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
-    ];
-  }
 
-  async getSubMenuData(actor: LancerActor, categoryId: string): Promise<SubMenuData> {
-    switch (categoryId) {
-      case "weapons":
-        if (actor.is_mech()) {
-          return this._buildWeapons(actor);
-        }
-      case "invade":
-        if (actor.is_mech()) {
-          return this._buildInvades(actor);
-        }
-      case "techs":
-        return this._buildTechActivations(actor);
-      /*      case "attacks":
-              return this._mechAttacks(actor);*/
-      default:
-        return {title: "label", items: []};
-    }
-    this.getActionCategories(actor);
-  }
-
-  _getSystemSubMenuData(): SubMenuData {
-    return { title: "menuData.label", items: [] };
-  }
-  _buildWeapons(actor: LancerMECH): SubMenuData {
-    const loadout = actor.system.loadout;
-    const mounts = loadout.weapon_mounts;
-    if (!Array.isArray(mounts)) {
-      logInvalidItem(mounts, actor, "buildWeapons");
-      return {
-        title: "Weapons",
-        items: []
-      }
-    }
-    let weaponItems = mounts
-      .filter((m, mountIdx) => {
-        if (!Array.isArray(m.slots)) {
-          logInvalidItem(m, actor, `mechLoadout.mounts[${mountIdx}]`)
-          return false;
-        }
-        const slots = m.slots.filter(s => !!s?.weapon);
-        if (slots.length === 0) return false;
-        if (slots.some(s => !s.weapon.value || !s.weapon.id)) {
-          logInvalidItem(slots, actor, `mechLoadout.mounts[${mountIdx}].slots[].weapon`)
-          return false;
-        }
-        return m.slots.length > 0 && !m.bracing;
-      }).map((m, mountIdx) => {
-        //TODO Sheavy
-        return [
-          m.type,
-          m.slots
-            .flatMap(s => {
-              const value = s.weapon.value;
-              const system = value.system;
-              const p = system.active_profile;
-              const d = p.damage.map(d => `${d.val} ${d.type}`).join("+");
-              const ranges = p.range.map(r => r.formatted).join(" ");
-              // TODO: Weapons can have actions on them, how to represent that?
-              let {cost, description: td} = tagsCostAndDescription(value, p.all_tags)
-              let wItem: SubMenuItem = {
-                id: s.weapon.id,
-                name: s.weapon.value.name + `[${d}]`,
-                description: `${system.size} ${p.type}\n${d} \n${ranges}\n${td}`,
-                cost: cost,
-              };
-              if (value.isLimited()) {
-                wItem.uses = value.system.uses;
-              }
-              if (!s.mod) return [wItem];
-              return [wItem, modSubItem(s.mod.value, actor)];
-            })];
-      });
-
-
-    let tabLabels = Object.fromEntries(weaponItems.map(([label]) => [label, label]));
-    tabLabels["basic"] = "Basic";
-    let items = Object.fromEntries(weaponItems);
-    items["basic"] = [{
-      id: "basic-attack",
-      name: "Basic Attack",
-      description: "Just roll to hit, useful for grapple and the likes."
-    }, {
-      id: "basic-attack",
-      name: "Ram Attack",
-      description: "Melee attack to ram your enemy"
-    }, {
-      id: "basic-attack",
-      name: "Grapple Attack",
-      description: "Melee attack to grapple your enemy"
-    }]
-    return {
-      title: "Attacks",
-      theme: "red",
-      hasTabs: true,
-      tabLabels: tabLabels,
-      items: items
-    }
-  }
-
-  _isUsableItem(item: any) {
-    //TODO: Destroyed, Out of Charges, Recharging NPC features.
-    switch (item.type) {
-      case ENTRY_TYPE.NPC_FEATURE:
-        if (item.isRecharge() && !item.system.charged) return false
-      case ENTRY_TYPE.MECH_SYSTEM:
-      case ENTRY_TYPE.MECH_WEAPON:
-      case ENTRY_TYPE.WEAPON_MOD:
-        if (item.system.destroyed) return false
-      case ENTRY_TYPE.PILOT_WEAPON:
-        if (item.isLoading() && !item.system.loaded) return false
-        if (item.isLimited() && !item.system.uses.value) return false
-        break
-      case ENTRY_TYPE.BOND:
-      case ENTRY_TYPE.TALENT:
-      case ENTRY_TYPE.SKILL:
-        break
-      default:
-        return false
-    }
-
-    return true
-  }
-
-  _buildInvades(actor: LancerMECH): SubMenuData {
-    const systemInvades = actor.system.loadout.systems
-      .flatMap(s => s.value.system.actions.filter(isInvade).map((i, idx) => ({
-        id: itemActionId(s.id, idx),
-        name: `${i.name} [${s.value.name}]`,
-        description: i.detail
-      })));
-    const isChomo = actor.system.loadout.frame.value.name === "Chomolungma";
-    const chomoInvades = isChomo ?
-      (actor.system.loadout.frame.value.system.core_system.passive_actions || [])
-        .filter(isInvade)
-        .map(action => ({
-          id: actor.id,
-          name: `${action.name} [Chomolungma Frame]`,
-          description: action.detail || "No details available."
-        }))
-      : [];
-    const pilotId = actor.system?.pilot?.id;
-    let pInvades = [];
-    if (pilotId) {
-      const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
-      const pilot = game.actors.get(cleanedPilotId);
-      if (pilot) {
-        pInvades = pilot.items.contents
-          .filter(item => item.type === "talent" && Array.isArray(item.system.actions))
-          .flatMap(item => item.system.actions.filter(isInvade).map(action => ({
-            id: item.id,
-            name: `${action.name} [${item.name}]`,
-            description: action.detail || "No details available."
-          })))
-      }
-    }
-    let options = [...systemInvades, ...chomoInvades, ...pInvades, {
-      id: "fragment-signal",
-      name: "Fragment Signal [Default]",
-      description: "You feed false information, obscene messages, or phantom signals to your target's computing core. They become IMPAIRED and SLOWED until the end of their next turn."
-    }];
-    return {
-      title: "Invade Options",
-      hasTabs: true,
-      tabLabels: {
-        "flow": "Invade Flow",
-        "full": "All Invade Options"
-      },
-      items: {
-        flow: [macroInvade, {
-          id: "basic-tech-attack",
-          name: "Basic Tech",
-          description: "You do a basic tech attack against edef."
-        }],
-        full: options.map(o => ({
-          id: o.id,
-          name: o.name,
-          description: o.description,
-        }))
-      }
-    }
-  }
-
-  _buildTechActivations(actor: LancerActor): SubMenuData {
-    // Orderd according to the UI and order is maintained throughout the method.
-    const fullLoad = actor.loadoutHelper.listLoadout();
-    const keyItems: Record<ActivationType, SubMenuItem[]> = {
-      [ActivationType.Core]: (() => {
-        if (actor.is_mech()) {
-          // Frame is part of the loadout.
-          // const weakcheck = fullLoad[0];
-          const frame = actor.system.loadout.frame.value;
-          const core_system = frame.system.core_system;
-          /*          // Amber phantoms protocol style may require special handing?
-                    // Actually, I just want the super batter action anyway?  Why am I amapping actions?
-                    const actions = [
-                      ...core_system.active_actions,
-                      ...core_system.passive_actions
-                    ]
-                    debugger;*/
-          return [{
-            id: itemActionPath(frame.id, "system.core_system"),
-            img: actor.img,
-            name: core_system.active_name,
-            description: core_system.active_effect,
-          }]
-        }
-        return []
-      })(),
-      [ActivationType.Protocol]: [],
-      [ActivationType.Invade]: [],
-      [ActivationType.Free]: [],
-      [ActivationType.Quick]: [],
-      [ActivationType.QuickTech]: [],
-      [ActivationType.Full]: [],
-      [ActivationType.FullTech]: [],
-      [ActivationType.Reaction]: [],
-      // These are action types, cut I have not seen them yet.
-      [ActivationType.None]: [],
-      [ActivationType.Other]: [],
-      [ActivationType.Passive]: []
-    };
-    // I could just use the enum if it weren't for needing to filter it out.
-    const tabLabels: Record<ActivationType, string> = {
-      [ActivationType.Core]: ActivationType.Core,
-      [ActivationType.Invade]: ActivationType.Invade,
-      [ActivationType.Free]: ActivationType.Free,
-      [ActivationType.Full]: ActivationType.Full,
-      [ActivationType.FullTech]: ActivationType.FullTech,
-      [ActivationType.None]: ActivationType.None,
-      [ActivationType.Other]: ActivationType.Other,
-      [ActivationType.Passive]: ActivationType.Passive,
-      [ActivationType.Protocol]: ActivationType.Protocol,
-      [ActivationType.Quick]: ActivationType.Quick,
-      [ActivationType.QuickTech]: ActivationType.QuickTech,
-      [ActivationType.Reaction]: ActivationType.Reaction
-    }
-    type RT = [ActivationType, SubMenuItem];
-    fullLoad
-      .filter(i => !(i.is_mech_weapon() || i.is_weapon_mod()))
-      .flatMap<RT>(i => { // We need to flatten every type of valid system into action + menu
-        // I cannot wait for this edge case STEVEN
-        const {cost, description} = tagsCostAndDescription(i, i.getTags() ?? []);
-        if (i.is_mech_system() && i.system.actions.length > 0 && !i.system.destroyed) {
-          let actions = i.system.actions.filter(a => !isInvade(a));
-          return actions.map((a, idx) => {
-            const id = itemActionId(i.id, idx);
-            //Return a set of entries with the activation type
-            return <RT>[a.activation, {
-              id,
-              img: i.img,
-              name: [DEFAULT_ACTION_NAME, NO_ACTION_NAME].includes(a.name) ? i.name : a.name,
-              cost: cost,
-              description: [a.detail, description].join(" "),
-            }]
-          })
-        }
-        // The abilities you can use from your frame, like Calendula shit.
-        if (i.is_frame()) {
-          const passives = i.system.core_system.passive_actions.map((p, idx) => <RT>[
-            p.activation,
-            {
-              id: itemActionId(i.id, idx, 'system.core_system.passive_actions'),
-              img: i.img,
-              name: p.name,
-              description: p.detail,
-            }
-          ]);
-          // God help me what the fuck is in this list?
-          const active = i.system.core_system.active_actions.map((p, idx) => <RT>[
-            p.activation,
-            {
-              id: itemActionId(i.id, idx, 'system.core_system.active_actions'),
-              img: i.img,
-              name: p.name,
-              description: p.detail,
-            }
-          ]);
-          const traits = i.system.traits.flatMap((p, idx) =>
-            p.actions.map((a, adx) => <RT>[
-              a.activation,
-              {
-                id: itemActionPath(i.id, `system.traits.${idx}.actions.${adx}`),
-                name: p.name,
-                description: a.detail,
-              }
-            ])
-          );
-          return [
-            ...passives,
-            ...active,
-            ...traits
-          ]
-        }
-        return []
-      })//Take list of actions and group them into our items record, this collects them by speed for the menu.
-      .reduce((itms, [activationType, subMenuItem]) => {
-        itms[activationType].push(subMenuItem)
-        return itms;
-      }, keyItems);
-    // No nice collections way of doing this :(
-    // Remove our empties and add in a headers splitter.
-    for (const key of Object.keys(keyItems)) {
-      const value = keyItems[key];
-      if (
-        value == null ||
-        value === "" ||
-        (Array.isArray(value) && value.length === 0)
-      ) {
-        delete keyItems[key];
-        delete tabLabels[key];
-      } else {
-        keyItems[key].unshift({
-          id: `${key}-header`,
-          name: key,
-          idHeader: true,
+    getActionCategories(actor: LancerActor): ActionMenuCategory[] {
+      // @ts-ignore this is if you set the config globally, why though?  You don't have actove method access then, just macro.
+      let customized = this.base.getActionCategories(actor);
+      const basicActions = this.getCoreLancerActions(actor)
+        .map((a, idx) => {
+          if (a.type == "submenu") {
+            a.id = `${a.id}-${idx}`
+          }
+          return a;
         });
-      }
-    }
-    return {
-      title: "Tech Activations",
-      tabLabels,
-      items: keyItems,
-      hasTabs: true,
-    }
-  }
-
-  _buildDeployable(sheet: LancerActor) {
-    ///??? sheet.items.
-    game.actors.contents
-      .filter(d => {
-        if (d.testUserPermission(game.user, "OWNER") && isLancerActor(d) && d.is_deployable()) {
-          // Step 3: Filter deployables for the selected actor (using the deployer's ID)
-          // @ts-ignore
-          const deployerId = d.system?.owner?.id?.replace(/^Actor\./, ''); // Clean ID
-          return deployerId === d.id;
+      if (game.combat && (actor.is_mech() || actor.is_npc())) {
+        // Is it our turn?
+        // @ts-ignore this is if you set the config globally, why though?  You don't have actove method access then, just macro.
+        const myTurn = game.combat.combatants.find(c => c.actor.id === actor.id) as LancerCombatant;
+        if (myTurn && myTurn.activations.value > 0) {
+          basicActions.push(Groups.activate);
         }
-        return false;
-      }).map(d => {
-
-    })
-
-  }
-
-
-  async useItem(actor: LancerActor, itemId: string) {
-    if (itemId.startsWith("macro-")) {
-      const macro = game.macros.get(itemId.replace("macro-", ""));
-      return macro?.execute({actor});
-    }
-    // We built an encoded id for system activations.  Go specialized to general purpose system. flows.
-    if (itemId.includes("system.core_system") //Your active core bonus.
-      && !itemId.includes("system.core_system.active_actions")
-      && !itemId.includes("system.core_system.passive_actions")  // Passives are used like normal systems.
-    ) {
-      return activateCoreSystem(actor, itemId);
-    }
-    if (itemId.includes("system")) {
-      return activateSystem(actor, itemId);
-    }
-
-    const item = actor.items.get(itemId)
-    if (!item) {
-      switch (itemId) {
-        case "basic-attack":
-          return actor.beginBasicAttackFlow("Basic Attack");
-        case "basic-tech-attack":
-          return actor.beginBasicTechAttackFlow("Basic Tech");
       }
-      ui.notifications.warn(`Item not found: ${itemId}`);
-      return;
+      if (customized?.length > 0) {
+        basicActions.push(...customized);
+      }
+      basicActions.push(Groups.sheet);
+      return basicActions;
     }
 
-    if (typeof item.use === "function") return item.use();
-    if (typeof item.roll === "function") return item.roll();
+    // Straight copied from base, I wish I could just inherit from it :/
+    async getSubMenuData(actor: LancerActor, categoryId: string) {
+      // [수정] ID 파싱 로직 개선 (menu-0, custom-0 모두 대응)
+      const [id, idx] = categoryId.split("-");
+      const index = parseInt(idx);
 
-    if (item.is_weapon()) return item.beginWeaponAttackFlow();
-    if (item.is_weapon_mod()) return item.beginActivationFlow()
-    return item.sheet.render(true);
+      // @ts-ignore
+      const config = game.settings.get("stylish-action-hud", "configuration") as any;
 
-  }
+      // 1. 우선 커스텀 설정(customMenu)에서 데이터를 찾아봅니다.
+      // Menus are replaced in order normally, but I am going to treat them as additive.
+      // Therefore you could get custom-0 and weapons-0;  custom- is you made it in the gui.
+      // I therefore re-arranged these checks from base.js
+      if (id === "custom") {
+        let menuData = config.customMenu?.[index];
+        if (menuData) {
+          // ★ [Case B] 순수 커스텀 메뉴
+          // @ts-ignore
+          return this.base._getCustomSubMenuData(actor, menuData, index);
+        }
+      }
+      // Maybe this is if you register-default menu?
+      const defaultLayout = this.getActionCategories(actor);
+      if (defaultLayout[index]) {
+        let menuData = defaultLayout[index];
+        // ★ [Case A] 시스템 고유 ID가 있는 경우 (예: "attack", "magic")
+        if (menuData.systemId) {
+          return await this._getSystemSubMenuData(actor, menuData.systemId, menuData);
+
+        }
+      }
+      // 여전히 데이터가 없으면 빈 리스트 반환
+      return {title: "", items: []};
+    }
+
+    async _getSystemSubMenuData(actor: LancerActor, systemId: string, menuData: ActionMenuCategory): Promise<SubMenuData> {
+      switch (systemId) {
+        case Groups.weapon.systemId:
+          if (actor.is_mech()) {
+            return {...this._buildWeapons(actor), title: menuData.label};
+          }
+          return {title: "mech fail", items: []};
+        case Groups.invade.systemId:
+          if (actor.is_mech()) {
+            return {...this._buildInvades(actor), title: menuData.label};
+          }
+          return {title: "mech fail", items: []};
+        case Groups.tech.systemId:
+          return {...this._buildTechActivations(actor), title: menuData.label};
+        case Groups.utility.systemId:
+          return {...this._buildUtility(actor), title: menuData.label};
+        case Groups.npcAttacks.systemId:
+          if (actor.is_npc()) {
+            return {...this._buildNpcAttacks(actor), title: menuData.label};
+          }
+          return {title: "npc fail", items: []};
+        default:
+          return {title: "label", items: []};
+      }
+    }
+
+    _buildUtility(actor: LancerActor): _SubMenuData {
+      return {
+        items: Object.values<SubMenuItem>(UtilityActions)
+      }
+    }
+
+    _buildNpcAttacks(actor: LancerNPC): _SubMenuData {
+      return {
+        items: {}
+      }
+    }
+
+    _buildWeapons(actor: LancerMECH): _SubMenuData {
+      const loadout = actor.system.loadout;
+      const mounts = loadout.weapon_mounts;
+      if (!Array.isArray(mounts)) {
+        logInvalidItem(mounts, actor, "buildWeapons");
+        return {
+          items: []
+        }
+      }
+      let weaponItems = mounts
+        .filter((m, mountIdx) => {
+          if (!Array.isArray(m.slots)) {
+            logInvalidItem(m, actor, `mechLoadout.mounts[${mountIdx}]`)
+            return false;
+          }
+          const slots = m.slots.filter(s => !!s?.weapon);
+          if (slots.length === 0) return false;
+          if (slots.some(s => s.weapon && (!s.weapon.value || !s.weapon.id))) {
+            logInvalidItem(slots, actor, `mechLoadout.mounts[${mountIdx}].slots[].weapon`)
+            return false;
+          }
+          return m.slots.length > 0 && !m.bracing;
+        }).map((m, mountIdx) => {
+          //TODO Sheavy
+          return [
+            m.type,
+            m.slots
+              .flatMap(s => {
+                if (!s.weapon) return [];
+                const value = s.weapon.value;
+                if (!value) return []
+                const system = value.system;
+                const p = system.active_profile;
+                const d = p.damage.map(d => `${d.val} ${d.type}`).join("+");
+                const ranges = p.range.map(r => r.formatted).join(" ");
+                // TODO: Weapons can have actions on them, how to represent that?
+                let {cost, description: td} = tagsCostAndDescription(value, p.all_tags)
+                let wItem: SubMenuItem = {
+                  id: s.weapon.id,
+                  name: value.name + `[${d}]`,
+                  description: `${system.size} ${p.type}\n${d} \n${ranges}\n${td}`,
+                  cost: cost,
+                };
+                if (value.isLimited()) {
+                  wItem.uses = value.system.uses;
+                }
+                if (!s.mod || !s.mod.value) return [wItem];
+                return [wItem, modSubItem(s.mod.value, actor)];
+              })];
+        });
 
 
-  getDefaultAttributes() {
-    return [
-      {path: "system.hp", label: "HP", color: "#2ca020", style: "bar"},
-      {path: "system.heat", label: "Heat", color: "#e61c34", style: "bar"},
+      let tabLabels = Object.fromEntries(weaponItems.map(([label]) => [label, label]));
+      tabLabels["basic"] = "Basic";
+      let items = Object.fromEntries(weaponItems);
+      items["basic"] = [{
+        id: "basic-attack",
+        name: "Basic Attack",
+        description: "Just roll to hit, useful for grapple and the likes."
+      }, {
+        id: "basic-attack",
+        name: "Ram Attack",
+        description: "Melee attack to ram your enemy"
+      }, {
+        id: "basic-attack",
+        name: "Grapple Attack",
+        description: "Melee attack to grapple your enemy"
+      }]
+      return {
+        theme: "red",
+        hasTabs: true,
+        tabLabels: tabLabels,
+        items: items
+      }
+    }
+
+    _isUsableItem(item: any) {
+      //TODO: Destroyed, Out of Charges, Recharging NPC features.
+      switch (item.type) {
+        case ENTRY_TYPE.NPC_FEATURE:
+          if (item.isRecharge() && !item.system.charged) return false
+        case ENTRY_TYPE.MECH_SYSTEM:
+        case ENTRY_TYPE.MECH_WEAPON:
+        case ENTRY_TYPE.WEAPON_MOD:
+          if (item.system.destroyed) return false
+        case ENTRY_TYPE.PILOT_WEAPON:
+          if (item.isLoading() && !item.system.loaded) return false
+          if (item.isLimited() && !item.system.uses.value) return false
+          break
+        case ENTRY_TYPE.BOND:
+        case ENTRY_TYPE.TALENT:
+        case ENTRY_TYPE.SKILL:
+          break
+        default:
+          return false
+      }
+
+      return true
+    }
+
+    _buildInvades(actor: LancerMECH): SubMenuData {
+      const systemInvades = actor.system.loadout.systems
+        .flatMap(s => s.value.system.actions.filter(isInvade).map((i, idx) => ({
+          id: itemActionId(s.id, idx),
+          name: `${i.name} [${s.value.name}]`,
+          description: i.detail
+        })));
+      const isChomo = actor.system.loadout.frame.value.name === "Chomolungma";
+      const chomoInvades = isChomo ?
+        (actor.system.loadout.frame.value.system.core_system.passive_actions || [])
+          .filter(isInvade)
+          .map(action => ({
+            id: actor.id,
+            name: `${action.name} [Chomolungma Frame]`,
+            description: action.detail || "No details available."
+          }))
+        : [];
+      const pilotId = actor.system?.pilot?.id;
+      let pInvades = [];
+      if (pilotId) {
+        const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
+        const pilot = game.actors.get(cleanedPilotId);
+        if (pilot) {
+          pInvades = (pilot.items.contents as LancerItem[])
+            .filter((item): item is LancerTALENT => item.is_talent() && Array.isArray(item.system.actions))
+            .flatMap((item: LancerTALENT) => item.system.actions.filter(isInvade).map(action => ({
+              id: item.id,
+              name: `${action.name} [${item.name}]`,
+              description: action.detail || "No details available."
+            })))
+        }
+      }
+      let options = [...systemInvades, ...chomoInvades, ...pInvades, {
+        id: "fragment-signal",
+        name: "Fragment Signal [Default]",
+        description: "You feed false information, obscene messages, or phantom signals to your target's computing core. They become IMPAIRED and SLOWED until the end of their next turn."
+      }];
+      return {
+        title: "Invade Options",
+        hasTabs: true,
+        tabLabels: {
+          "flow": "Invade Flow",
+          "full": "All Invade Options"
+        },
+        items: {
+          flow: [macroInvade, {
+            id: "basic-tech-attack",
+            name: "Basic Tech",
+            description: "You do a basic tech attack against edef."
+          }],
+          full: options.map(o => ({
+            id: o.id,
+            name: o.name,
+            description: o.description,
+          }))
+        }
+      }
+    }
+
+    _buildTechActivations(actor: LancerActor): SubMenuData {
+      // Orderd according to the UI and order is maintained throughout the method.
+      const fullLoad = actor.loadoutHelper.listLoadout();
+      const keyItems: Record<keyof typeof ActivationType, SubMenuItem[]> = {
+        [ActivationType.Core]: (() => {
+          if (actor.is_mech()) {
+            // Frame is part of the loadout.
+            // const weakcheck = fullLoad[0];
+            const frame = actor.system.loadout.frame.value;
+            const core_system = frame.system.core_system;
+            /*          // Amber phantoms protocol style may require special handing?
+                      // Actually, I just want the super batter action anyway?  Why am I amapping actions?
+                      const actions = [
+                        ...core_system.active_actions,
+                        ...core_system.passive_actions
+                      ]
+                      debugger;*/
+            return [{
+              id: itemActionPath(frame.id, "system.core_system"),
+              img: actor.img,
+              name: core_system.active_name,
+              description: core_system.active_effect,
+            }]
+          }
+          return []
+        })(),
+        [ActivationType.Protocol]: [],
+        [ActivationType.Invade]: [],
+        [ActivationType.Free]: [],
+        [ActivationType.Quick]: [],
+        [ActivationType.QuickTech]: [],
+        [ActivationType.Full]: [],
+        [ActivationType.FullTech]: [],
+        [ActivationType.Reaction]: [],
+        // These are action types, cut I have not seen them yet.
+        [ActivationType.None]: [],
+        [ActivationType.Other]: [],
+        [ActivationType.Passive]: []
+      } as  Record<keyof typeof ActivationType, SubMenuItem[]>;
+      // I could just use the enum if it weren't for needing to filter it out.
+      const tabLabels: Record<keyof typeof ActivationType, string> = {
+        [ActivationType.Core]: ActivationType.Core,
+        [ActivationType.Invade]: ActivationType.Invade,
+        [ActivationType.Free]: ActivationType.Free,
+        [ActivationType.Full]: ActivationType.Full,
+        [ActivationType.FullTech]: ActivationType.FullTech,
+        [ActivationType.None]: ActivationType.None,
+        [ActivationType.Other]: ActivationType.Other,
+        [ActivationType.Passive]: ActivationType.Passive,
+        [ActivationType.Protocol]: ActivationType.Protocol,
+        [ActivationType.Quick]: ActivationType.Quick,
+        [ActivationType.QuickTech]: ActivationType.QuickTech,
+        [ActivationType.Reaction]: ActivationType.Reaction
+      } as Record<keyof typeof ActivationType, string>;
+      type RT = [keyof typeof ActivationType, SubMenuItem];
+      fullLoad
+        .filter(i => !(i.is_mech_weapon() || i.is_weapon_mod()))
+        .flatMap<RT>(i => { // We need to flatten every type of valid system into action + menu
+          // I cannot wait for this edge case STEVEN
+          const {cost, description} = tagsCostAndDescription(i, i.getTags() ?? []);
+          if (i.is_mech_system() && i.system.actions.length > 0 && !i.system.destroyed) {
+            let actions = i.system.actions.filter(a => !isInvade(a));
+            return actions.map<RT>((a, idx) => {
+              const id = itemActionId(i.id, idx);
+              //Return a set of entries with the activation type
+              return [a.activation, {
+                id,
+                img: i.img,
+                name: [DEFAULT_ACTION_NAME, NO_ACTION_NAME].includes(a.name) ? i.name : a.name,
+                cost: cost,
+                description: [a.detail, description].join(" "),
+              }] as RT
+            })
+          }
+          // The abilities you can use from your frame, like Calendula shit.
+          if (i.is_frame()) {
+            const passives = i.system.core_system.passive_actions.map<RT>((p, idx) => [
+              p.activation,
+              {
+                id: itemActionId(i.id, idx, 'system.core_system.passive_actions'),
+                img: i.img,
+                name: p.name,
+                description: p.detail,
+              }
+            ] as RT);
+            // God help me what the fuck is in this list?
+            const active = i.system.core_system.active_actions.map<RT>((p, idx) => [
+              p.activation,
+              {
+                id: itemActionId(i.id, idx, 'system.core_system.active_actions'),
+                img: i.img,
+                name: p.name,
+                description: p.detail,
+              }
+            ] as RT);
+            const traits = i.system.traits.flatMap((p, idx) =>
+              p.actions.map<RT>((a, adx) => [
+                a.activation,
+                {
+                  id: itemActionPath(i.id, `system.traits.${idx}.actions.${adx}`),
+                  img: i.img,
+                  name: p.name,
+                  description: a.detail,
+                }
+              ] as RT)
+            );
+            return [
+              ...passives,
+              ...active,
+              ...traits
+            ]
+          }
+          return []
+        })//Take list of actions and group them into our items record, this collects them by speed for the menu.
+        .reduce((itms, [activationType, subMenuItem]) => {
+          itms[activationType].push(subMenuItem)
+          return itms;
+        }, keyItems);
+      // No nice collections way of doing this :(
+      // Remove our empties and add in a headers splitter.
+      for (const key of Object.keys(keyItems)) {
+        const value = keyItems[key];
+        if (
+          value == null ||
+          value === "" ||
+          (Array.isArray(value) && value.length === 0)
+        ) {
+          delete keyItems[key];
+          delete tabLabels[key];
+        } else {
+          /*
+              //For a long list, this pushes the header catagory on.
+                Tabs are easier I think.
+               keyItems[key].unshift({
+                      id: `${key}-header`,
+                      name: key,
+                      idHeader: true,
+                    });*/
+        }
+      }
+      return {
+        title: "Tech Activations",
+        tabLabels,
+        items: keyItems,
+        hasTabs: true,
+      }
+    }
+
+    _buildDeployable(sheet: LancerActor) {
+      ///??? sheet.items.
+      game.actors.contents
+        .filter(d => {
+          if (d.testUserPermission(game.user, "OWNER") && isLancerActor(d) && d.is_deployable()) {
+            // Step 3: Filter deployables for the selected actor (using the deployer's ID)
+            // @ts-ignore
+            const deployerId = d.system?.owner?.id?.replace(/^Actor\./, ''); // Clean ID
+            return deployerId === d.id;
+          }
+          return false;
+        }).map(d => {
+
+      })
+
+    }
+
+    getDefaultAttributes() {
+      return [
+        {path: "system.hp", label: "HP", color: "#2ca020", style: "bar"},
+        {path: "system.heat", label: "Heat", color: "#e61c34", style: "bar"},
 
 
-      // style number = just the number, text number/max
-      {path: "system.structure", label: "Structure", color: "#195e14", style: "bar"},
-      {path: "system.stress", label: "Stress", color: "#80101c", style: "bar"},
+        // style number = just the number, text number/max
+        {path: "system.structure", label: "Structure", color: "#195e14", style: "bar"},
+        {path: "system.stress", label: "Stress", color: "#80101c", style: "bar"},
 
-      // Put your own saves in
-      {path: "system.hull", label: "Hull", color: "#1a6f73", style: "number", ownerOnly: true},
-      {path: "system.agi", label: "Agility", color: "#1a6f73", style: "number", ownerOnly: true},
-      {path: "system.sys", label: "System", color: "#1a6f73", style: "number", ownerOnly: true},
-      {path: "system.eng", label: "Engineering", color: "#1a6f73", style: "number", ownerOnly: true},
-      {path: "system.grit", label: "Grit", color: "#e61c34", style: "number", ownerOnly: true},
-    ];
-  }
+        // Put your own saves in
+        {path: "system.hull", label: "Hull", color: "#1a6f73", style: "number", ownerOnly: true},
+        {path: "system.agi", label: "Agility", color: "#1a6f73", style: "number", ownerOnly: true},
+        {path: "system.sys", label: "System", color: "#1a6f73", style: "number", ownerOnly: true},
+        {path: "system.eng", label: "Engineering", color: "#1a6f73", style: "number", ownerOnly: true},
+        {path: "system.grit", label: "Grit", color: "#e61c34", style: "number", ownerOnly: true},
+      ];
+    }
 
-  getTrackableAttributes(actor: LancerActor) {
-    const paths = [];
+    getTrackableAttributes(actor: LancerActor): { path: string, label: string }[] {
+      const paths = [];
 
-    const scan = (obj, prefix, depth = 0) => {
-      if (depth > 4) return;
+      const scan = (obj, prefix, depth = 0) => {
+        if (depth > 4) return;
 
-      for (const [key, value] of Object.entries(obj)) {
-        if (typeof value === "object" && value !== null) {
-          if ("value" in value && typeof value.value === "number") {
-            paths.push({
-              path: `${prefix}.${key}.value`,
-              label: key.charAt(0).toUpperCase() + key.slice(1),
-            });
-          } else {
-            scan(value, `${prefix}.${key}`, depth + 1);
+        for (const [key, value] of Object.entries(obj)) {
+          if (typeof value === "object" && value !== null) {
+            if ("value" in value && typeof value.value === "number") {
+              paths.push({
+                path: `${prefix}.${key}.value`,
+                label: key.charAt(0).toUpperCase() + key.slice(1),
+              });
+            } else {
+              scan(value, `${prefix}.${key}`, depth + 1);
+            }
           }
         }
+      };
+
+      function pilotTalents(prefix, actor: LancerPILOT) {
+        let items = [...actor.items] as LancerItem[];
+        const acc = [];
+        // Counters are a map how do we path it?
+        items.forEach((t, key) => {
+          if (t.is_talent()) {
+            t.system.counters.forEach((c, cidx) => {
+              acc.push({
+                path: `${prefix}.items[${key}].system.counters[${cidx}]`,
+                label: c.name
+              })
+            })
+          }
+        })
+        return acc;
       }
-    };
 
-    if (actor?.system) {
-      scan(actor.system, "system");
+      function mechStats(actor: LancerMECH) {
+
+      }
+
+      if (actor.is_pilot()) {
+      }
+
+      if (actor.is_mech()) {
+        paths.push(
+          {
+            "path": "system.repairs.value",
+            "label": "Repairs"
+          },
+          /*          {
+                      "path": "system.loadout.sp.value",
+                      "label": "Sp"
+                    },
+                    {
+                      "path": "system.loadout.ai_cap.value",
+                      "label": "Ai_cap"
+                    },*/
+          {
+            "path": "system.hp.value",
+            "label": "Hp"
+          },
+          {
+            "path": "system.overshield.value",
+            "label": "Overshield"
+          },
+          {
+            "path": "system.heat.value",
+            "label": "Heat"
+          },
+          {
+            "path": "system.stress.value",
+            "label": "Stress"
+          },
+          {
+            "path": "system.structure.value",
+            "label": "Structure"
+          }, // I will need to customize how to set/get the counter values.
+          ...pilotTalents("system.pilot.value", actor.system.pilot.value))
+        return paths;
+      }
+
+      if (actor?.system) {
+        scan(actor.system, "system");
+        // Actor talents too.
+      }
+      return paths;
     }
-
-    return paths;
   }
 
-  rollStat(actor: LancerActor, path: string, event: any) {
-    console.error("Rolling Stat", {path, event});
-    if (this.isStatRollable(path)) {
-      return actor.beginStatFlow(path);
-    }
-    return null;
-  }
+  api.registerSystemAdapter("lancer", LancerSystemAdapter);
+})
+export const init = () => {
 
-  isStatRollable(path: string) {
-    const rollable = /^system\.(hull|agi|sys|eng|grit)$/.test(path);
-    //console.log("Rollable?", { path, rollable});
-    return rollable;
-  }
-
-  getDefaultStatusEffects() {
-    return [
-      // We have a lot of lancer to add lmao, just do it in app.
-      {
-        id: "dead",
-        label: "Dead",
-        filters: {grayscale: 100, brightness: 50},
-        tintColor: "#000000",
-        tintAlpha: 0.5,
-      },
-    ];
-  }
 }
