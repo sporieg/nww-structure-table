@@ -1269,6 +1269,3 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
   api.registerSystemAdapter("lancer", LancerSystemAdapter);
 })
-export const init = () => {
-
-}

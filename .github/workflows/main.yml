@@ -85,10 +85,18 @@ jobs:
         id: get_version
         uses: battila7/get-version-action@v2
 
-      - name: Release Module
+      - name: Release NWW
         uses: ./.github/actions/release_vtt_modules
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          module_dir: lib/nww-structure-table
+          module_dir: modules/nww-structure-table
+          version: ${{steps.get_version.outputs.version-without-v}}
+          project_url: ${{ env.project_url }}
+
+      - name: Release SUH
+        uses: ./.github/actions/release_vtt_modules
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          module_dir: modules/stylish-lancer-hud
           version: ${{steps.get_version.outputs.version-without-v}}
           project_url: ${{ env.project_url }}

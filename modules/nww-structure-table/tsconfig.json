@@ -1,11 +1,11 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./scripts"
   },
   "include": [
     "src/**/*.ts",
-    "../stylish-cheat/stylish-action-hud.d.ts"
+    "../../lib/stylish-action-hud/stylish-action-hud.d.ts"
   ]
 }

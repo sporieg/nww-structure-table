@@ -1,9 +1,6 @@
 {
   "name": "nww-structure-table",
   "private": true,
-  "workspaces": [
-    "lib/*"
-  ],
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.1.0",
     "@massif/lancer-data": "^3.1.7",

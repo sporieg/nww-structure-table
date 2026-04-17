@@ -36,10 +36,10 @@
     "resolveJsonModule": true,
     "paths": {
       "foundryvtt-lancer/*": [
-        "./lib/foundryvtt-lancer/*",
+        "../lib/foundryvtt-lancer/*",
       ],
       "Sequencer": [
-        "./lib/FoundryVTT-Sequencer/*"
+        "../lib/FoundryVTT-Sequencer/*"
       ]
     }
   }
