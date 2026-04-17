@@ -100,3 +100,8 @@ jobs:
           module_dir: modules/stylish-lancer-hud
           version: ${{steps.get_version.outputs.version-without-v}}
           project_url: ${{ env.project_url }}
+
+      # Build the code and packs for distribution
+      - name: Build For Distribution
+        run: |
+          ls -laR modules

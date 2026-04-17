@@ -77,6 +77,6 @@ runs:
         draft: ${{ github.event.release.unpublished }}
         prerelease: ${{ github.event.release.prerelease }}
         token: ${{ inputs.github_token }}
-        artifacts: '${{ inputs.module_dir }}/module.json, ${{ inputs.S }}/module.zip'
+        artifacts: '${{ inputs.module_dir }}/module.json, ${{ inputs.module_dir }}/module.zip'
         tag: ${{ github.event.release.tag_name }}
         body: ${{ github.event.release.body }}
