@@ -10,6 +10,212 @@ import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
 export const DEFAULT_ACTION_NAME = "New action"
 export const NO_ACTION_NAME = "Action"
 
+// Map to: systems/lancer/assets/icons/white
+const lancer_imgs_root = "systems/lancer/assets/icons/white/";
+const la_imgs_root = "modules/lancer-automations/icons/";
+const lancer_imgs = {
+  accuracy: `${lancer_imgs_root}accuracy.svg`,
+  campaign: `${lancer_imgs_root}campaign.svg`,
+  cover_hard: `${lancer_imgs_root}cover_hard.svg`,
+  downtime: `${lancer_imgs_root}downtime.svg`,
+  marker: `${lancer_imgs_root}marker.svg`,
+  npc_tier_custom: `${lancer_imgs_root}npc_tier_custom.svg`,
+  reserve_mech: `${lancer_imgs_root}reserve_mech.svg`,
+  role_tank: `${lancer_imgs_root}role_tank.svg`,
+  status_dangerzone: `${lancer_imgs_root}status_dangerzone.svg`,
+  tag: `${lancer_imgs_root}tag.svg`,
+  activate: `${lancer_imgs_root}activate.svg`,
+  compendium: `${lancer_imgs_root}compendium.svg`,
+  cover_soft: `${lancer_imgs_root}cover_soft.svg`,
+  drone: `${lancer_imgs_root}drone.svg`,
+  mech: `${lancer_imgs_root}mech.svg`,
+  orbital: `${lancer_imgs_root}orbital.svg`,
+  reserve_tac: `${lancer_imgs_root}reserve_tac.svg`,
+  save: `${lancer_imgs_root}save.svg`,
+  status_downandout: `${lancer_imgs_root}status_downandout.svg`,
+  talent: `${lancer_imgs_root}talent.svg`,
+  activation_full: `${lancer_imgs_root}activation_full.svg`,
+  condition_immobilized: `${lancer_imgs_root}condition_immobilized.svg`,
+  d20: `${lancer_imgs_root}d20-framed.svg`,
+  eclipse: `${lancer_imgs_root}eclipse.svg`,
+  mech_system: `${lancer_imgs_root}mech_system.svg`,
+  orbit: `${lancer_imgs_root}orbit.svg`,
+  resistance_burn: `${lancer_imgs_root}resistance_burn.svg`,
+  sensor: `${lancer_imgs_root}sensor.svg`,
+  status_engaged: `${lancer_imgs_root}status_engaged.svg`,
+  tech_full: `${lancer_imgs_root}tech_full.svg`,
+  activation_quick: `${lancer_imgs_root}activation_quick.svg`,
+  condition_impaired: `${lancer_imgs_root}condition_impaired.svg`,
+  damage_burn: `${lancer_imgs_root}damage_burn.svg`,
+  edef: `${lancer_imgs_root}edef.svg`,
+  mech_weapon: `${lancer_imgs_root}mech_weapon.svg`,
+  overcharge: `${lancer_imgs_root}overcharge.svg`,
+  resistance_energy: `${lancer_imgs_root}resistance_energy.svg`,
+  shield_outline: `${lancer_imgs_root}shield_outline.svg`,
+  status_exposed: `${lancer_imgs_root}status_exposed.svg`,
+  tech_quick: `${lancer_imgs_root}tech_quick.svg`,
+  ammo: `${lancer_imgs_root}ammo.svg`,
+  condition_jammed: `${lancer_imgs_root}condition_jammed.svg`,
+  damage_energy: `${lancer_imgs_root}damage_energy.svg`,
+  encounter: `${lancer_imgs_root}encounter.svg`,
+  melee: `${lancer_imgs_root}melee.svg`,
+  pilot: `${lancer_imgs_root}pilot.svg`,
+  resistance_explosive: `${lancer_imgs_root}resistance_explosive.svg`,
+  ship: `${lancer_imgs_root}ship.svg`,
+  status_hidden: `${lancer_imgs_root}status_hidden.svg`,
+  threat: `${lancer_imgs_root}threat.svg`,
+  aoe_blast: `${lancer_imgs_root}aoe_blast.svg`,
+  condition_lockon: `${lancer_imgs_root}condition_lockon.svg`,
+  damage_explosive: `${lancer_imgs_root}damage_explosive.svg`,
+  evasion: `${lancer_imgs_root}evasion.svg`,
+  mine: `${lancer_imgs_root}mine.svg`,
+  protocol: `${lancer_imgs_root}protocol.svg`,
+  resistance_heat: `${lancer_imgs_root}resistance_heat.svg`,
+  size_1: `${lancer_imgs_root}size_1.svg`,
+  status_intangible: `${lancer_imgs_root}status_intangible.svg`,
+  thrown: `${lancer_imgs_root}thrown.svg`,
+  aoe_burst: `${lancer_imgs_root}aoe_burst.svg`,
+  condition_shredded: `${lancer_imgs_root}condition_shredded.svg`,
+  damage_heat: `${lancer_imgs_root}damage_heat.svg`,
+  frame: `${lancer_imgs_root}frame.svg`,
+  nested_hexagons: `${lancer_imgs_root}nested_hexagons.svg`,
+  range: `${lancer_imgs_root}range.svg`,
+  resistance_kinetic: `${lancer_imgs_root}resistance_kinetic.svg`,
+  size_2: `${lancer_imgs_root}size_2.svg`,
+  status_invisible: `${lancer_imgs_root}status_invisible.svg`,
+  trait: `${lancer_imgs_root}trait.svg`,
+  aoe_cone: `${lancer_imgs_root}aoe_cone.svg`,
+  condition_slow: `${lancer_imgs_root}condition_slow.svg`,
+  damage_kinetic: `${lancer_imgs_root}damage_kinetic.svg`,
+  free_action: `${lancer_imgs_root}free_action.svg`,
+  npc_class: `${lancer_imgs_root}npc_class.svg`,
+  rank_1: `${lancer_imgs_root}rank_1.svg`,
+  reticule: `${lancer_imgs_root}reticule.svg`,
+  size_3: `${lancer_imgs_root}size_3.svg`,
+  status_prone: `${lancer_imgs_root}status_prone.svg`,
+  aoe_line: `${lancer_imgs_root}aoe_line.svg`,
+  condition_stunned: `${lancer_imgs_root}condition_stunned.svg`,
+  damage_variable: `${lancer_imgs_root}damage_variable.svg`,
+  generic_item: `${lancer_imgs_root}generic_item.svg`,
+  npc_feature: `${lancer_imgs_root}npc_feature.svg`,
+  rank_2: `${lancer_imgs_root}rank_2.svg`,
+  role_artillery: `${lancer_imgs_root}role_artillery.svg`,
+  size_4: `${lancer_imgs_root}size_4.svg`,
+  status_shutdown: `${lancer_imgs_root}status_shutdown.svg`,
+  balance: `${lancer_imgs_root}balance.svg`,
+  content_manager: `${lancer_imgs_root}content_manager.svg`,
+  deactivate: `${lancer_imgs_root}deactivate.svg`,
+  grenade: `${lancer_imgs_root}grenade.svg`,
+  npc_template: `${lancer_imgs_root}npc_template.svg`,
+  rank_3: `${lancer_imgs_root}rank_3.svg`,
+  role_controller: `${lancer_imgs_root}role_controller.svg`,
+  size_half: `${lancer_imgs_root}size_half.svg`,
+  structure: `${lancer_imgs_root}structure.svg`,
+  barrage: `${lancer_imgs_root}barrage.svg`,
+  core_bonus: `${lancer_imgs_root}core_bonus.svg`,
+  deployable: `${lancer_imgs_root}deployable.svg`,
+  large_beam: `${lancer_imgs_root}large_beam.svg`,
+  npc_tier_1: `${lancer_imgs_root}npc_tier_1.svg`,
+  reaction: `${lancer_imgs_root}reaction.svg`,
+  role_defender: `${lancer_imgs_root}role_defender.svg`,
+  skill: `${lancer_imgs_root}skill.svg`,
+  sword_array: `${lancer_imgs_root}sword_array.svg`,
+  bond: `${lancer_imgs_root}bond.svg`,
+  corebonus: `${lancer_imgs_root}corebonus.svg`,
+  difficulty: `${lancer_imgs_root}difficulty.svg`,
+  license: `${lancer_imgs_root}license.svg`,
+  npc_tier_2: `${lancer_imgs_root}npc_tier_2.svg`,
+  reactor: `${lancer_imgs_root}reactor.svg`,
+  role_striker: `${lancer_imgs_root}role_striker.svg`,
+  spikes: `${lancer_imgs_root}spikes.svg`,
+  system_point: `${lancer_imgs_root}system_point.svg`,
+  burning: `${lancer_imgs_root}burning.svg`,
+  corepower: `${lancer_imgs_root}corepower.svg`,
+  manufacturer: `${lancer_imgs_root}manufacturer.svg`,
+  npc_tier_3: `${lancer_imgs_root}npc_tier_3.svg`,
+  repair: `${lancer_imgs_root}repair.svg`,
+  role_support: `${lancer_imgs_root}role_support.svg`,
+  squad: `${lancer_imgs_root}squad.svg`,
+  system: `${lancer_imgs_root}system.svg`,
+}
+
+const la_imgs = {
+  ammo: `${la_imgs_root}ammo-box.svg`,
+  angel: `${la_imgs_root}angel-outfit.svg`,
+  anticlockwise: `${la_imgs_root}anticlockwise-rotation.svg`,
+  auto: `${la_imgs_root}auto-repair.svg`,
+  backward: `${la_imgs_root}backward-time.svg`,
+  barrage: `${la_imgs_root}barrage.svg`,
+  blinded: `${la_imgs_root}blinded.svg`,
+  boot: `${la_imgs_root}boot.svg`,
+  brace: `${la_imgs_root}brace.svg`,
+  choice: `${la_imgs_root}choice.svg`,
+  click: `${la_imgs_root}click.svg`,
+  contract: `${la_imgs_root}contract.svg`,
+  cpu: `${la_imgs_root}cpu-shot.svg`,
+  dazed: `${la_imgs_root}dazed.svg`,
+  destroyed: `${la_imgs_root}destroyed.svg`,
+  disengage: `${la_imgs_root}disengage.svg`,
+  dismount: `${la_imgs_root}dismount.svg`,
+  falling: `${la_imgs_root}falling.svg`,
+  fast: `${la_imgs_root}fast-backward-button.svg`,
+  footprint: `${la_imgs_root}footprint.svg`,
+  gears: `${la_imgs_root}gears.svg`,
+  grappled: `${la_imgs_root}grappled.svg`,
+  grappling: `${la_imgs_root}grappling.svg`,
+  hand: `${la_imgs_root}hand-truck.svg`,
+  health_capsule: `${la_imgs_root}health-capsule.svg`,
+  health_normal: `${la_imgs_root}health-normal.svg`,
+  heavy: `${la_imgs_root}heavy-bullets.svg`,
+  hover: `${la_imgs_root}hover.svg`,
+  immovable: `${la_imgs_root}immovable.svg`,
+  immunity: `${la_imgs_root}immunity.svg`,
+  infection: `${la_imgs_root}infection.svg`,
+  lagging: `${la_imgs_root}lagging.svg`,
+  light: `${la_imgs_root}light-bulb.svg`,
+  machine: `${la_imgs_root}machine-gun-magazine.svg`,
+  measure: `${la_imgs_root}measure-tape.svg`,
+  medical: `${la_imgs_root}medical-pack.svg`,
+  menu: `${la_imgs_root}menu.svg`,
+  metal: `${la_imgs_root}metal-boot.svg`,
+  mia_lg: `${la_imgs_root}mia_lg.svg`,
+  mountain: `${la_imgs_root}mountain-climbing.svg`,
+  mushroom: `${la_imgs_root}mushroom-cloud.svg`,
+  nested: `${la_imgs_root}nested-hexagons.svg`,
+  parachute: `${la_imgs_root}parachute.svg`,
+  path: `${la_imgs_root}path-distance.svg`,
+  pause: `${la_imgs_root}pause-button.svg`,
+  perspective: `${la_imgs_root}perspective-dice-two.svg`,
+  pickup: `${la_imgs_root}pickup.svg`,
+  pin: `${la_imgs_root}pin.svg`,
+  push: `${la_imgs_root}push.svg`,
+  radar: `${la_imgs_root}radar-sweep.svg`,
+  rally: `${la_imgs_root}rally-the-troops.svg`,
+  ram: `${la_imgs_root}ram.svg`,
+  reload: `${la_imgs_root}reload.svg`,
+  resist_all: `${la_imgs_root}resist_all.svg`,
+  rifle: `${la_imgs_root}rifle.svg`,
+  search: `${la_imgs_root}search.svg`,
+  skirmish: `${la_imgs_root}skirmish.svg`,
+  speedometer: `${la_imgs_root}speedometer.svg`,
+  stone: `${la_imgs_root}stone-pile.svg`,
+  suicide: `${la_imgs_root}suicide.svg`,
+  teleport: `${la_imgs_root}teleport.svg`,
+  throttled: `${la_imgs_root}throttled.svg`,
+  throw: `${la_imgs_root}throw.svg`,
+  time: `${la_imgs_root}time-bomb.svg`,
+  tombstone: `${la_imgs_root}tombstone.svg`,
+  trash: `${la_imgs_root}trash-can.svg`,
+  underhand: `${la_imgs_root}underhand.svg`,
+  up: `${la_imgs_root}up-card.svg`,
+  vote: `${la_imgs_root}vote.svg`,
+}
+
+const imgs = {
+  lancer: lancer_imgs,
+  la: lancer_imgs
+}
+
 const QuickIcon = `<i class="mdi mdi-hexagon-slice-3" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
 const FullIcon = `<i class="mdi mdi-hexagon-slice-6" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
 // Edit search css?
@@ -65,6 +271,7 @@ export const ActivationType = {
   Free: "Free",
 }
 
+//The only type of actor we have is Lancer Actor, but you gotta make TS believe.
 function isLancerActor(x: any): x is LancerActor {
   return true;
 }
@@ -116,7 +323,15 @@ export function logInvalidItem(item: unknown, actor?: LancerActor, context = "")
   }
 }
 
+
 const Groups = {
+  compconFlow: {
+    id: "compcon",
+    systemId: "compcon",
+    label: "Turn Flow",
+    icon: "cci cci-activate",
+    type: "submenu"
+  },
   attacks: {
     id: "attacks",
     systemId: "attacks",
@@ -124,10 +339,10 @@ const Groups = {
     icon: "cci cci-role-striker",
     type: "submenu",
   },
-  weapon: {
+  attack: {
     id: "weapons",
     systemId: "weapons",
-    label: "Weapons",
+    label: "Attacks",
     icon: "cci cci-weapon",
     type: "submenu"
   },
@@ -176,34 +391,132 @@ const Groups = {
   sheet: {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
 } satisfies Record<string, ActionMenuCategory>
 
-const UtilityActions = {
+//Specialty items that will need to be mapped in use_item.
+// Basic routing, by using the id and starts with you can id thing that map to the same aciton, e.g. basic-attack/basic-attack-ram
+const actions = {
+  scan: {
+    //Macro id for scan/scan journal
+    id: "Macro.yPxTd02BZDkVXDwi",
+    name: "Scan",
+    cost: ActivationType.QuickTech,
+    img: imgs.lancer.tech_quick,
+    description: "When you SCAN, you use your mech’s powerful sensors to perform a deep scan on an enemy.\n" +
+      "• Your target’s weapons, systems, and full statistics (HP, SPEED, EVASION, ARMOR, MECH SKILLS, and so on).\n"
+  },
   stabilize: {
-    id: "stabilize",
-    name: "Stabilize",
+    id: "Macro.k4o9aWoJTVb2sd8a",
+    name: `${FullIcon}Stabilize`,
     cost: ActivationType.Full,
-    img: "systems/lancer/assets/icons/macro-icons/marker.svg",
+    img: imgs.lancer.marker,
     description: `When you STABILIZE, you enact emergency protocols to purge your mech’s systems of excess heat, repair your chassis where you can, or eliminate hostile code.`
   },
+  // TODO: The overcharge label should show your cost to overcharge, e.g. 1d3
   overcharge: {
     id: "overcharge",
     name: "Overcharge",
     cost: ActivationType.Free,
     img: "systems/lancer/assets/icons/macro-icons/overcharge.svg",
-    description: `Heat for Actions, why not?`
+    description: `Once per turn, you can OVERCHARGE your mech, allowing you to make any quick action as a free action – even actions you have already taken this turn.`
   },
   deploy_drone: {
     id: "Macro.ByD82cBFckjJIl3q",
-    name: "Deploy Drone System",
+    name: `${QuickIcon}Deploy Drone System`,
     cost: ActivationType.Quick,
-    img: "systems/lancer/assets/icons/white/deployable.svg",
+    img: imgs.lancer.deployable,
     description: `Deploy a drone?`
   },
-  /*mission_rest: {
-    id: "Macro.MiJ9OGiYsgtHulQQ",
-    name: "Mission Rest",
-    img: "systems/lancer/assets/icons/white/repair.svg",
-    description: `Short rest during a mission, spend repairs on structure/mounts.  Rebuild a mech [never happened]`
-  }*/
+  overwatch: {
+    id: 'skirmish-overwatch',
+    name: "Overwatch",
+    img: la_imgs.skirmish,
+    description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
+  },
+  brace: {
+    id: 'Brace',
+    name: "Brace",
+    img: imgs.lancer.barrage,
+    description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
+  },
+  skirmish: {
+    //Compendium.lancer-automations.macros.Macro.WAdsrYPLI08L0bmG
+    id: 'skirmish',
+    name: "Skirmish",
+    cost: ActivationType.Quick,
+    img: la_imgs.skirmish,
+    description: "When you SKIRMISH, you attack with a single weapon.\n" +
+      "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.\n" +
+      "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.\n" +
+      "• SUPERHEAVY weapons are too cumbersome to use in a SKIRMISH, and can only be fired as part of a BARRAGE."
+  },
+  barrage: {
+    id: 'barrage',
+    name: "Barrage",
+    img: imgs.la.barrage,
+    description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.\n" +
+      "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.\n" +
+      "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
+      "• SUPERHEAVY weapons can only be fired as part of a BARRAGE."
+  },/*
+  quick_invade: {
+
+  },*/
+  basic_attack: {
+    id: "basic-attack",
+    name: `${QuickIcon}Basic Attack`,
+    description: "Just roll to hit, useful for grapple and the likes."
+  },
+  basic_ram: {
+    id: "basic-attack-ram",
+    name: `${QuickIcon}Ram Attack`,
+    description: "Melee attack to ram your enemy"
+  },
+  basic_grapple: {
+    id: "basic-attack-ram",
+    name: `${QuickIcon}Grapple Attack`,
+    description: "Melee attack to grapple your enemy"
+  }
+} satisfies Record<string, SubMenuItem>;
+
+
+//The basic scaffolding before any systems are read from the actor.
+const CompconFLow: SubMenuData = {
+  title: "Active Mode",
+  hasTabs: true,
+  tabLabels: {
+    protocol: "Protocol",
+    quick: `${QuickIcon}Quick`,
+    full: `${FullIcon}Full`,
+    free: "Free",
+    reactions: "Reactions"
+  },
+  items: {
+    protocol: [
+
+    ],
+    quick: [
+      actions.skirmish,
+      actions.scan,
+      actions.basic_attack,
+      actions.basic_ram,
+      actions.basic_grapple,
+    ],
+    full: [
+      actions.barrage
+    ],
+    free: [
+      actions.overcharge
+    ],
+    reactions: [
+      actions.overwatch,
+      actions.brace
+    ]
+  }
+}
+
+const UtilityActions = {
+  stabilize: actions.stabilize,
+  overcharge: actions.overcharge,
+  deploy_drone: actions.deploy_drone,
 } satisfies Record<string, SubMenuItem>
 
 function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
@@ -212,7 +525,7 @@ function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
   return {
     id: m.id,
     name: "^[Mod]" + m.name,
-    description: [m.system.description, description].join(" "),
+    description: [m.system.effect, description].join(" "),
     cost: cost,
   }
 }
@@ -354,12 +667,20 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
 
       const item = actor.items.get(itemId) as LancerItem;
+      // @ts-ignore
+      const la = game.modules.get('lancer-automations').api as any;
       if (!item) {
-        switch (itemId) {
-          case "basic-attack":
-            return actor.beginBasicAttackFlow("Basic Attack");
-          case "basic-tech-attack":
-            return actor.beginBasicTechAttackFlow("Basic Tech");
+        if (itemId.startsWith("basic-attack")) {
+          return actor.beginBasicAttackFlow("Basic Attack");
+        }
+        if (itemId.startsWith("basic-tech")) {
+          return actor.beginBasicTechAttackFlow("Basic Tech");
+        }
+        if (itemId.startsWith("skirmish")) {
+          return await la.executeSkirmish(actor);
+        }
+        if (itemId.startsWith("barrage")) {
+          return await la.executeBarrage(actor);
         }
         ui.notifications?.warn(`Item not found: ${itemId}`);
         return;
@@ -393,8 +714,8 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       if (actor.is_deployable()) return [];
       if (actor.is_mech()) {
         return [
-          //Groups.attacks,
-          Groups.weapon,
+          Groups.compconFlow,
+          Groups.attack,
           Groups.invade,
           Groups.tech,
           Groups.utility
@@ -475,7 +796,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
     async _getSystemSubMenuData(actor: LancerActor, systemId: string, menuData: ActionMenuCategory): Promise<SubMenuData> {
       switch (systemId) {
-        case Groups.weapon.systemId:
+        case Groups.attack.systemId:
           if (actor.is_mech()) {
             return {...this._buildWeapons(actor), title: menuData.label};
           }
@@ -494,9 +815,15 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
             return {...this._buildNpcAttacks(actor), title: menuData.label};
           }
           return {title: "npc fail", items: []};
+        case Groups.compconFlow.systemId:
+          return CompconFLow;
         default:
           return {title: "label", items: []};
       }
+    }
+
+    _buildCompconFlow(actor: LancerActor) {
+
     }
 
     _buildUtility(actor: LancerActor): _SubMenuData {
@@ -533,11 +860,14 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
             return false;
           }
           return m.slots.length > 0 && !m.bracing;
-        }).map((m, mountIdx) => {
+        }).flatMap<SubMenuItem>((m, mountIdx) => {
           //TODO Sheavy
           return [
-            m.type,
-            m.slots
+            {
+              isHeader: true,
+              name: m.type
+            },
+            ...m.slots
               .flatMap(s => {
                 if (!s.weapon) return [];
                 const value = s.weapon.value;
@@ -559,26 +889,19 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
                 }
                 if (!s.mod || !s.mod.value) return [wItem];
                 return [wItem, modSubItem(s.mod.value, actor)];
-              })];
+              })] as SubMenuItem[];
         });
 
 
-      let tabLabels = Object.fromEntries(weaponItems.map(([label]) => [label, label]));
+      let tabLabels = {};
       tabLabels["basic"] = "Basic";
-      let items = Object.fromEntries(weaponItems);
-      items["basic"] = [{
-        id: "basic-attack",
-        name: "Basic Attack",
-        description: "Just roll to hit, useful for grapple and the likes."
-      }, {
-        id: "basic-attack",
-        name: "Ram Attack",
-        description: "Melee attack to ram your enemy"
-      }, {
-        id: "basic-attack",
-        name: "Grapple Attack",
-        description: "Melee attack to grapple your enemy"
-      }]
+      tabLabels["attack"] = "Attack";
+      tabLabels["mounts"] = "Mounts";
+      let items = {
+        attack: [actions.skirmish, actions.barrage],
+        mounts: weaponItems,
+        basic: [actions.basic_attack, actions.basic_ram, actions.basic_grapple]
+      };
       return {
         theme: "red",
         hasTabs: true,
@@ -708,7 +1031,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         [ActivationType.None]: [],
         [ActivationType.Other]: [],
         [ActivationType.Passive]: []
-      } as  Record<keyof typeof ActivationType, SubMenuItem[]>;
+      } as Record<keyof typeof ActivationType, SubMenuItem[]>;
       // I could just use the enum if it weren't for needing to filter it out.
       const tabLabels: Record<keyof typeof ActivationType, string> = {
         [ActivationType.Core]: ActivationType.Core,
