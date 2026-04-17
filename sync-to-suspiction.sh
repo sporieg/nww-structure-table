@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-PROJECT_DIR="/home/sporieg/dev/nww-structure-table/lib/nww-structure-table"
+PROJECT_DIR="/home/sporieg/dev/nww-structure-table/"
 SCRIPTS_DIR="${PROJECT_DIR}/scripts"
 REMOTE_TARGET="sporieg@suspicious.zip:/var/lib/foundryvtt/Data/modules/nww-lancer-alt-structure/scripts"
 

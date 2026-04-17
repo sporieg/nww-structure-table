@@ -7,3 +7,8 @@ This is a straight replacement for the structure rolling code in the basic syste
 Those rules are used with permission.
 
 Code from the LANCER system by Eranziel is used uder GPL3.0
+
+# Action Hud
+
+It probably should be another module, but that is more a todo at this point.
+I am making a hud for my game right now.

@@ -1,5 +1,5 @@
 import {LancerActor} from "foundryvtt-lancer/actor/lancer-actor";
-import en from "../language/en.json";
+import en from "../../language/en.json";
 
 type LocalizeKeys = keyof typeof en["LANCER-ALT-STRUCTURE"] extends infer S
   ? S extends keyof typeof en["LANCER-ALT-STRUCTURE"]

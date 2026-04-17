@@ -1,7 +1,52 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./modules/nww-structure-table" },
-    { "path": "./modules/stylish-lancer-hud" }
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./scripts",
+    "moduleResolution": "bundler",
+    "target": "esnext",
+    "isolatedModules": false,
+    "lib": [
+      "DOM",
+      "ESNext"
+    ],
+    /* Modules */
+    "module": "esnext",
+    "sourceMap": false,
+    "types": [
+      "@league-of-foundry-developers/foundry-vtt-types",
+      "jquery"
+    ],
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
+    "strict": true,
+    "strictNullChecks": false,
+    "importsNotUsedAsValues": "remove",
+    "erasableSyntaxOnly": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+
+    "useUnknownInCatchVariables": false,
+    "exactOptionalPropertyTypes": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitReturns": false,
+    "noFallthroughCasesInSwitch": false,
+
+    "allowJs": true,
+    "noEmit": false,
+    "resolveJsonModule": true,
+    "paths": {
+      "foundryvtt-lancer/*": [
+        "./lib/foundryvtt-lancer/*",
+      ],
+      "Sequencer": [
+        "./lib/FoundryVTT-Sequencer/*"
+      ]
+    }
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./lib/stylish-action-hud/stylish-action-hud.d.ts"
   ]
 }
