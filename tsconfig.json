@@ -1,0 +1,7 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./modules/nww-structure-table" },
+    { "path": "./modules/stylish-lancer-hud" }
+  ]
+}

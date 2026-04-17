@@ -4,3 +4,4 @@ scripts/
 .idea
 .devbox
 tsconfig.tsbuildinfo
+/lib/stylish-action-hud-src/

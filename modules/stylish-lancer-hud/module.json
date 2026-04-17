@@ -1,0 +1,59 @@
+{
+  "id": "lancer-stylish-action-hud",
+  "title": "LANCER Stylish Actin HUD",
+  "description": "Make a SUH for my specific campaign, not very general purpose yet.",
+  "version": "#{VERSION}#",
+  "library": "false",
+  "compatibility": {
+    "minimum": 12,
+    "verified": 12
+  },
+  "authors": [
+    {
+      "name": "George Sporie",
+      "url": "https://github.com/sporieg/nww-structure-table"
+    }
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "lancer",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.0.0"
+        }
+      }
+    ],
+    "requires": [
+      {
+        "id": "lancer-automations",
+        "type": "module",
+        "url": "https://github.com/Agraael/lancer-automations",
+        "manifest": "https://github.com/Agraael/lancer-automations/releases/latest/download/module.json",
+        "download": "https://github.com/Agraael/lancer-automations/releases/latest/download/module.zip"
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/LancerSystemAdapter.js",
+    "scripts/statuses.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "language/en.json"
+    }
+  ],
+  "url": "#{URL}#",
+  "manifest": "#{MANIFEST}#",
+  "download": "#{DOWNLOAD}#",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "media": [
+    {
+      "type": "icon",
+      "url": "https://avatars2.githubusercontent.com/u/71292812?s=400&u=ccdb4eeb7abf551ca8f314e5a9bfd0479a4d3d41&v=4"
+    }
+  ]
+}
