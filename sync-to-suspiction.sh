@@ -2,9 +2,9 @@
 
 set -euo pipefail
 
-PROJECT_DIR="/home/sporieg/dev/nww-structure-table/"
-SCRIPTS_DIR="${PROJECT_DIR}/scripts"
-REMOTE_TARGET="sporieg@suspicious.zip:/var/lib/foundryvtt/Data/modules/nww-lancer-alt-structure/scripts"
+PROJECT_DIR="/home/sporieg/dev/nww-structure-table"
+SCRIPTS_DIR="${PROJECT_DIR}/scripts/stylish"
+REMOTE_TARGET="sporieg@suspicious.zip:/var/lib/foundryvtt/Data/modules/nww-lancer-alt-structure/scripts/stylish"
 
 cleanup() {
   echo "Stopping watchers..."

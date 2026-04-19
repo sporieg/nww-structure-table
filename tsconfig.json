@@ -47,6 +47,7 @@
   },
   "include": [
     "./src/**/*.ts",
-    "./lib/stylish-action-hud/stylish-action-hud.d.ts"
+    "./lib/stylish-action-hud/stylish-action-hud.d.ts",
+    "./lib/lancer-automations/types.d.ts"
   ]
 }

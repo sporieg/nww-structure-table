@@ -1,223 +1,33 @@
 import type {LancerActor, LancerMECH, LancerNPC, LancerPILOT} from "foundryvtt-lancer/actor/lancer-actor";
 import type {LancerActiveEffect} from "foundryvtt-lancer/effects/lancer-active-effect";
-import type {LancerItem, LancerTALENT, LancerWEAPON_MOD} from "foundryvtt-lancer/item/lancer-item";
+import {
+  LancerItem,
+  LancerMECH_SYSTEM,
+  LancerMECH_WEAPON,
+  LancerTALENT,
+  LancerWEAPON_MOD
+} from "foundryvtt-lancer/item/lancer-item";
 import type {ActionData} from "foundryvtt-lancer/models/bits/action";
 import type {Tag} from "foundryvtt-lancer/models/bits/tag";
 import {debug} from "./log.js";
 import {LancerToken} from "foundryvtt-lancer/token";
 import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
+import {imgs} from "./images.js";
+import {
+  ActionItem, ActivationLabels,
+  ActivationType,
+  byActionType,
+  getActorActionItems,
+  getItem,
+  itemActionId,
+  itemActionPath
+} from "./ActivationType.js";
+import {simpleActivations, simpleToSubMenu} from "./SimpleActions.js";
 
 export const DEFAULT_ACTION_NAME = "New action"
 export const NO_ACTION_NAME = "Action"
 
-// Map to: systems/lancer/assets/icons/white
-const lancer_imgs_root = "systems/lancer/assets/icons/white/";
-const la_imgs_root = "modules/lancer-automations/icons/";
-const lancer_imgs = {
-  accuracy: `${lancer_imgs_root}accuracy.svg`,
-  campaign: `${lancer_imgs_root}campaign.svg`,
-  cover_hard: `${lancer_imgs_root}cover_hard.svg`,
-  downtime: `${lancer_imgs_root}downtime.svg`,
-  marker: `${lancer_imgs_root}marker.svg`,
-  npc_tier_custom: `${lancer_imgs_root}npc_tier_custom.svg`,
-  reserve_mech: `${lancer_imgs_root}reserve_mech.svg`,
-  role_tank: `${lancer_imgs_root}role_tank.svg`,
-  status_dangerzone: `${lancer_imgs_root}status_dangerzone.svg`,
-  tag: `${lancer_imgs_root}tag.svg`,
-  activate: `${lancer_imgs_root}activate.svg`,
-  compendium: `${lancer_imgs_root}compendium.svg`,
-  cover_soft: `${lancer_imgs_root}cover_soft.svg`,
-  drone: `${lancer_imgs_root}drone.svg`,
-  mech: `${lancer_imgs_root}mech.svg`,
-  orbital: `${lancer_imgs_root}orbital.svg`,
-  reserve_tac: `${lancer_imgs_root}reserve_tac.svg`,
-  save: `${lancer_imgs_root}save.svg`,
-  status_downandout: `${lancer_imgs_root}status_downandout.svg`,
-  talent: `${lancer_imgs_root}talent.svg`,
-  activation_full: `${lancer_imgs_root}activation_full.svg`,
-  condition_immobilized: `${lancer_imgs_root}condition_immobilized.svg`,
-  d20: `${lancer_imgs_root}d20-framed.svg`,
-  eclipse: `${lancer_imgs_root}eclipse.svg`,
-  mech_system: `${lancer_imgs_root}mech_system.svg`,
-  orbit: `${lancer_imgs_root}orbit.svg`,
-  resistance_burn: `${lancer_imgs_root}resistance_burn.svg`,
-  sensor: `${lancer_imgs_root}sensor.svg`,
-  status_engaged: `${lancer_imgs_root}status_engaged.svg`,
-  tech_full: `${lancer_imgs_root}tech_full.svg`,
-  activation_quick: `${lancer_imgs_root}activation_quick.svg`,
-  condition_impaired: `${lancer_imgs_root}condition_impaired.svg`,
-  damage_burn: `${lancer_imgs_root}damage_burn.svg`,
-  edef: `${lancer_imgs_root}edef.svg`,
-  mech_weapon: `${lancer_imgs_root}mech_weapon.svg`,
-  overcharge: `${lancer_imgs_root}overcharge.svg`,
-  resistance_energy: `${lancer_imgs_root}resistance_energy.svg`,
-  shield_outline: `${lancer_imgs_root}shield_outline.svg`,
-  status_exposed: `${lancer_imgs_root}status_exposed.svg`,
-  tech_quick: `${lancer_imgs_root}tech_quick.svg`,
-  ammo: `${lancer_imgs_root}ammo.svg`,
-  condition_jammed: `${lancer_imgs_root}condition_jammed.svg`,
-  damage_energy: `${lancer_imgs_root}damage_energy.svg`,
-  encounter: `${lancer_imgs_root}encounter.svg`,
-  melee: `${lancer_imgs_root}melee.svg`,
-  pilot: `${lancer_imgs_root}pilot.svg`,
-  resistance_explosive: `${lancer_imgs_root}resistance_explosive.svg`,
-  ship: `${lancer_imgs_root}ship.svg`,
-  status_hidden: `${lancer_imgs_root}status_hidden.svg`,
-  threat: `${lancer_imgs_root}threat.svg`,
-  aoe_blast: `${lancer_imgs_root}aoe_blast.svg`,
-  condition_lockon: `${lancer_imgs_root}condition_lockon.svg`,
-  damage_explosive: `${lancer_imgs_root}damage_explosive.svg`,
-  evasion: `${lancer_imgs_root}evasion.svg`,
-  mine: `${lancer_imgs_root}mine.svg`,
-  protocol: `${lancer_imgs_root}protocol.svg`,
-  resistance_heat: `${lancer_imgs_root}resistance_heat.svg`,
-  size_1: `${lancer_imgs_root}size_1.svg`,
-  status_intangible: `${lancer_imgs_root}status_intangible.svg`,
-  thrown: `${lancer_imgs_root}thrown.svg`,
-  aoe_burst: `${lancer_imgs_root}aoe_burst.svg`,
-  condition_shredded: `${lancer_imgs_root}condition_shredded.svg`,
-  damage_heat: `${lancer_imgs_root}damage_heat.svg`,
-  frame: `${lancer_imgs_root}frame.svg`,
-  nested_hexagons: `${lancer_imgs_root}nested_hexagons.svg`,
-  range: `${lancer_imgs_root}range.svg`,
-  resistance_kinetic: `${lancer_imgs_root}resistance_kinetic.svg`,
-  size_2: `${lancer_imgs_root}size_2.svg`,
-  status_invisible: `${lancer_imgs_root}status_invisible.svg`,
-  trait: `${lancer_imgs_root}trait.svg`,
-  aoe_cone: `${lancer_imgs_root}aoe_cone.svg`,
-  condition_slow: `${lancer_imgs_root}condition_slow.svg`,
-  damage_kinetic: `${lancer_imgs_root}damage_kinetic.svg`,
-  free_action: `${lancer_imgs_root}free_action.svg`,
-  npc_class: `${lancer_imgs_root}npc_class.svg`,
-  rank_1: `${lancer_imgs_root}rank_1.svg`,
-  reticule: `${lancer_imgs_root}reticule.svg`,
-  size_3: `${lancer_imgs_root}size_3.svg`,
-  status_prone: `${lancer_imgs_root}status_prone.svg`,
-  aoe_line: `${lancer_imgs_root}aoe_line.svg`,
-  condition_stunned: `${lancer_imgs_root}condition_stunned.svg`,
-  damage_variable: `${lancer_imgs_root}damage_variable.svg`,
-  generic_item: `${lancer_imgs_root}generic_item.svg`,
-  npc_feature: `${lancer_imgs_root}npc_feature.svg`,
-  rank_2: `${lancer_imgs_root}rank_2.svg`,
-  role_artillery: `${lancer_imgs_root}role_artillery.svg`,
-  size_4: `${lancer_imgs_root}size_4.svg`,
-  status_shutdown: `${lancer_imgs_root}status_shutdown.svg`,
-  balance: `${lancer_imgs_root}balance.svg`,
-  content_manager: `${lancer_imgs_root}content_manager.svg`,
-  deactivate: `${lancer_imgs_root}deactivate.svg`,
-  grenade: `${lancer_imgs_root}grenade.svg`,
-  npc_template: `${lancer_imgs_root}npc_template.svg`,
-  rank_3: `${lancer_imgs_root}rank_3.svg`,
-  role_controller: `${lancer_imgs_root}role_controller.svg`,
-  size_half: `${lancer_imgs_root}size_half.svg`,
-  structure: `${lancer_imgs_root}structure.svg`,
-  barrage: `${lancer_imgs_root}barrage.svg`,
-  core_bonus: `${lancer_imgs_root}core_bonus.svg`,
-  deployable: `${lancer_imgs_root}deployable.svg`,
-  large_beam: `${lancer_imgs_root}large_beam.svg`,
-  npc_tier_1: `${lancer_imgs_root}npc_tier_1.svg`,
-  reaction: `${lancer_imgs_root}reaction.svg`,
-  role_defender: `${lancer_imgs_root}role_defender.svg`,
-  skill: `${lancer_imgs_root}skill.svg`,
-  sword_array: `${lancer_imgs_root}sword_array.svg`,
-  bond: `${lancer_imgs_root}bond.svg`,
-  corebonus: `${lancer_imgs_root}corebonus.svg`,
-  difficulty: `${lancer_imgs_root}difficulty.svg`,
-  license: `${lancer_imgs_root}license.svg`,
-  npc_tier_2: `${lancer_imgs_root}npc_tier_2.svg`,
-  reactor: `${lancer_imgs_root}reactor.svg`,
-  role_striker: `${lancer_imgs_root}role_striker.svg`,
-  spikes: `${lancer_imgs_root}spikes.svg`,
-  system_point: `${lancer_imgs_root}system_point.svg`,
-  burning: `${lancer_imgs_root}burning.svg`,
-  corepower: `${lancer_imgs_root}corepower.svg`,
-  manufacturer: `${lancer_imgs_root}manufacturer.svg`,
-  npc_tier_3: `${lancer_imgs_root}npc_tier_3.svg`,
-  repair: `${lancer_imgs_root}repair.svg`,
-  role_support: `${lancer_imgs_root}role_support.svg`,
-  squad: `${lancer_imgs_root}squad.svg`,
-  system: `${lancer_imgs_root}system.svg`,
-}
 
-const la_imgs = {
-  ammo: `${la_imgs_root}ammo-box.svg`,
-  angel: `${la_imgs_root}angel-outfit.svg`,
-  anticlockwise: `${la_imgs_root}anticlockwise-rotation.svg`,
-  auto: `${la_imgs_root}auto-repair.svg`,
-  backward: `${la_imgs_root}backward-time.svg`,
-  barrage: `${la_imgs_root}barrage.svg`,
-  blinded: `${la_imgs_root}blinded.svg`,
-  boot: `${la_imgs_root}boot.svg`,
-  brace: `${la_imgs_root}brace.svg`,
-  choice: `${la_imgs_root}choice.svg`,
-  click: `${la_imgs_root}click.svg`,
-  contract: `${la_imgs_root}contract.svg`,
-  cpu: `${la_imgs_root}cpu-shot.svg`,
-  dazed: `${la_imgs_root}dazed.svg`,
-  destroyed: `${la_imgs_root}destroyed.svg`,
-  disengage: `${la_imgs_root}disengage.svg`,
-  dismount: `${la_imgs_root}dismount.svg`,
-  falling: `${la_imgs_root}falling.svg`,
-  fast: `${la_imgs_root}fast-backward-button.svg`,
-  footprint: `${la_imgs_root}footprint.svg`,
-  gears: `${la_imgs_root}gears.svg`,
-  grappled: `${la_imgs_root}grappled.svg`,
-  grappling: `${la_imgs_root}grappling.svg`,
-  hand: `${la_imgs_root}hand-truck.svg`,
-  health_capsule: `${la_imgs_root}health-capsule.svg`,
-  health_normal: `${la_imgs_root}health-normal.svg`,
-  heavy: `${la_imgs_root}heavy-bullets.svg`,
-  hover: `${la_imgs_root}hover.svg`,
-  immovable: `${la_imgs_root}immovable.svg`,
-  immunity: `${la_imgs_root}immunity.svg`,
-  infection: `${la_imgs_root}infection.svg`,
-  lagging: `${la_imgs_root}lagging.svg`,
-  light: `${la_imgs_root}light-bulb.svg`,
-  machine: `${la_imgs_root}machine-gun-magazine.svg`,
-  measure: `${la_imgs_root}measure-tape.svg`,
-  medical: `${la_imgs_root}medical-pack.svg`,
-  menu: `${la_imgs_root}menu.svg`,
-  metal: `${la_imgs_root}metal-boot.svg`,
-  mia_lg: `${la_imgs_root}mia_lg.svg`,
-  mountain: `${la_imgs_root}mountain-climbing.svg`,
-  mushroom: `${la_imgs_root}mushroom-cloud.svg`,
-  nested: `${la_imgs_root}nested-hexagons.svg`,
-  parachute: `${la_imgs_root}parachute.svg`,
-  path: `${la_imgs_root}path-distance.svg`,
-  pause: `${la_imgs_root}pause-button.svg`,
-  perspective: `${la_imgs_root}perspective-dice-two.svg`,
-  pickup: `${la_imgs_root}pickup.svg`,
-  pin: `${la_imgs_root}pin.svg`,
-  push: `${la_imgs_root}push.svg`,
-  radar: `${la_imgs_root}radar-sweep.svg`,
-  rally: `${la_imgs_root}rally-the-troops.svg`,
-  ram: `${la_imgs_root}ram.svg`,
-  reload: `${la_imgs_root}reload.svg`,
-  resist_all: `${la_imgs_root}resist_all.svg`,
-  rifle: `${la_imgs_root}rifle.svg`,
-  search: `${la_imgs_root}search.svg`,
-  skirmish: `${la_imgs_root}skirmish.svg`,
-  speedometer: `${la_imgs_root}speedometer.svg`,
-  stone: `${la_imgs_root}stone-pile.svg`,
-  suicide: `${la_imgs_root}suicide.svg`,
-  teleport: `${la_imgs_root}teleport.svg`,
-  throttled: `${la_imgs_root}throttled.svg`,
-  throw: `${la_imgs_root}throw.svg`,
-  time: `${la_imgs_root}time-bomb.svg`,
-  tombstone: `${la_imgs_root}tombstone.svg`,
-  trash: `${la_imgs_root}trash-can.svg`,
-  underhand: `${la_imgs_root}underhand.svg`,
-  up: `${la_imgs_root}up-card.svg`,
-  vote: `${la_imgs_root}vote.svg`,
-}
-
-const imgs = {
-  lancer: lancer_imgs,
-  la: lancer_imgs
-}
-
-const QuickIcon = `<i class="mdi mdi-hexagon-slice-3" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
-const FullIcon = `<i class="mdi mdi-hexagon-slice-6" style="font-size:1.15em;margin-right:5px;vertical-align:middle;flex-shrink:0;"></i>`
 // Edit search css?
 // Ad somethign to fix it?
 export const ENTRY_TYPE = {
@@ -254,29 +64,13 @@ const STAT_PATHS = {
   GRIT: "system.grit"
 };
 
-// Copied from foundryvtt-lancer/enums, actual values get borked in foundry loading.
-export const ActivationType = {
-  Core: "Core Power",
-  // Core Foundry, retain all for funzies.
-  None: "None",
-  Passive: "Passive",
-  Quick: "Quick",
-  QuickTech: "Quick Tech",
-  Invade: "Invade",
-  Full: "Full",
-  FullTech: "Full Tech",
-  Other: "Other",
-  Reaction: "Reaction",
-  Protocol: "Protocol",
-  Free: "Free",
-}
 
 //The only type of actor we have is Lancer Actor, but you gotta make TS believe.
 function isLancerActor(x: any): x is LancerActor {
   return true;
 }
 
-const isInvade = (a: ActionData) => a.activation === "Invade"
+const isInvade = (a: Pick<ActionData, "activation">) => a.activation === "Invade"
 
 // Lancer icons at: https://github.com/massif-press/compcon/blob/master/src/assets/glyphs/glyphs.css
 const invadeMacroFlow = "Macro.o3nZI3EidYMVc9UX";
@@ -284,8 +78,8 @@ const invadeMacroFlow = "Macro.o3nZI3EidYMVc9UX";
 let macroInvade: SubMenuItem = {
   id: invadeMacroFlow,
   name: "Invasion Flow",
-  img: "systems/lancer/assets/icons/activation_full.svg",
-  cost: "Quick/Full",
+  img: imgs.lancer.tech_quick,
+  cost: ActivationType.QuickTech + ActivationType.FullTech,
   description: "Trigger the invasion flow chart"
 }
 
@@ -391,6 +185,7 @@ const Groups = {
   sheet: {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
 } satisfies Record<string, ActionMenuCategory>
 
+// In order to favorite, all non-item ids will need to start with macro-
 //Specialty items that will need to be mapped in use_item.
 // Basic routing, by using the id and starts with you can id thing that map to the same aciton, e.g. basic-attack/basic-attack-ram
 const actions = {
@@ -400,12 +195,12 @@ const actions = {
     name: "Scan",
     cost: ActivationType.QuickTech,
     img: imgs.lancer.tech_quick,
-    description: "When you SCAN, you use your mech’s powerful sensors to perform a deep scan on an enemy.\n" +
-      "• Your target’s weapons, systems, and full statistics (HP, SPEED, EVASION, ARMOR, MECH SKILLS, and so on).\n"
+    description: "When you SCAN, you use your mech’s powerful sensors to perform a deep scan on an enemy.<br>" +
+      "• Your target’s weapons, systems, and full statistics (HP, SPEED, EVASION, ARMOR, MECH SKILLS, and so on)."
   },
   stabilize: {
     id: "Macro.k4o9aWoJTVb2sd8a",
-    name: `${FullIcon}Stabilize`,
+    name: `Stabilize`,
     cost: ActivationType.Full,
     img: imgs.lancer.marker,
     description: `When you STABILIZE, you enact emergency protocols to purge your mech’s systems of excess heat, repair your chassis where you can, or eliminate hostile code.`
@@ -418,9 +213,9 @@ const actions = {
     img: "systems/lancer/assets/icons/macro-icons/overcharge.svg",
     description: `Once per turn, you can OVERCHARGE your mech, allowing you to make any quick action as a free action – even actions you have already taken this turn.`
   },
-  deploy_drone: {
-    id: "Macro.ByD82cBFckjJIl3q",
-    name: `${QuickIcon}Deploy Drone System`,
+  deploy_item: {
+    id: "deploy_item",
+    name: `Deploy Item`,
     cost: ActivationType.Quick,
     img: imgs.lancer.deployable,
     description: `Deploy a drone?`
@@ -428,21 +223,49 @@ const actions = {
   overwatch: {
     id: 'skirmish-overwatch',
     name: "Overwatch",
-    img: la_imgs.skirmish,
+    img: imgs.la.skirmish,
     description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
   },
-  brace: {
-    id: 'Brace',
-    name: "Brace",
-    img: imgs.lancer.barrage,
-    description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
+  brace: simpleToSubMenu("brace", {
+    img: imgs.la.brace,
+  }),
+  bolster: simpleToSubMenu("bolster", {
+    img: "icons/svg/upgrade.svg",
+  }),
+  disengage: simpleToSubMenu("disengage", {
+    img: imgs.la.disengage,
+  }),
+  hide: simpleToSubMenu("hide", {
+    img: imgs.lancer.status_hidden
+  }),
+  search: simpleToSubMenu("search", {
+    img: imgs.la.search
+  }),
+  dismount: simpleToSubMenu("dismount", {
+    img: imgs.la.dismount
+  }),
+  eject: simpleToSubMenu("eject", {
+    img: imgs.la.parachute
+  }),
+  boot_up: simpleToSubMenu("boot_up", {
+    img: imgs.la.boot
+  }),
+  lock_on: simpleToSubMenu("lock_on", {
+    img: imgs.lancer.condition_lockon
+  }),
+  //I am not sure boost can work through the simple meny?
+  boost: {
+    id: "boost",
+    name: simpleActivations.boost.title,
+    img: imgs.la.speedometer,
+    description: simpleActivations.boost.detail
   },
   skirmish: {
     //Compendium.lancer-automations.macros.Macro.WAdsrYPLI08L0bmG
     id: 'skirmish',
     name: "Skirmish",
     cost: ActivationType.Quick,
-    img: la_imgs.skirmish,
+    img: imgs.la.skirmish,
     description: "When you SKIRMISH, you attack with a single weapon.\n" +
       "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.\n" +
       "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.\n" +
@@ -451,72 +274,91 @@ const actions = {
   barrage: {
     id: 'barrage',
     name: "Barrage",
+    cost: ActivationType.Full,
     img: imgs.la.barrage,
     description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.\n" +
       "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.\n" +
       "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
       "• SUPERHEAVY weapons can only be fired as part of a BARRAGE."
-  },/*
-  quick_invade: {
-
-  },*/
+  },
+  improvised_attack: {
+    id: "basic-attack-improvised",
+    name: 'Improvised Attack',
+    img: imgs.lancer.mech_weapon,
+    cost: ActivationType.Full,
+    description: 'Make a melee or ranged attack using a non-weapon object or piece of terrain. On a hit, deal 1d6 AP kinetic damage.'
+  },
   basic_attack: {
     id: "basic-attack",
-    name: `${QuickIcon}Basic Attack`,
+    name: `Basic Attack`,
+    cost: ActivationType.Quick,
     description: "Just roll to hit, useful for grapple and the likes."
   },
   basic_ram: {
     id: "basic-attack-ram",
-    name: `${QuickIcon}Ram Attack`,
+    name: `Ram Attack`,
+    cost: ActivationType.Quick,
     description: "Melee attack to ram your enemy"
   },
   basic_grapple: {
     id: "basic-attack-ram",
-    name: `${QuickIcon}Grapple Attack`,
+    name: `Grapple Attack`,
+    cost: ActivationType.Quick,
     description: "Melee attack to grapple your enemy"
   }
 } satisfies Record<string, SubMenuItem>;
 
 
 //The basic scaffolding before any systems are read from the actor.
-const CompconFLow: SubMenuData = {
+const CompconFLow = () => ({
   title: "Active Mode",
   hasTabs: true,
   tabLabels: {
     protocol: "Protocol",
-    quick: `${QuickIcon}Quick`,
-    full: `${FullIcon}Full`,
+    quick: `${ActivationType.Quick}Quick`,
+    full: `${ActivationType.Full}Full`,
     free: "Free",
     reactions: "Reactions"
   },
   items: {
-    protocol: [
-
-    ],
+    protocol: [] as SubMenuItem[],
     quick: [
       actions.skirmish,
+      macroInvade,
+      actions.deploy_item,
+      actions.lock_on,
+      actions.hide,
+      actions.search,
       actions.scan,
+      actions.bolster,
+      actions.boost,
+      actions.eject,
       actions.basic_attack,
       actions.basic_ram,
       actions.basic_grapple,
     ],
     full: [
-      actions.barrage
+      actions.barrage,
+      actions.disengage,
+      actions.stabilize,
+      actions.dismount,
+      actions.improvised_attack,
+      actions.boot_up
     ],
     free: [
       actions.overcharge
-    ],
+    ] as SubMenuItem[],
     reactions: [
       actions.overwatch,
       actions.brace
     ]
   }
-}
+} as const satisfies SubMenuData)
 
 const UtilityActions = {
   stabilize: actions.stabilize,
   overcharge: actions.overcharge,
-  deploy_drone: actions.deploy_drone,
+  deploy_drone: actions.deploy_item,
 } satisfies Record<string, SubMenuItem>
 
 function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
@@ -530,25 +372,18 @@ function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
   }
 }
 
-export const ID_DELIMITER = '>';
 
-/*
-You might use this for a core item, that has a defualt path instead of other items where you must have the idexed path
- */
-function itemActionPath(itemId: string, path: string = "system.actions") {
-  return [itemId, path].join(ID_DELIMITER);
-}
 
-function itemActionId(itemId: string, idx: number, path: string = "system.actions") {
-  return itemActionPath(itemId, `${path}.${idx}`);
-}
 
-function getItem(actor: LancerActor, actionId: string): [LancerItem, string] {
-  const activationParts = actionId.split(ID_DELIMITER)
-  const itemId = activationParts[0]
-  const dataPath = activationParts[1]
+
+
+
+function pilotForMech(actor: LancerMECH): LancerPILOT | undefined {
+  const pilotId = actor.system?.pilot?.id;
+  if (!pilotId) return undefined;
+  const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
   // @ts-ignore
-  return [actor.items.get(itemId), dataPath]
+  return game.actors.get(cleanedPilotId);
 }
 
 function activateSystem(actor: LancerActor, actionId: string) {
@@ -591,6 +426,11 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       // @ts-ignore
       this.base = (new adapter());
       this.systemId = "lancer-system";
+    }
+
+    get la(): LancerAutomationsAPI {
+      // @ts-ignore
+      return game.modules.get('lancer-automations').api as LancerAutomationsAPI;
     }
 
     getStats(actor: LancerActor, configAttributes: any) {
@@ -667,8 +507,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
 
       const item = actor.items.get(itemId) as LancerItem;
-      // @ts-ignore
-      const la = game.modules.get('lancer-automations').api as any;
+
       if (!item) {
         if (itemId.startsWith("basic-attack")) {
           return actor.beginBasicAttackFlow("Basic Attack");
@@ -677,10 +516,18 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           return actor.beginBasicTechAttackFlow("Basic Tech");
         }
         if (itemId.startsWith("skirmish")) {
-          return await la.executeSkirmish(actor);
+          return await this.la.executeSkirmish(actor);
         }
         if (itemId.startsWith("barrage")) {
-          return await la.executeBarrage(actor);
+          return await this.la.executeBarrage(actor);
+        }
+        if (itemId.startsWith("deploy")) {
+          return await this.la.openDeployableMenu(actor);
+        }
+        // We can probably merge this with the menu data for a "SimpleActivation" that just prints its details.
+        const simple = simpleActivations[itemId]
+        if (simple) {
+          return await this.la.executeSimpleActivation(actor, simple);
         }
         ui.notifications?.warn(`Item not found: ${itemId}`);
         return;
@@ -816,14 +663,21 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           }
           return {title: "npc fail", items: []};
         case Groups.compconFlow.systemId:
-          return CompconFLow;
+          return this._buildCompconFlow(actor);
         default:
           return {title: "label", items: []};
       }
     }
 
     _buildCompconFlow(actor: LancerActor) {
-
+      const base = CompconFLow();
+      const {protocol, quick, full, free} = base.items
+      let actorActionItems = getActorActionItems(actor);
+      protocol.push(...actorActionItems.flatMap(byActionType("Protocol")));
+      quick.push(...actorActionItems.flatMap(byActionType("Quick", "Quick Tech")));
+      full.push(...actorActionItems.flatMap(byActionType("Full", "Full Tech")));
+      free.push(...actorActionItems.flatMap(byActionType("Free")));
+      return base;
     }
 
     _buildUtility(actor: LancerActor): _SubMenuData {
@@ -835,6 +689,20 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
     _buildNpcAttacks(actor: LancerNPC): _SubMenuData {
       return {
         items: {}
+      }
+    }
+
+    _weaponItem(weapon: LancerMECH_WEAPON, actor: LancerActor) {
+      const system = weapon.system;
+      const destroyed = system.destroyed;
+      const profiles = this.la.getWeaponProfiles_WithBonus(weapon, actor)
+      let menu: SubMenuItem = {
+        id: weapon.id,
+        name: destroyed ? `<s class="horus--subtle" style="opacity:0.7;color:#e50000;">${weapon.name}</s>` : weapon.name,
+        description: ""
+      }
+      if (system.destroyed) {
+
       }
     }
 
@@ -935,13 +803,8 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
     }
 
     _buildInvades(actor: LancerMECH): SubMenuData {
-      const systemInvades = actor.system.loadout.systems
-        .flatMap(s => s.value.system.actions.filter(isInvade).map((i, idx) => ({
-          id: itemActionId(s.id, idx),
-          name: `${i.name} [${s.value.name}]`,
-          description: i.detail
-        })));
-      const isChomo = actor.system.loadout.frame.value.name === "Chomolungma";
+      const systemInvades = getActorActionItems(actor).filter(a => isInvade(a.action)).map(a => a.subMenuItem);;
+      /*const isChomo = actor.system.loadout.frame.value.name === "Chomolungma";
       const chomoInvades = isChomo ?
         (actor.system.loadout.frame.value.system.core_system.passive_actions || [])
           .filter(isInvade)
@@ -950,23 +813,9 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
             name: `${action.name} [Chomolungma Frame]`,
             description: action.detail || "No details available."
           }))
-        : [];
-      const pilotId = actor.system?.pilot?.id;
-      let pInvades = [];
-      if (pilotId) {
-        const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
-        const pilot = game.actors.get(cleanedPilotId);
-        if (pilot) {
-          pInvades = (pilot.items.contents as LancerItem[])
-            .filter((item): item is LancerTALENT => item.is_talent() && Array.isArray(item.system.actions))
-            .flatMap((item: LancerTALENT) => item.system.actions.filter(isInvade).map(action => ({
-              id: item.id,
-              name: `${action.name} [${item.name}]`,
-              description: action.detail || "No details available."
-            })))
-        }
-      }
-      let options = [...systemInvades, ...chomoInvades, ...pInvades, {
+        : [];*/
+      const pInvades = getActorActionItems(pilotForMech(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
+      let options = [...systemInvades, ...pInvades, {
         id: "fragment-signal",
         name: "Fragment Signal [Default]",
         description: "You feed false information, obscene messages, or phantom signals to your target's computing core. They become IMPAIRED and SLOWED until the end of their next turn."
@@ -995,122 +844,41 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
     _buildTechActivations(actor: LancerActor): SubMenuData {
       // Orderd according to the UI and order is maintained throughout the method.
-      const fullLoad = actor.loadoutHelper.listLoadout();
-      const keyItems: Record<keyof typeof ActivationType, SubMenuItem[]> = {
-        [ActivationType.Core]: (() => {
-          if (actor.is_mech()) {
-            // Frame is part of the loadout.
-            // const weakcheck = fullLoad[0];
-            const frame = actor.system.loadout.frame.value;
-            const core_system = frame.system.core_system;
-            /*          // Amber phantoms protocol style may require special handing?
-                      // Actually, I just want the super batter action anyway?  Why am I amapping actions?
-                      const actions = [
-                        ...core_system.active_actions,
-                        ...core_system.passive_actions
-                      ]
-                      debugger;*/
-            return [{
-              id: itemActionPath(frame.id, "system.core_system"),
-              img: actor.img,
-              name: core_system.active_name,
-              description: core_system.active_effect,
-            }]
-          }
-          return []
-        })(),
-        [ActivationType.Protocol]: [],
-        [ActivationType.Invade]: [],
-        [ActivationType.Free]: [],
-        [ActivationType.Quick]: [],
-        [ActivationType.QuickTech]: [],
-        [ActivationType.Full]: [],
-        [ActivationType.FullTech]: [],
-        [ActivationType.Reaction]: [],
-        // These are action types, cut I have not seen them yet.
-        [ActivationType.None]: [],
-        [ActivationType.Other]: [],
-        [ActivationType.Passive]: []
-      } as Record<keyof typeof ActivationType, SubMenuItem[]>;
+      const keyItems: Record<keyof typeof ActivationLabels, SubMenuItem[]> = {
+        [ActivationLabels.Core]: [],
+        [ActivationLabels.Invade]: [],
+        [ActivationLabels.Free]: [],
+        [ActivationLabels.Full]: [],
+        [ActivationLabels.FullTech]: [],
+        [ActivationLabels.None]: [],
+        [ActivationLabels.Other]: [],
+        [ActivationLabels.Passive]: [],
+        [ActivationLabels.Protocol]: [],
+        [ActivationLabels.Quick]: [],
+        [ActivationLabels.QuickTech]: [],
+        [ActivationLabels.Reaction]: []
+      } as Record<keyof typeof ActivationLabels, SubMenuItem[]>;
       // I could just use the enum if it weren't for needing to filter it out.
-      const tabLabels: Record<keyof typeof ActivationType, string> = {
-        [ActivationType.Core]: ActivationType.Core,
-        [ActivationType.Invade]: ActivationType.Invade,
-        [ActivationType.Free]: ActivationType.Free,
-        [ActivationType.Full]: ActivationType.Full,
-        [ActivationType.FullTech]: ActivationType.FullTech,
-        [ActivationType.None]: ActivationType.None,
-        [ActivationType.Other]: ActivationType.Other,
-        [ActivationType.Passive]: ActivationType.Passive,
-        [ActivationType.Protocol]: ActivationType.Protocol,
-        [ActivationType.Quick]: ActivationType.Quick,
-        [ActivationType.QuickTech]: ActivationType.QuickTech,
-        [ActivationType.Reaction]: ActivationType.Reaction
-      } as Record<keyof typeof ActivationType, string>;
-      type RT = [keyof typeof ActivationType, SubMenuItem];
-      fullLoad
-        .filter(i => !(i.is_mech_weapon() || i.is_weapon_mod()))
-        .flatMap<RT>(i => { // We need to flatten every type of valid system into action + menu
-          // I cannot wait for this edge case STEVEN
-          const {cost, description} = tagsCostAndDescription(i, i.getTags() ?? []);
-          if (i.is_mech_system() && i.system.actions.length > 0 && !i.system.destroyed) {
-            let actions = i.system.actions.filter(a => !isInvade(a));
-            return actions.map<RT>((a, idx) => {
-              const id = itemActionId(i.id, idx);
-              //Return a set of entries with the activation type
-              return [a.activation, {
-                id,
-                img: i.img,
-                name: [DEFAULT_ACTION_NAME, NO_ACTION_NAME].includes(a.name) ? i.name : a.name,
-                cost: cost,
-                description: [a.detail, description].join(" "),
-              }] as RT
-            })
-          }
-          // The abilities you can use from your frame, like Calendula shit.
-          if (i.is_frame()) {
-            const passives = i.system.core_system.passive_actions.map<RT>((p, idx) => [
-              p.activation,
-              {
-                id: itemActionId(i.id, idx, 'system.core_system.passive_actions'),
-                img: i.img,
-                name: p.name,
-                description: p.detail,
-              }
-            ] as RT);
-            // God help me what the fuck is in this list?
-            const active = i.system.core_system.active_actions.map<RT>((p, idx) => [
-              p.activation,
-              {
-                id: itemActionId(i.id, idx, 'system.core_system.active_actions'),
-                img: i.img,
-                name: p.name,
-                description: p.detail,
-              }
-            ] as RT);
-            const traits = i.system.traits.flatMap((p, idx) =>
-              p.actions.map<RT>((a, adx) => [
-                a.activation,
-                {
-                  id: itemActionPath(i.id, `system.traits.${idx}.actions.${adx}`),
-                  img: i.img,
-                  name: p.name,
-                  description: a.detail,
-                }
-              ] as RT)
-            );
-            return [
-              ...passives,
-              ...active,
-              ...traits
-            ]
-          }
-          return []
-        })//Take list of actions and group them into our items record, this collects them by speed for the menu.
-        .reduce((itms, [activationType, subMenuItem]) => {
-          itms[activationType].push(subMenuItem)
-          return itms;
-        }, keyItems);
+      const tabLabels: Record<keyof typeof ActivationLabels, string> = {
+        [ActivationLabels.Core]: ActivationLabels.Core,
+        [ActivationLabels.Invade]: ActivationLabels.Invade,
+        [ActivationLabels.Free]: ActivationLabels.Free,
+        [ActivationLabels.Full]: ActivationLabels.Full,
+        [ActivationLabels.FullTech]: ActivationLabels.FullTech,
+        [ActivationLabels.None]: ActivationLabels.None,
+        [ActivationLabels.Other]: ActivationLabels.Other,
+        [ActivationLabels.Passive]: ActivationLabels.Passive,
+        [ActivationLabels.Protocol]: ActivationLabels.Protocol,
+        [ActivationLabels.Quick]: ActivationLabels.Quick,
+        [ActivationLabels.QuickTech]: ActivationLabels.QuickTech,
+        [ActivationLabels.Reaction]: ActivationLabels.Reaction
+      } as Record<keyof typeof ActivationLabels, string>;
+      getActorActionItems(actor)
+        .filter(a => {
+          return !(a.item.is_weapon() || a.item.is_weapon_mod() || isInvade(a.action))
+        }).forEach(at => {
+          keyItems[at.action.activation].push(at.subMenuItem);
+        });
       // No nice collections way of doing this :(
       // Remove our empties and add in a headers splitter.
       for (const key of Object.keys(keyItems)) {
@@ -1122,19 +890,10 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         ) {
           delete keyItems[key];
           delete tabLabels[key];
-        } else {
-          /*
-              //For a long list, this pushes the header catagory on.
-                Tabs are easier I think.
-               keyItems[key].unshift({
-                      id: `${key}-header`,
-                      name: key,
-                      idHeader: true,
-                    });*/
         }
       }
       return {
-        title: "Tech Activations",
+        title: "Systems",
         tabLabels,
         items: keyItems,
         hasTabs: true,
