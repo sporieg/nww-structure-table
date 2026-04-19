@@ -14,19 +14,16 @@ import {LancerToken} from "foundryvtt-lancer/token";
 import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
 import {imgs} from "./images.js";
 import {
-  ActionItem, ActivationLabels,
+  ActivationLabels,
   ActivationType,
   byActionType,
   getActorActionItems,
   getItem,
-  itemActionId,
-  itemActionPath
 } from "./ActivationType.js";
 import {simpleActivations, simpleToSubMenu} from "./SimpleActions.js";
 
 export const DEFAULT_ACTION_NAME = "New action"
 export const NO_ACTION_NAME = "Action"
-
 
 // Edit search css?
 // Ad somethign to fix it?
@@ -175,18 +172,19 @@ const Groups = {
     icon: "cci cci-activate",
     type: "system"
   },
-  endTurn: {
-    id: "end-turn",
-    systemId: "end-turn",
-    label: "End Turn",
-    icon: "cci cci-deactivate",
+  recallDeployable: {
+    id: "recall-deployable",
+    systemId: "recall-deployable",
+    label: "Recall",
+    icon: "cci cci-activate",
     type: "system"
   },
   sheet: {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
 } satisfies Record<string, ActionMenuCategory>
-
 // In order to favorite, all non-item ids will need to start with macro-
 //Specialty items that will need to be mapped in use_item.
+type ActionMap = Record<string, SubMenuItem>;
+
 // Basic routing, by using the id and starts with you can id thing that map to the same aciton, e.g. basic-attack/basic-attack-ram
 const actions = {
   scan: {
@@ -223,6 +221,7 @@ const actions = {
   overwatch: {
     id: 'skirmish-overwatch',
     name: "Overwatch",
+    cost: ActivationType.Reaction,
     img: imgs.la.skirmish,
     description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
   },
@@ -306,11 +305,24 @@ const actions = {
     cost: ActivationType.Quick,
     description: "Melee attack to grapple your enemy"
   }
-} satisfies Record<string, SubMenuItem>;
+} satisfies ActionMap;
+
+function overcharge(actor: LancerMECH): SubMenuItem {
+  const cost = actor.system.overcharge.valueOf();
+  let costs = actor.system.overcharge_sequence.split(",");
+  const seq = costs[Math.min(cost, costs.length)];
+  return {
+    ...actions.overcharge,
+    cost: `${seq} Heat`
+  }
+}
 
 
-//The basic scaffolding before any systems are read from the actor.
-const CompconFLow = () => ({
+/*
+ * The basic scaffolding before any systems are read from the actor.
+ * This method is allowed to use the actor for simple reads, e.g. overcharge cost.
+ */
+const CompconFLow = (actor: LancerActor) => ({
   title: "Active Mode",
   hasTabs: true,
   tabLabels: {
@@ -346,7 +358,7 @@ const CompconFLow = () => ({
       actions.boot_up
     ],
     free: [
-      actions.overcharge
+      ...[actor.is_mech() && overcharge(actor)]
     ] as SubMenuItem[],
     reactions: [
       actions.overwatch,
@@ -359,7 +371,7 @@ const UtilityActions = {
   stabilize: actions.stabilize,
   overcharge: actions.overcharge,
   deploy_drone: actions.deploy_item,
-} satisfies Record<string, SubMenuItem>
+} satisfies ActionMap
 
 function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
   let {cost, description} = tagsCostAndDescription(m.system, m.system.tags)
@@ -371,11 +383,6 @@ function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
     cost: cost,
   }
 }
-
-
-
-
-
 
 
 function pilotForMech(actor: LancerMECH): LancerPILOT | undefined {
@@ -554,11 +561,22 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         case Groups.activate.id:
           // @ts-ignore
           return await game.combat.activateCombatant(yourToken.combatant.id);
+        case Groups.recallDeployable.id:
+          const tokenA = actor.token;
+          // This kills the crab
+          return tokenA.delete()
       }
     }
 
     getCoreLancerActions(actor: LancerActor): ActionMenuCategory[] {
-      if (actor.is_deployable()) return [];
+      if (actor.is_deployable()) {
+        if(actor.system.recall) {
+          return [
+            Groups.recallDeployable
+          ];
+        }
+        return [];
+      }
       if (actor.is_mech()) {
         return [
           Groups.compconFlow,
@@ -582,7 +600,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
     }
 
     getActionCategories(actor: LancerActor): ActionMenuCategory[] {
-      // @ts-ignore this is if you set the config globally, why though?  You don't have actove method access then, just macro.
+      // @ts-ignore this is if you set the config globally, why though?  You don't have actor method access then, just macro.
       let customized = this.base.getActionCategories(actor);
       const basicActions = this.getCoreLancerActions(actor)
         .map((a, idx) => {
@@ -591,9 +609,9 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           }
           return a;
         });
-      if (game.combat && (actor.is_mech() || actor.is_npc())) {
+      if (actor.inCombat && (actor.is_mech() || actor.is_npc())) {
         // Is it our turn?
-        // @ts-ignore this is if you set the config globally, why though?  You don't have actove method access then, just macro.
+        // @ts-ignore this is if you set the config globally, why though?  You don't have actor method access then, just macro.
         const myTurn = game.combat.combatants.find(c => c.actor.id === actor.id) as LancerCombatant;
         if (myTurn && myTurn.activations.value > 0) {
           basicActions.push(Groups.activate);
@@ -641,6 +659,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       return {title: "", items: []};
     }
 
+
     async _getSystemSubMenuData(actor: LancerActor, systemId: string, menuData: ActionMenuCategory): Promise<SubMenuData> {
       switch (systemId) {
         case Groups.attack.systemId:
@@ -650,11 +669,11 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           return {title: "mech fail", items: []};
         case Groups.invade.systemId:
           if (actor.is_mech()) {
-            return {...this._buildInvades(actor), title: menuData.label};
+            return {...await this._buildInvades(actor), title: menuData.label};
           }
           return {title: "mech fail", items: []};
         case Groups.tech.systemId:
-          return {...this._buildTechActivations(actor), title: menuData.label};
+          return {...await this._buildTechActivations(actor), title: menuData.label};
         case Groups.utility.systemId:
           return {...this._buildUtility(actor), title: menuData.label};
         case Groups.npcAttacks.systemId:
@@ -669,10 +688,10 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
     }
 
-    _buildCompconFlow(actor: LancerActor) {
-      const base = CompconFLow();
+    async _buildCompconFlow(actor: LancerActor) {
+      const base = CompconFLow(actor);
       const {protocol, quick, full, free} = base.items
-      let actorActionItems = getActorActionItems(actor);
+      let actorActionItems = await getActorActionItems(actor);
       protocol.push(...actorActionItems.flatMap(byActionType("Protocol")));
       quick.push(...actorActionItems.flatMap(byActionType("Quick", "Quick Tech")));
       full.push(...actorActionItems.flatMap(byActionType("Full", "Full Tech")));
@@ -802,8 +821,9 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       return true
     }
 
-    _buildInvades(actor: LancerMECH): SubMenuData {
-      const systemInvades = getActorActionItems(actor).filter(a => isInvade(a.action)).map(a => a.subMenuItem);;
+    async _buildInvades(actor: LancerMECH): Promise<SubMenuData> {
+      const systemInvades = (await getActorActionItems(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
+
       /*const isChomo = actor.system.loadout.frame.value.name === "Chomolungma";
       const chomoInvades = isChomo ?
         (actor.system.loadout.frame.value.system.core_system.passive_actions || [])
@@ -814,7 +834,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
             description: action.detail || "No details available."
           }))
         : [];*/
-      const pInvades = getActorActionItems(pilotForMech(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
+      const pInvades = (await getActorActionItems(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
       let options = [...systemInvades, ...pInvades, {
         id: "fragment-signal",
         name: "Fragment Signal [Default]",
@@ -842,7 +862,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
     }
 
-    _buildTechActivations(actor: LancerActor): SubMenuData {
+    async _buildTechActivations(actor: LancerActor): Promise<SubMenuData> {
       // Orderd according to the UI and order is maintained throughout the method.
       const keyItems: Record<keyof typeof ActivationLabels, SubMenuItem[]> = {
         [ActivationLabels.Core]: [],
@@ -873,12 +893,12 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         [ActivationLabels.QuickTech]: ActivationLabels.QuickTech,
         [ActivationLabels.Reaction]: ActivationLabels.Reaction
       } as Record<keyof typeof ActivationLabels, string>;
-      getActorActionItems(actor)
+      (await getActorActionItems(actor))
         .filter(a => {
           return !(a.item.is_weapon() || a.item.is_weapon_mod() || isInvade(a.action))
         }).forEach(at => {
-          keyItems[at.action.activation].push(at.subMenuItem);
-        });
+        keyItems[at.action.activation].push(at.subMenuItem);
+      });
       // No nice collections way of doing this :(
       // Remove our empties and add in a headers splitter.
       for (const key of Object.keys(keyItems)) {
@@ -900,7 +920,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
     }
 
-    _buildDeployable(sheet: LancerActor) {
+    /*_buildDeployable(sheet: LancerActor) {
       ///??? sheet.items.
       game.actors.contents
         .filter(d => {
@@ -915,7 +935,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
       })
 
-    }
+    }*/
 
     getDefaultAttributes() {
       return [
@@ -977,23 +997,16 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
       }
 
-      if (actor.is_pilot()) {
+      if (actor.is_deployable()) {
+        return [
+          {
+            "path": "system.hp.value",
+            "label": "Hp"
+          }]
       }
 
-      if (actor.is_mech()) {
-        paths.push(
-          {
-            "path": "system.repairs.value",
-            "label": "Repairs"
-          },
-          /*          {
-                      "path": "system.loadout.sp.value",
-                      "label": "Sp"
-                    },
-                    {
-                      "path": "system.loadout.ai_cap.value",
-                      "label": "Ai_cap"
-                    },*/
+      if (actor.is_npc()) {
+        return [
           {
             "path": "system.hp.value",
             "label": "Hp"
@@ -1013,7 +1026,52 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           {
             "path": "system.structure.value",
             "label": "Structure"
-          }, // I will need to customize how to set/get the counter values.
+          }
+        ]
+      }
+
+      if (actor.is_pilot()) {
+        return [{
+          "path": "system.bond_state.xp.value",
+          "label": "Xp"
+        }, {
+          "path": "system.bond_state.stress.value",
+          "label": "Stress"
+        }, {
+          "path": "system.bond_state.burdens.0.value",
+          "label": "0"
+        }, {
+          "path": "system.hp.value",
+          "label": "Hp"
+        }]
+      }
+
+      if (actor.is_mech()) {
+        paths.push(
+          {
+            "path": "system.repairs.value",
+            "label": "Repairs"
+          },
+          {
+            "path": "system.hp.value",
+            "label": "Hp"
+          },
+          {
+            "path": "system.overshield.value",
+            "label": "Overshield"
+          },
+          {
+            "path": "system.heat.value",
+            "label": "Heat"
+          },
+          {
+            "path": "system.stress.value",
+            "label": "Stress"
+          },
+          {
+            "path": "system.structure.value",
+            "label": "Structure"
+          }, // Do I even want pilot counters here?
           ...pilotTalents("system.pilot.value", actor.system.pilot.value))
         return paths;
       }
@@ -1028,3 +1086,4 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
   api.registerSystemAdapter("lancer", LancerSystemAdapter);
 })
+

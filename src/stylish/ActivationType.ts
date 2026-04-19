@@ -2,6 +2,7 @@
 import {LancerActor, type LancerMECH, type LancerPILOT} from "foundryvtt-lancer/actor/lancer-actor";
 import {ActionData} from "foundryvtt-lancer/models/bits/action";
 import {LancerItem} from "foundryvtt-lancer/item/lancer-item";
+import {imgs} from "./images.js";
 
 export const ActivationLabels = {
   Core: "Core Power",
@@ -84,7 +85,9 @@ export function byActionType(...activationType: (keyof typeof ACTIVATION_TAG_MAP
   }
 }
 
-
+/**
+ *
+ */
 function la(): LancerAutomationsAPI {
   // @ts-ignore
   return game.modules.get('lancer-automations').api as LancerAutomationsAPI;
@@ -95,20 +98,21 @@ function la(): LancerAutomationsAPI {
  *
  * Returns an array of Item/Action/subMenuItem data so that is can be sliced and dices as needed by the menu.
  *
- * Feel free to modicy the subMenuItem as well, its just a suggestion with defaults filled in based on item/action
+ * Feel free to modify the subMenuItem as well, its just a suggestion with defaults filled in based on item/action
  *
  * e.g.  getActionActionItem(actor).filter(byActionType("Protocol"))
  */
-export function getActorActionItems(actor: LancerActor) {
+export async function getActorActionItems(actor: LancerActor) {
   // NPCS have other tags, we will need to reverse this out maybe?
   // const tagLid = ACTIVATION_TAG_MAP[activationType];
   // We need an item/action/index ste
   //???
   //TODO: Deployable e.g.  A mine in addition to grenade.
-  return actor.loadoutHelper.listLoadout()
-    .flatMap((item) => {
+  return (await Promise.all(actor.loadoutHelper.listLoadout()
+    .map(async (item): Promise<ActionItem[]> => {
       const itemId = item.id;
       const options: ActionItem[] = [];
+      const tags = await la().getItemTags_WithBonus(item, actor);
       if (item.is_frame()) {
         const core_system = item.system.core_system;
         const coreAction: ActionItem = {
@@ -161,8 +165,14 @@ export function getActorActionItems(actor: LancerActor) {
         )
       }
       // Frames and items with deploybables can apply.
+
+      let img = item.img;
+      if(item.is_mech_system()) {
+        img = imgs.lancer.mech_system;
+      }
       if (("deployables" in item.system && item.system.deployables.length > 0) || (item.is_frame())) {
         //item.system.deployables[0]
+        img = imgs.lancer.deployable;
         const d = la().getItemDeployables(item, actor).map(d => ({
           item,
           action: {
@@ -183,12 +193,12 @@ export function getActorActionItems(actor: LancerActor) {
           subMenuItem: {
             id: itemActionId(itemId, idx, "system.actions"),
             name: `${action.name} [${item.name}]`,
-            img: item.img,
+            img,
             description: action.detail
           }
         })))
       }
       return options;
-    })
+    }))).flatMap(a => a);
 
 }
