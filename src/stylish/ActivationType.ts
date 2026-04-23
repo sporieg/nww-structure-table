@@ -3,7 +3,6 @@ import {LancerActor, type LancerMECH, type LancerPILOT} from "foundryvtt-lancer/
 import {ActionData} from "foundryvtt-lancer/models/bits/action";
 import {LancerItem} from "foundryvtt-lancer/item/lancer-item";
 import {imgs} from "./images.js";
-import type {Tag} from "foundryvtt-lancer/models/bits/tag";
 
 export const ENTRY_TYPE = {
   CORE_BONUS: 'core_bonus',
@@ -169,7 +168,7 @@ export function isUsableItem(item: any) {
 
 // Map everything to a light image, they are dark by default.
 // Once again, enum in Lancer, but enums cannot be used with eraseable syntax
-const enum EntryTypeImage {
+/*const enum EntryTypeImage {
    "core_bonus",
    "deployable",
    "frame",
@@ -192,7 +191,7 @@ const enum EntryTypeImage {
    "status",
    "talent",
    "bond",
-}
+}*/
 
 /**
  * I could put the help on system, but I think there are enough potential edge cases
