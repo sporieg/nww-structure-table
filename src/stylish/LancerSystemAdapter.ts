@@ -14,43 +14,18 @@ import {LancerToken} from "foundryvtt-lancer/token";
 import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
 import {imgs} from "./images.js";
 import {
+  ActionItem,
+  ACTIVATION_TAG_MAP,
   ActivationLabels,
   ActivationType,
   byActionType,
   getActorActionItems,
-  getItem,
+  getItem, isUsableItem, RemapAction, tagsCostAndDescription,
 } from "./ActivationType.js";
 import {simpleActivations, simpleToSubMenu} from "./SimpleActions.js";
 
-export const DEFAULT_ACTION_NAME = "New action"
-export const NO_ACTION_NAME = "Action"
-
 // Edit search css?
 // Ad somethign to fix it?
-export const ENTRY_TYPE = {
-  CORE_BONUS: 'core_bonus',
-  DEPLOYABLE: 'deployable',
-  FRAME: 'frame',
-  MECH: 'mech',
-  LICENSE: 'license',
-  NPC: 'npc',
-  NPC_CLASS: 'npc_class',
-  NPC_TEMPLATE: 'npc_template',
-  NPC_FEATURE: 'npc_feature',
-  WEAPON_MOD: 'weapon_mod',
-  MECH_SYSTEM: 'mech_system',
-  MECH_WEAPON: 'mech_weapon',
-  ORGANIZATION: 'organization',
-  PILOT_ARMOR: 'pilot_armor',
-  PILOT_GEAR: 'pilot_gear',
-  PILOT_WEAPON: 'pilot_weapon',
-  PILOT: 'pilot',
-  RESERVE: 'reserve',
-  SKILL: 'skill',
-  STATUS: 'status',
-  TALENT: 'talent',
-  BOND: 'bond',
-}
 
 // my-system-adapter.js
 const STAT_PATHS = {
@@ -80,30 +55,6 @@ let macroInvade: SubMenuItem = {
   description: "Trigger the invasion flow chart"
 }
 
-/**
- * I could put the help on system, but I think there are enough potential edge cases
- * among system.weapon/system/other taggable things just put it here.
- * @param value not enough time on this earth for all the system types.
- * @param tags
- */
-function tagsCostAndDescription(value: any, tags: Tag[]) {
-  let cost: string[] = []
-  let descriptions = tags.map(t => {
-    // I dunno what happens with is_limited tag and not is_limited, save me jon lancer.
-    if (t.is_limited && value.isLimited()) {
-      t.name.replace("{VAL}", `${value.system.uses.max}`);
-      cost.push(`${value.system.uses.value}/${value.system.uses.max}`);
-    }
-    if (t.is_selfheat) {
-      cost.push(`${t.val} Heat`);
-    }
-    return t.name.replace("{VAL}", t.val);
-  });
-  return {
-    cost: cost.join(", "),
-    description: descriptions.join(" ")
-  }
-}
 
 export function logInvalidItem(item: unknown, actor?: LancerActor, context = "") {
   if (!item) {
@@ -154,7 +105,7 @@ const Groups = {
   tech: {
     id: "techs",
     systemId: "tech-systems",
-    label: "Tech Actions",
+    label: "Other Actions",
     icon: "cci cci-role-support",
     type: "submenu"
   },
@@ -176,13 +127,20 @@ const Groups = {
     id: "recall-deployable",
     systemId: "recall-deployable",
     label: "Recall",
+    // Needs a better icon I thinks.
     icon: "cci cci-activate",
     type: "system"
+  },
+  status: {
+    id: "apply-statuses",
+    label: "Status And Conditions",
+    systemId: "statuses-and-conditions",
+    icon: "cci ",
+    type: "submenu"
   },
   sheet: {id: "sheet", label: "Sheet", icon: "fa-solid fa-id-card", type: "sheet"},
 } satisfies Record<string, ActionMenuCategory>
 // In order to favorite, all non-item ids will need to start with macro-
-//Specialty items that will need to be mapped in use_item.
 type ActionMap = Record<string, SubMenuItem>;
 
 // Basic routing, by using the id and starts with you can id thing that map to the same aciton, e.g. basic-attack/basic-attack-ram
@@ -257,6 +215,7 @@ const actions = {
     id: "boost",
     name: simpleActivations.boost.title,
     img: imgs.la.speedometer,
+    cost: ActivationType.Quick,
     description: simpleActivations.boost.detail
   },
   skirmish: {
@@ -265,9 +224,9 @@ const actions = {
     name: "Skirmish",
     cost: ActivationType.Quick,
     img: imgs.la.skirmish,
-    description: "When you SKIRMISH, you attack with a single weapon.\n" +
-      "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.\n" +
-      "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.\n" +
+    description: "When you SKIRMISH, you attack with a single weapon.<br/>" +
+      "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.<br/>" +
+      "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.<br/>" +
       "• SUPERHEAVY weapons are too cumbersome to use in a SKIRMISH, and can only be fired as part of a BARRAGE."
   },
   barrage: {
@@ -275,8 +234,8 @@ const actions = {
     name: "Barrage",
     cost: ActivationType.Full,
     img: imgs.la.barrage,
-    description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.\n" +
-      "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.\n" +
+    description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.<br/>" +
+      "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.<br/>" +
       "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
       "• SUPERHEAVY weapons can only be fired as part of a BARRAGE."
   },
@@ -291,17 +250,20 @@ const actions = {
     id: "basic-attack",
     name: `Basic Attack`,
     cost: ActivationType.Quick,
+    img: imgs.la.underhand,
     description: "Just roll to hit, useful for grapple and the likes."
   },
   basic_ram: {
     id: "basic-attack-ram",
     name: `Ram Attack`,
     cost: ActivationType.Quick,
+    img: imgs.la.ram,
     description: "Melee attack to ram your enemy"
   },
   basic_grapple: {
     id: "basic-attack-ram",
     name: `Grapple Attack`,
+    img: imgs.la.grappling,
     cost: ActivationType.Quick,
     description: "Melee attack to grapple your enemy"
   }
@@ -313,7 +275,7 @@ function overcharge(actor: LancerMECH): SubMenuItem {
   const seq = costs[Math.min(cost, costs.length)];
   return {
     ...actions.overcharge,
-    cost: `${seq} Heat`
+    cost: `${actions.overcharge.cost} + ${seq} Heat`
   }
 }
 
@@ -347,7 +309,7 @@ const CompconFLow = (actor: LancerActor) => ({
       actions.eject,
       actions.basic_attack,
       actions.basic_ram,
-      actions.basic_grapple,
+      actions.basic_grapple
     ],
     full: [
       actions.barrage,
@@ -367,14 +329,9 @@ const CompconFLow = (actor: LancerActor) => ({
   }
 } as const satisfies SubMenuData)
 
-const UtilityActions = {
-  stabilize: actions.stabilize,
-  overcharge: actions.overcharge,
-  deploy_drone: actions.deploy_item,
-} satisfies ActionMap
 
 function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
-  let {cost, description} = tagsCostAndDescription(m.system, m.system.tags)
+  let {cost, description} = tagsCostAndDescription(m)
 
   return {
     id: m.id,
@@ -441,7 +398,12 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
     }
 
     getStats(actor: LancerActor, configAttributes: any) {
-      return this.base.getStats(actor, configAttributes);
+      return this.base.getStats(actor, configAttributes).map(a => {
+        if(/^system\.(hull|agi|sys|eng)$/.test(a.path)) {
+          a.max = 6;
+        }
+        return a;
+      });
     }
 
     getConditions(actor: LancerActor) {
@@ -497,9 +459,9 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         return macro?.execute({actor});
       }
       switch (itemId) {
-        case UtilityActions.stabilize.id:
+        case actions.stabilize.id:
           return actor.beginStabilizeFlow();
-        case UtilityActions.overcharge.id:
+        case actions.overcharge.id:
           return actor.beginOverchargeFlow();
       }
       // We built an encoded id for system activations.  Go specialized to general purpose system. flows.
@@ -570,7 +532,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
     getCoreLancerActions(actor: LancerActor): ActionMenuCategory[] {
       if (actor.is_deployable()) {
-        if(actor.system.recall) {
+        if (actor.system.recall) {
           return [
             Groups.recallDeployable
           ];
@@ -682,26 +644,60 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           }
           return {title: "npc fail", items: []};
         case Groups.compconFlow.systemId:
-          return this._buildCompconFlow(actor);
+          if (actor.is_mech()) {
+            return this._buildCompconFlow(actor);
+          }
+          return {title: "mech fail", items: []};
         default:
           return {title: "label", items: []};
       }
     }
 
-    async _buildCompconFlow(actor: LancerActor) {
+    async _buildCompconFlow(actor: LancerMECH) {
       const base = CompconFLow(actor);
-      const {protocol, quick, full, free} = base.items
-      let actorActionItems = await getActorActionItems(actor);
-      protocol.push(...actorActionItems.flatMap(byActionType("Protocol")));
-      quick.push(...actorActionItems.flatMap(byActionType("Quick", "Quick Tech")));
-      full.push(...actorActionItems.flatMap(byActionType("Full", "Full Tech")));
-      free.push(...actorActionItems.flatMap(byActionType("Free")));
+      const {protocol, quick, full, free, reactions} = base.items
+      let mechActionItems = await getActorActionItems(actor);
+      let pilotActionTimes = await getActorActionItems(pilotForMech(actor));
+      let mechHeader = {
+        id: "none",
+        name: "Mech Systems",
+        isHeader: true
+      };
+      let pHeader = {
+        id: "none",
+        name: "Pilot Systems",
+        isHeader: true
+      };
+
+      function push(to: SubMenuItem[], filter: (a: ActionItem) => SubMenuItem[]) {
+        const mActions = mechActionItems.flatMap(filter);
+        const pActions = pilotActionTimes.flatMap(filter);
+        if (mActions.length > 0) {
+          to.push(mechHeader, ...mActions)
+        }
+        if (pActions.length > 0) {
+          to.push(pHeader, ...pActions)
+        }
+      }
+
+      push(protocol, byActionType("Protocol"));
+      push(quick, byActionType("Quick", "Quick Tech"));
+      push(full, byActionType("Full", "Full Tech"));
+      push(free, byActionType("Free"));
+      push(reactions, byActionType("Reaction"));
       return base;
     }
 
     _buildUtility(actor: LancerActor): _SubMenuData {
       return {
-        items: Object.values<SubMenuItem>(UtilityActions)
+        items: [
+          actions.stabilize,
+          ...[actor.is_mech() && overcharge(actor)],
+          actions.deploy_item,
+          actions.skirmish,
+          actions.barrage,
+          macroInvade
+        ]
       }
     }
 
@@ -714,20 +710,24 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
     _weaponItem(weapon: LancerMECH_WEAPON, actor: LancerActor) {
       const system = weapon.system;
       const destroyed = system.destroyed;
-      const profiles = this.la.getWeaponProfiles_WithBonus(weapon, actor)
-      let menu: SubMenuItem = {
+      const p = system.active_profile;
+      const d = p.damage.map(d => `${d.val} ${d.type}`).join("+");
+      const ranges = p.range.map(r => r.formatted).join(" ");
+      let {cost, description: td} = tagsCostAndDescription(weapon)
+      return {
         id: weapon.id,
         name: destroyed ? `<s class="horus--subtle" style="opacity:0.7;color:#e50000;">${weapon.name}</s>` : weapon.name,
-        description: ""
-      }
-      if (system.destroyed) {
-
+        description: `${system.size} ${p.type}<br/>${d}<br/>${ranges}<br/>${td}`,
+        cost,
+        isExhausted: !isUsableItem(weapon),
+        uses: weapon.isLimited() && weapon.system.uses
       }
     }
 
     _buildWeapons(actor: LancerMECH): _SubMenuData {
       const loadout = actor.system.loadout;
       const mounts = loadout.weapon_mounts;
+      this.la.getWeapons(actor)
       if (!Array.isArray(mounts)) {
         logInvalidItem(mounts, actor, "buildWeapons");
         return {
@@ -752,28 +752,15 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
           return [
             {
               isHeader: true,
-              name: m.type
+              name: m.type,
+              cost: ActivationType.Quick
             },
             ...m.slots
               .flatMap(s => {
                 if (!s.weapon) return [];
                 const value = s.weapon.value;
                 if (!value) return []
-                const system = value.system;
-                const p = system.active_profile;
-                const d = p.damage.map(d => `${d.val} ${d.type}`).join("+");
-                const ranges = p.range.map(r => r.formatted).join(" ");
-                // TODO: Weapons can have actions on them, how to represent that?
-                let {cost, description: td} = tagsCostAndDescription(value, p.all_tags)
-                let wItem: SubMenuItem = {
-                  id: s.weapon.id,
-                  name: value.name + `[${d}]`,
-                  description: `${system.size} ${p.type}\n${d} \n${ranges}\n${td}`,
-                  cost: cost,
-                };
-                if (value.isLimited()) {
-                  wItem.uses = value.system.uses;
-                }
+                let wItem: SubMenuItem = this._weaponItem(value, actor);
                 if (!s.mod || !s.mod.value) return [wItem];
                 return [wItem, modSubItem(s.mod.value, actor)];
               })] as SubMenuItem[];
@@ -797,29 +784,6 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
     }
 
-    _isUsableItem(item: any) {
-      //TODO: Destroyed, Out of Charges, Recharging NPC features.
-      switch (item.type) {
-        case ENTRY_TYPE.NPC_FEATURE:
-          if (item.isRecharge() && !item.system.charged) return false
-        case ENTRY_TYPE.MECH_SYSTEM:
-        case ENTRY_TYPE.MECH_WEAPON:
-        case ENTRY_TYPE.WEAPON_MOD:
-          if (item.system.destroyed) return false
-        case ENTRY_TYPE.PILOT_WEAPON:
-          if (item.isLoading() && !item.system.loaded) return false
-          if (item.isLimited() && !item.system.uses.value) return false
-          break
-        case ENTRY_TYPE.BOND:
-        case ENTRY_TYPE.TALENT:
-        case ENTRY_TYPE.SKILL:
-          break
-        default:
-          return false
-      }
-
-      return true
-    }
 
     async _buildInvades(actor: LancerMECH): Promise<SubMenuData> {
       const systemInvades = (await getActorActionItems(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
@@ -834,7 +798,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
             description: action.detail || "No details available."
           }))
         : [];*/
-      const pInvades = (await getActorActionItems(actor)).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
+      let pInvades = (await getActorActionItems(pilotForMech(actor))).filter(a => isInvade(a.action)).map(a => a.subMenuItem);
       let options = [...systemInvades, ...pInvades, {
         id: "fragment-signal",
         name: "Fragment Signal [Default]",
@@ -864,40 +828,29 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
     async _buildTechActivations(actor: LancerActor): Promise<SubMenuData> {
       // Orderd according to the UI and order is maintained throughout the method.
-      const keyItems: Record<keyof typeof ActivationLabels, SubMenuItem[]> = {
-        [ActivationLabels.Core]: [],
-        [ActivationLabels.Invade]: [],
-        [ActivationLabels.Free]: [],
-        [ActivationLabels.Full]: [],
-        [ActivationLabels.FullTech]: [],
-        [ActivationLabels.None]: [],
-        [ActivationLabels.Other]: [],
-        [ActivationLabels.Passive]: [],
-        [ActivationLabels.Protocol]: [],
-        [ActivationLabels.Quick]: [],
-        [ActivationLabels.QuickTech]: [],
-        [ActivationLabels.Reaction]: []
-      } as Record<keyof typeof ActivationLabels, SubMenuItem[]>;
+      const keyItems: Record<keyof typeof ActivationLabels, SubMenuItem[]> = Object.fromEntries(Object.keys(ActivationLabels)
+        .map(k => [k, []])) as Record<keyof typeof ActivationLabels, SubMenuItem[]>;
       // I could just use the enum if it weren't for needing to filter it out.
       const tabLabels: Record<keyof typeof ActivationLabels, string> = {
-        [ActivationLabels.Core]: ActivationLabels.Core,
-        [ActivationLabels.Invade]: ActivationLabels.Invade,
-        [ActivationLabels.Free]: ActivationLabels.Free,
-        [ActivationLabels.Full]: ActivationLabels.Full,
-        [ActivationLabels.FullTech]: ActivationLabels.FullTech,
-        [ActivationLabels.None]: ActivationLabels.None,
-        [ActivationLabels.Other]: ActivationLabels.Other,
-        [ActivationLabels.Passive]: ActivationLabels.Passive,
-        [ActivationLabels.Protocol]: ActivationLabels.Protocol,
-        [ActivationLabels.Quick]: ActivationLabels.Quick,
-        [ActivationLabels.QuickTech]: ActivationLabels.QuickTech,
-        [ActivationLabels.Reaction]: ActivationLabels.Reaction
+        ...ActivationLabels
       } as Record<keyof typeof ActivationLabels, string>;
-      (await getActorActionItems(actor))
+      const actions = (await getActorActionItems(actor));
+      if (actor.is_mech()) {
+        let pactions = await getActorActionItems(pilotForMech(actor));
+        actions.push(...pactions)
+      }
+      actions
         .filter(a => {
           return !(a.item.is_weapon() || a.item.is_weapon_mod() || isInvade(a.action))
         }).forEach(at => {
-        keyItems[at.action.activation].push(at.subMenuItem);
+        const activ = at.action.activation;
+        const mapped = RemapAction[activ];
+        const k = keyItems[mapped ?? activ];
+        if (!k) {
+          console.error("Missing key for", at)
+          return;
+        }
+        k.push(at.subMenuItem);
       });
       // No nice collections way of doing this :(
       // Remove our empties and add in a headers splitter.
@@ -920,23 +873,6 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       }
     }
 
-    /*_buildDeployable(sheet: LancerActor) {
-      ///??? sheet.items.
-      game.actors.contents
-        .filter(d => {
-          if (d.testUserPermission(game.user, "OWNER") && isLancerActor(d) && d.is_deployable()) {
-            // Step 3: Filter deployables for the selected actor (using the deployer's ID)
-            // @ts-ignore
-            const deployerId = d.system?.owner?.id?.replace(/^Actor\./, ''); // Clean ID
-            return deployerId === d.id;
-          }
-          return false;
-        }).map(d => {
-
-      })
-
-    }*/
-
     getDefaultAttributes() {
       return [
         {path: "system.hp", label: "HP", color: "#2ca020", style: "bar"},
@@ -948,11 +884,11 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         {path: "system.stress", label: "Stress", color: "#80101c", style: "bar"},
 
         // Put your own saves in
-        {path: "system.hull", label: "Hull", color: "#1a6f73", style: "number", ownerOnly: true},
-        {path: "system.agi", label: "Agility", color: "#1a6f73", style: "number", ownerOnly: true},
-        {path: "system.sys", label: "System", color: "#1a6f73", style: "number", ownerOnly: true},
-        {path: "system.eng", label: "Engineering", color: "#1a6f73", style: "number", ownerOnly: true},
-        {path: "system.grit", label: "Grit", color: "#e61c34", style: "number", ownerOnly: true},
+        {path: "system.hull", label: "Hull", color: "#1a6f73", style: "dots", ownerOnly: true},
+        {path: "system.agi", label: "Agility", color: "#1a6f73", style: "dots", ownerOnly: true},
+        {path: "system.sys", label: "System", color: "#1a6f73", style: "dots", ownerOnly: true},
+        {path: "system.eng", label: "Engineering", color: "#1a6f73", style: "dots", ownerOnly: true},
+        {path: "system.grit", label: "Grit", color: "#e61c34", style: "dots", ownerOnly: true},
       ];
     }
 

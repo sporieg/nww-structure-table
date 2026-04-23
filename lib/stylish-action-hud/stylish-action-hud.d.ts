@@ -143,6 +143,7 @@ interface SubMenuItem {
   isHeader?: boolean;
   isFavorite?: boolean;
   isPersonal?: boolean;
+  isExhausted?: boolean;
   uses?: { value: number; max: number };
 }
 
