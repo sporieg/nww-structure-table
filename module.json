@@ -28,6 +28,9 @@
     "scripts/stylish/LancerSystemAdapter.js",
     "scripts/stylish/statuses.js"
   ],
+  "styles": [
+    "styles/stylefix.css"
+  ],
   "languages": [
     {
       "lang": "en",
