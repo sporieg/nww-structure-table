@@ -2,27 +2,23 @@ import type {LancerActor, LancerMECH, LancerNPC, LancerPILOT} from "foundryvtt-l
 import type {LancerActiveEffect} from "foundryvtt-lancer/effects/lancer-active-effect";
 import {
   LancerItem,
-  LancerMECH_SYSTEM,
   LancerMECH_WEAPON,
-  LancerTALENT,
   LancerWEAPON_MOD
 } from "foundryvtt-lancer/item/lancer-item";
 import type {ActionData} from "foundryvtt-lancer/models/bits/action";
-import type {Tag} from "foundryvtt-lancer/models/bits/tag";
 import {debug} from "./log.js";
 import {LancerToken} from "foundryvtt-lancer/token";
 import {LancerCombatant} from "foundryvtt-lancer/combat/lancer-combat";
 import {imgs} from "./images.js";
 import {
   ActionItem,
-  ACTIVATION_TAG_MAP,
   ActivationLabels,
   ActivationType,
   byActionType,
   getActorActionItems,
-  getItem, isUsableItem, RemapAction, tagsCostAndDescription,
+  getItem, isUsableItem, pilotForMech, RemapAction, tagsCostAndDescription,
 } from "./ActivationType.js";
-import {simpleActivations, simpleToSubMenu} from "./SimpleActions.js";
+import {SimpleActionMacros} from "./SimpleActions.js";
 
 // Edit search css?
 // Ad somethign to fix it?
@@ -45,10 +41,9 @@ function isLancerActor(x: any): x is LancerActor {
 const isInvade = (a: Pick<ActionData, "activation">) => a.activation === "Invade"
 
 // Lancer icons at: https://github.com/massif-press/compcon/blob/master/src/assets/glyphs/glyphs.css
-const invadeMacroFlow = "Macro.o3nZI3EidYMVc9UX";
 
 let macroInvade: SubMenuItem = {
-  id: invadeMacroFlow,
+  id: "macro-o3nZI3EidYMVc9UX",
   name: "Invasion Flow",
   img: imgs.lancer.tech_quick,
   cost: ActivationType.QuickTech + ActivationType.FullTech,
@@ -170,10 +165,7 @@ const actions = {
     description: `Once per turn, you can OVERCHARGE your mech, allowing you to make any quick action as a free action – even actions you have already taken this turn.`
   },
   deploy_item: {
-    id: "deploy_item",
-    name: `Deploy Item`,
-    cost: ActivationType.Quick,
-    img: imgs.lancer.deployable,
+    ...SimpleActionMacros.Deploy_Item,
     description: `Deploy a drone?`
   },
   overwatch: {
@@ -183,57 +175,32 @@ const actions = {
     img: imgs.la.skirmish,
     description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
   },
-  brace: simpleToSubMenu("brace", {
-    img: imgs.la.brace,
-  }),
-  bolster: simpleToSubMenu("bolster", {
-    img: "icons/svg/upgrade.svg",
-  }),
-  disengage: simpleToSubMenu("disengage", {
-    img: imgs.la.disengage,
-  }),
-  hide: simpleToSubMenu("hide", {
-    img: imgs.lancer.status_hidden
-  }),
-  search: simpleToSubMenu("search", {
-    img: imgs.la.search
-  }),
-  dismount: simpleToSubMenu("dismount", {
-    img: imgs.la.dismount
-  }),
-  eject: simpleToSubMenu("eject", {
-    img: imgs.la.parachute
-  }),
-  boot_up: simpleToSubMenu("boot_up", {
-    img: imgs.la.boot
-  }),
-  lock_on: simpleToSubMenu("lock_on", {
-    img: imgs.lancer.condition_lockon
-  }),
-  //I am not sure boost can work through the simple meny?
+  brace: SimpleActionMacros.Brace,
+  bolster: SimpleActionMacros.Bolster,
+  disengage: SimpleActionMacros.Disengage,
+  hide: SimpleActionMacros.Hide,
+  search: SimpleActionMacros.Search,
+  dismount: SimpleActionMacros.Dismount,
+  eject: SimpleActionMacros.Eject,
+  boot_up: SimpleActionMacros.Boot_Up,
+  lock_on: SimpleActionMacros.Lock_On,
   boost: {
     id: "boost",
-    name: simpleActivations.boost.title,
+    name: "Boost",
     img: imgs.la.speedometer,
     cost: ActivationType.Quick,
-    description: simpleActivations.boost.detail
+    description: "Increases your movement cap by your SPEED"
   },
   skirmish: {
     //Compendium.lancer-automations.macros.Macro.WAdsrYPLI08L0bmG
-    id: 'skirmish',
-    name: "Skirmish",
-    cost: ActivationType.Quick,
-    img: imgs.la.skirmish,
+    ...SimpleActionMacros.Skirmish,
     description: "When you SKIRMISH, you attack with a single weapon.<br/>" +
       "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.<br/>" +
       "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.<br/>" +
       "• SUPERHEAVY weapons are too cumbersome to use in a SKIRMISH, and can only be fired as part of a BARRAGE."
   },
   barrage: {
-    id: 'barrage',
-    name: "Barrage",
-    cost: ActivationType.Full,
-    img: imgs.la.barrage,
+    ...SimpleActionMacros.Barrage,
     description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.<br/>" +
       "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.<br/>" +
       "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
@@ -341,17 +308,12 @@ function modSubItem(m: LancerWEAPON_MOD, actor: LancerMECH) {
   }
 }
 
-
-function pilotForMech(actor: LancerMECH): LancerPILOT | undefined {
-  const pilotId = actor.system?.pilot?.id;
-  if (!pilotId) return undefined;
-  const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
-  // @ts-ignore
-  return game.actors.get(cleanedPilotId);
-}
-
 function activateSystem(actor: LancerActor, actionId: string) {
   const [item, dataPath] = getItem(actor, actionId)
+  if(!item) {
+    ui.notifications?.warn(`Item not found: ${actionId}`);
+    return;
+  }
   return item.beginActivationFlow(dataPath)
 }
 
@@ -360,13 +322,9 @@ function activateCoreSystem(actor: LancerActor, actionId: string) {
   return item.beginCoreActiveFlow(dataPath)
 }
 
-/**
- * We will
- */
 type _SubMenuData = Omit<SubMenuData, "title">
 
 
-// @ts-ignore
 /**
  * Categories
  *
@@ -399,7 +357,7 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
     getStats(actor: LancerActor, configAttributes: any) {
       return this.base.getStats(actor, configAttributes).map(a => {
-        if(/^system\.(hull|agi|sys|eng)$/.test(a.path)) {
+        if (/^system\.(hull|agi|sys|eng)$/.test(a.path)) {
           a.max = 6;
         }
         return a;
@@ -484,20 +442,6 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         if (itemId.startsWith("basic-tech")) {
           return actor.beginBasicTechAttackFlow("Basic Tech");
         }
-        if (itemId.startsWith("skirmish")) {
-          return await this.la.executeSkirmish(actor);
-        }
-        if (itemId.startsWith("barrage")) {
-          return await this.la.executeBarrage(actor);
-        }
-        if (itemId.startsWith("deploy")) {
-          return await this.la.openDeployableMenu(actor);
-        }
-        // We can probably merge this with the menu data for a "SimpleActivation" that just prints its details.
-        const simple = simpleActivations[itemId]
-        if (simple) {
-          return await this.la.executeSimpleActivation(actor, simple);
-        }
         ui.notifications?.warn(`Item not found: ${itemId}`);
         return;
       }
@@ -506,7 +450,11 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
       if (typeof item.roll === "function") return item.roll();*/
 
       if (item.is_weapon()) return item.beginWeaponAttackFlow();
-      if (item.is_weapon_mod()) return item.beginActivationFlow()
+      if (item.is_weapon_mod()) return item.beginActivationFlow();
+      if (item.is_mech_system()) return item.beginSystemFlow();
+      if (item.is_skill()) return item.beginSkillFlow();
+      // TODO: Need a power index
+      if(item.is_bond()) return item.beginBondPowerFlow(0)
       return item.sheet.render(true);
     }
 

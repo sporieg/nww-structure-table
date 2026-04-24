@@ -15,13 +15,15 @@
     }
   ],
   "relationships": {
-    "systems": [{
-    "id": "lancer",
-    "type": "system",
-    "compatibility": {
-      "minimum": "2.0.0"
-    }
-    }]
+    "systems": [
+      {
+        "id": "lancer",
+        "type": "system",
+        "compatibility": {
+          "minimum": "2.0.0"
+        }
+      }
+    ]
   },
   "esmodules": [
     "scripts/nww/module.js",

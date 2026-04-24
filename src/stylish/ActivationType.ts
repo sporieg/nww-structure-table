@@ -1,7 +1,7 @@
 // Copied from foundryvtt-lancer/enums, actual values get borked in foundry loading.
 import {LancerActor, type LancerMECH, type LancerPILOT} from "foundryvtt-lancer/actor/lancer-actor";
 import {ActionData} from "foundryvtt-lancer/models/bits/action";
-import {LancerItem} from "foundryvtt-lancer/item/lancer-item";
+import {LancerFRAME, LancerItem} from "foundryvtt-lancer/item/lancer-item";
 import {imgs} from "./images.js";
 
 export const ENTRY_TYPE = {
@@ -114,11 +114,23 @@ export function itemActionId(itemId: string, idx: number, path: string = "system
   return itemActionPath(itemId, `${path}.${idx}`);
 }
 
+export function pilotForMech(actor: LancerMECH): LancerPILOT | undefined {
+  const pilotId = actor.system?.pilot?.id;
+  if (!pilotId) return undefined;
+  const cleanedPilotId = pilotId.replace("Actor.", ""); // Remove "Actor." prefix if present
+  // @ts-ignore
+  return game.actors.get(cleanedPilotId);
+};
+
 export function getItem(actor: LancerActor, actionId: string): [LancerItem, string] {
   const activationParts = actionId.split(ID_DELIMITER)
-  const itemId = activationParts[0]
-  const dataPath = activationParts[1]
+  const itemId = activationParts[0];
+  const dataPath = activationParts[1];
   // @ts-ignore
+  let item = actor.items.get(itemId);
+  if(!item && actor.is_mech()) {
+    return getItem(pilotForMech(actor), actionId);
+  }
   return [actor.items.get(itemId), dataPath]
 }
 
@@ -220,7 +232,60 @@ export function tagsCostAndDescription(value: LancerItem) {
     cost: cost.join(", "),
     description: description.join(" ")
   }
+}
 
+// Frames are intrinsically special and contain whole trees of actions.
+function coreSystem(item: LancerFRAME): ActionItem[] {
+  const itemId = item.id;
+  const core_system = item.system.core_system;
+  const coreAction: ActionItem = {
+    item,
+    action: {
+      activation: core_system.activation,
+    },
+    subMenuItem: {
+      id: itemActionPath(itemId, "system.core_system"),
+      img: imgs.lancer.corepower,
+      name: core_system.active_name,
+      description: [core_system.description, core_system.active_effect].join("<br/>"),
+    }
+  }
+  const passives = core_system.passive_actions.map<ActionItem>((action, idx) => ({
+    item,
+    action,
+    subMenuItem: {
+      id: itemActionId(itemId, idx, 'system.core_system.passive_actions'),
+      img: item.img,
+      name: action.name,
+      description: action.detail,
+    }
+  }))
+  const actives = core_system.active_actions.map<ActionItem>((action, idx) => ({
+    item,
+    action,
+    subMenuItem: {
+      id: itemActionId(itemId, idx, 'system.core_system.active_actions'),
+      img: imgs.lancer.mech,
+      name: action.name,
+      description: action.detail,
+    }
+  }))
+  const traits = item.system.traits.flatMap((p, idx) => p.actions.map((action, adx) => ({
+    item,
+    action,
+    subMenuItem: {
+      id: itemActionPath(itemId, `system.traits.${idx}.actions.${adx}`),
+      img: imgs.lancer.mech,
+      name: p.name,
+      description: action.detail,
+    }
+  })));
+  return [
+    coreAction,
+    ...passives,
+    ...actives,
+    ...traits
+  ]
 }
 
 /**
@@ -240,72 +305,24 @@ export async function getActorActionItems(actor?: LancerActor) {
   //TODO: Deployable e.g.  A mine in addition to grenade.
   if(!actor) return [];
   let loadOut = actor.loadoutHelper.listLoadout();
-  const actions = la().getActorActions(actor)
   return (await Promise.all(loadOut
     .map(async (item): Promise<ActionItem[]> => {
       const itemId = item.id;
+      const actions = la().getActorActions(actor)
+      const acts = la().getItemActions(item);
       const options: ActionItem[] = [];
-      // Frames are intrinsically special and contain whole trees of actions.
       if (item.is_frame()) {
-        // Small issue, sometimes your core active is just the active, other times its both the core system and an active system.
-        const core_system = item.system.core_system;
-        const coreAction: ActionItem = {
-          item,
-          action: {
-            activation: core_system.activation,
-          },
-          subMenuItem: {
-            id: itemActionPath(itemId, "system.core_system"),
-            img: imgs.lancer.corepower,
-            name: core_system.active_name,
-            description: [core_system.description, core_system.active_effect].join("<br/>"),
-          }
-        }
-        const passives = core_system.passive_actions.map<ActionItem>((action, idx) => ({
-          item,
-          action,
-          subMenuItem: {
-            id: itemActionId(itemId, idx, 'system.core_system.passive_actions'),
-            img: item.img,
-            name: action.name,
-            description: action.detail,
-          }
-        }))
-        const actives = core_system.active_actions.map<ActionItem>((action, idx) => ({
-          item,
-          action,
-          subMenuItem: {
-            id: itemActionId(itemId, idx, 'system.core_system.active_actions'),
-            img: imgs.lancer.mech,
-            name: action.name,
-            description: action.detail,
-          }
-        }))
-        const traits = item.system.traits.flatMap((p, idx) => p.actions.map((action, adx) => ({
-          item,
-          action,
-          subMenuItem: {
-            id: itemActionPath(itemId, `system.traits.${idx}.actions.${adx}`),
-            img: imgs.lancer.mech,
-            name: p.name,
-            description: action.detail,
-          }
-        })));
         options.push(
-          coreAction,
-          ...passives,
-          ...actives,
-          ...traits
+          ...coreSystem(item)
         )
       }
       // Frames and items with deploybables can apply.
 
       //const tags = await la().getItemTags_WithBonus(item, actor);
       const {cost, description} = tagsCostAndDescription(item)
-      const acts = la().getItemActions(item);
       const usable = isUsableItem(item);
       //Try and match to a light theme image if one matches well.
-      let img = ENTRY_TYPE_IMG_MAP[item.type] ?? item.img;
+      let img = ENTRY_TYPE_IMG_MAP[item.type.toUpperCase()] ?? item.img;
       const name = usable ? item.name :  `<s class="horus--subtle" style="opacity:0.7;color:#e50000;">${item.name}</s>`
 
       if (("deployables" in item.system && item.system.deployables.length > 0) || (item.is_frame())) {
@@ -329,6 +346,10 @@ export async function getActorActionItems(actor?: LancerActor) {
           if(action.name === "Action") {
             fmtName = item.name;
           }
+          /*if(item.is_talent()) {
+            //Instead of system.actions, I think we want to use a path to it somehow based on type?
+            debugger;
+          }*/
           const name = (item.system as any).destroyed ? `<s class="horus--subtle" style="opacity:0.7;color:#e50000;">${fmtName}</s>` : fmtName;
           return ({
             item,
