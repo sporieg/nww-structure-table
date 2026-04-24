@@ -89,15 +89,18 @@ export const SimpleActionMacros = {
     id: 'macro-LJGEwce2QZfqBAiE',
     name: 'Skirmish',
     img: 'modules/lancer-automations/icons/skirmish.svg',
-    cost: ActivationType.None,
-    description: ''
+    cost: ActivationType.Quick,
+    description: "When you SKIRMISH, you attack with a single weapon.<br/>" +
+      "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.<br/>" +
+      "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.<br/>" +
+      "• SUPERHEAVY weapons are too cumbersome to use in a SKIRMISH, and can only be fired as part of a BARRAGE."
   },
   Overwatch: {
     id: 'macro-NWHdUGG4AV1JgetJ',
     name: 'Overwatch',
     img: 'systems/lancer/assets/icons/white/reaction.svg',
-    cost: ActivationType.None,
-    description: ''
+    cost: ActivationType.Reaction,
+    description: 'Skirmish as a reaction to something, usually starting movement in your threat.'
   },
   Disengage: {
     id: 'macro-PnvAp6uz9wGWh0vp',
@@ -152,8 +155,11 @@ export const SimpleActionMacros = {
     id: 'macro-ZuOrSrPrg767I1eR',
     name: 'Barrage',
     img: 'modules/lancer-automations/icons/barrage.svg',
-    cost: ActivationType.None,
-    description: ''
+    cost: ActivationType.Full,
+    description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.<br/>" +
+      "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.<br/>" +
+      "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
+      "• SUPERHEAVY weapons can only be fired as part of a BARRAGE."
   },
   Dismount: {
     id: 'macro-a7SgQOzT3hc9WESl',
@@ -194,7 +200,7 @@ export const SimpleActionMacros = {
     id: 'macro-g7ydDbpR5frMbd4x',
     name: 'Scan',
     img: 'modules/lancer-automations/icons/radar-sweep.svg',
-    cost: ActivationType.None,
+    cost: ActivationType.Quick,
     description: ''
   },
   Reactor_Meltdown: {
@@ -215,7 +221,7 @@ export const SimpleActionMacros = {
     id: 'macro-pzXWRjBIZ0zUETKr',
     name: 'Fragment_Signal',
     img: 'systems/lancer/assets/icons/white/tech_quick.svg',
-    cost: ActivationType.None,
+    cost: ActivationType.Quick,
     description: ''
   },
   Hide: {

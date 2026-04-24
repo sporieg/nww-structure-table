@@ -168,13 +168,7 @@ const actions = {
     ...SimpleActionMacros.Deploy_Item,
     description: `Deploy a drone?`
   },
-  overwatch: {
-    id: 'skirmish-overwatch',
-    name: "Overwatch",
-    cost: ActivationType.Reaction,
-    img: imgs.la.skirmish,
-    description: "When a weapon is triggered through OVERWATCH, immediately use that weapon to SKIRMISH against the triggering character as a reaction, before they move."
-  },
+  overwatch: SimpleActionMacros.Overwatch,
   brace: SimpleActionMacros.Brace,
   bolster: SimpleActionMacros.Bolster,
   disengage: SimpleActionMacros.Disengage,
@@ -191,21 +185,8 @@ const actions = {
     cost: ActivationType.Quick,
     description: "Increases your movement cap by your SPEED"
   },
-  skirmish: {
-    //Compendium.lancer-automations.macros.Macro.WAdsrYPLI08L0bmG
-    ...SimpleActionMacros.Skirmish,
-    description: "When you SKIRMISH, you attack with a single weapon.<br/>" +
-      "To SKIRMISH, choose a weapon and a valid target within RANGE (or THREAT) then make an attack.<br/>" +
-      "• In addition to your primary attack, you may also attack with a different AUXILIARY weapon on the same mount. That weapon doesn’t deal bonus damage.<br/>" +
-      "• SUPERHEAVY weapons are too cumbersome to use in a SKIRMISH, and can only be fired as part of a BARRAGE."
-  },
-  barrage: {
-    ...SimpleActionMacros.Barrage,
-    description: "When you BARRAGE, you attack with two weapons, or with one SUPERHEAVY weapon.<br/>" +
-      "To BARRAGE, choose your weapons and either one target or different targets – within range – then make an attack with each weapon.<br/>" +
-      "• In addition to your primary attacks, you may also attack with an AUXILIARY weapon on each mount that was fired, so long as the AUXILIARY weapon hasn’t yet been fired this action. These AUXILIARY weapons don’t deal bonus damage.\n" +
-      "• SUPERHEAVY weapons can only be fired as part of a BARRAGE."
-  },
+  skirmish: SimpleActionMacros.Skirmish,
+  barrage: SimpleActionMacros.Barrage,
   improvised_attack: {
     id: "basic-attack-improvised",
     name: 'Improvised Attack',
@@ -324,6 +305,18 @@ function activateCoreSystem(actor: LancerActor, actionId: string) {
 
 type _SubMenuData = Omit<SubMenuData, "title">
 
+function fixupSmItems(sm: SubMenuData): SubMenuData {
+  // Sub Men Items that are macros have a hidden property, globalFlavor.  Set that here from the description
+  // to bring back a useful tooltip;
+  let items = sm.items;
+  if(!Array.isArray(items)) {
+    items = Object.values(items).flatMap(x => x);
+  }
+  items.forEach(i => {
+    i.globalFlavor = i.description;
+  });
+  return sm;
+}
 
 /**
  * Categories
@@ -406,10 +399,9 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
 
 
     async useItem(actor: LancerActor, itemId: string) {
-      if (itemId.startsWith("Macro.") || itemId.startsWith("macro-")) {
+      if (itemId.startsWith("macro-")) {
         const macro = game.macros?.get(itemId
-          // If you copy a UUID from foundry
-          .replace("Macro.", "")
+          // If you copy a UUID from foundry its Macro.
           // Stylish does this to macros for some reason.
           .replace("macro-", "")
         );
@@ -441,6 +433,15 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         }
         if (itemId.startsWith("basic-tech")) {
           return actor.beginBasicTechAttackFlow("Basic Tech");
+        }
+        if (itemId.startsWith("skirmish")) {
+          return await this.la.executeSkirmish(actor);
+        }
+        if (itemId.startsWith("barrage")) {
+          return await this.la.executeBarrage(actor);
+        }
+        if (itemId.startsWith("deploy")) {
+          return await this.la.openDeployableMenu(actor);
         }
         ui.notifications?.warn(`Item not found: ${itemId}`);
         return;
@@ -561,7 +562,8 @@ Hooks.once("stylish-action-hud.apiReady", (api: StylishActionHudAPI) => {
         let menuData = defaultLayout[index];
         // ★ [Case A] 시스템 고유 ID가 있는 경우 (예: "attack", "magic")
         if (menuData.systemId) {
-          return await this._getSystemSubMenuData(actor, menuData.systemId, menuData);
+          let subMenuData = await this._getSystemSubMenuData(actor, menuData.systemId, menuData);
+          return fixupSmItems(subMenuData);
 
         }
       }

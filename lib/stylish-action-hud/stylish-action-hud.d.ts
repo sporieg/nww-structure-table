@@ -140,6 +140,7 @@ interface SubMenuItem {
   img?: string;
   cost?: string;
   description?: string;
+  globalFlavor?: string;
   isHeader?: boolean;
   isFavorite?: boolean;
   isPersonal?: boolean;
