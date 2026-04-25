@@ -1,5 +1,6 @@
 import type {FlowState, LancerFlowState} from "foundryvtt-lancer/flows";
 import {isValidTarget, localize} from "./extensions.js";
+import {LancerActor} from "foundryvtt-lancer/actor/lancer-actor";
 
 type State = FlowState<LancerFlowState.PrimaryStructureRollData>
 
@@ -7,6 +8,41 @@ const getRollCount = (roll: Roll, num_to_count: number) => {
   return roll
     ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count).length
     : 0;
+};
+
+/**
+ * We need to wrap the original roll structure so that it can be prevented from updating the structure.
+ * A symetcial override is not needed for overheat, as that always destroys at the end of a round anyway.
+ * @param originalRoll
+ */
+export const rollStructureTable = (originalRoll: (s: State) => Promise<boolean>)=> async (state: State) => {
+  let originalActor = state.actor;
+  if(!originalActor.is_mech()) {
+    return originalRoll(state);
+  }
+  let mockActor = {
+    is_mech() {
+      return originalActor.is_mech();
+    },
+    is_npc() {
+      return originalActor.is_npc();
+    },
+    get items() {
+      // @ts-ignore
+      return originalActor.items;
+    },
+    get system() {
+      return originalActor.system;
+    },
+    //We must not allow the orignal rollStructureTable to update the stucture.
+    update() {
+      return Promise.resolve();
+    }
+  }
+  return await originalRoll({
+    ...state,
+    actor: mockActor as unknown as LancerActor
+  });
 };
 
 export async function rewordStructureCard(state: State) {
