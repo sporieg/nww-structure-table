@@ -62,7 +62,7 @@ export const SimpleActionMacros = {
     name: 'Deploy_Item',
     img: 'systems/lancer/assets/icons/white/deployable.svg',
     cost: ActivationType.None,
-    description: ''
+    description: `Deploy a drone?`
   },
   Ram: {
     id: 'macro-Jzjjxi8hOZMTQk7e',

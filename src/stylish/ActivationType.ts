@@ -127,11 +127,11 @@ export function getItem(actor: LancerActor, actionId: string): [LancerItem, stri
   const itemId = activationParts[0];
   const dataPath = activationParts[1];
   // @ts-ignore
-  let item = actor.items.get(itemId);
+  let item: LancerItem = actor.items.get(itemId);
   if(!item && actor.is_mech()) {
     return getItem(pilotForMech(actor), actionId);
   }
-  return [actor.items.get(itemId), dataPath]
+  return [item, dataPath]
 }
 
 
@@ -346,10 +346,6 @@ export async function getActorActionItems(actor?: LancerActor) {
           if(action.name === "Action") {
             fmtName = item.name;
           }
-          /*if(item.is_talent()) {
-            //Instead of system.actions, I think we want to use a path to it somehow based on type?
-            debugger;
-          }*/
           const name = (item.system as any).destroyed ? `<s class="horus--subtle" style="opacity:0.7;color:#e50000;">${fmtName}</s>` : fmtName;
           return ({
             item,

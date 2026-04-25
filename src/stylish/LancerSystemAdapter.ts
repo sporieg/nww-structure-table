@@ -142,21 +142,20 @@ type ActionMap = Record<string, SubMenuItem>;
 const actions = {
   scan: {
     //Macro id for scan/scan journal
-    id: "Macro.yPxTd02BZDkVXDwi",
+    id: "macro-yPxTd02BZDkVXDwi",
     name: "Scan",
     cost: ActivationType.QuickTech,
-    img: imgs.lancer.tech_quick,
+    img: imgs.la.radar,
     description: "When you SCAN, you use your mech’s powerful sensors to perform a deep scan on an enemy.<br>" +
       "• Your target’s weapons, systems, and full statistics (HP, SPEED, EVASION, ARMOR, MECH SKILLS, and so on)."
   },
   stabilize: {
-    id: "Macro.k4o9aWoJTVb2sd8a",
+    id: "macro-k4o9aWoJTVb2sd8a",
     name: `Stabilize`,
     cost: ActivationType.Full,
     img: imgs.lancer.marker,
     description: `When you STABILIZE, you enact emergency protocols to purge your mech’s systems of excess heat, repair your chassis where you can, or eliminate hostile code.`
   },
-  // TODO: The overcharge label should show your cost to overcharge, e.g. 1d3
   overcharge: {
     id: "overcharge",
     name: "Overcharge",
@@ -164,10 +163,7 @@ const actions = {
     img: "systems/lancer/assets/icons/macro-icons/overcharge.svg",
     description: `Once per turn, you can OVERCHARGE your mech, allowing you to make any quick action as a free action – even actions you have already taken this turn.`
   },
-  deploy_item: {
-    ...SimpleActionMacros.Deploy_Item,
-    description: `Deploy a drone?`
-  },
+  deploy_item: SimpleActionMacros.Deploy_Item,
   overwatch: SimpleActionMacros.Overwatch,
   brace: SimpleActionMacros.Brace,
   bolster: SimpleActionMacros.Bolster,
@@ -309,6 +305,7 @@ function fixupSmItems(sm: SubMenuData): SubMenuData {
   // Sub Men Items that are macros have a hidden property, globalFlavor.  Set that here from the description
   // to bring back a useful tooltip;
   let items = sm.items;
+  // Its all side effects, might be cleaner to just visit the items instead, oh well.
   if(!Array.isArray(items)) {
     items = Object.values(items).flatMap(x => x);
   }
