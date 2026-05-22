@@ -1,7 +1,17 @@
-.pnp.*
-node_modules
-scripts/
-.idea
-.devbox
-tsconfig.tsbuildinfo
-/lib/stylish-action-hud-src/
+# Ignore all files
+/*
+
+
+# Unless
+!custom-macros/
+!language/
+!src/
+!styles/
+!/.gitignore
+!/.editorconfig
+!/LICENSE
+!/module.json
+!/package.json
+!/package-lock.json
+!/README.md
+!/tsconfig.json

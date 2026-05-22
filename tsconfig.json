@@ -20,7 +20,6 @@
     /* Type Checking */
     "strict": true,
     "strictNullChecks": false,
-    "importsNotUsedAsValues": "remove",
     "erasableSyntaxOnly": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

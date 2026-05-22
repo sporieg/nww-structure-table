@@ -3,12 +3,13 @@
   "private": true,
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.1.0",
-    "@massif/lancer-data": "^3.1.7",
     "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
-    "typescript": "5.9.3"
+    "@massif/lancer-data": "^3.1.7",
+    "@typescript/native-preview": "^7.0.0-dev.20260421.2"
   },
   "scripts": {
-    "build": "tsc -b",
-    "watch": "tsc -w"
+    "build": "tsgo -b",
+    "build-old": "tsc -b",
+    "watch": "tsgo -w"
   }
 }
