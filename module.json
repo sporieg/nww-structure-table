@@ -1,7 +1,7 @@
 {
   "id": "nww-lancer-alt-structure",
   "title": "LANCER Alternative Structure",
-  "description": "Implements alternative structure rulesets for Lancer",
+  "description": "Implements nww alternative structure rulesets for Lancer",
   "version": "#{VERSION}#",
   "library": "false",
   "compatibility": {
@@ -26,12 +26,9 @@
     ]
   },
   "esmodules": [
-    "scripts/module.js",
-    "scripts/stylish/LancerSystemAdapter.js",
-    "scripts/stylish/statuses.js"
+    "scripts/module.js"
   ],
   "styles": [
-    "styles/stylefix.css"
   ],
   "languages": [
     {
