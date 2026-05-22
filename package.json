@@ -9,7 +9,6 @@
   },
   "scripts": {
     "build": "tsgo -b",
-    "build-old": "tsc -b",
     "watch": "tsgo -w"
   }
 }

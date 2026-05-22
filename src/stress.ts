@@ -1,5 +1,6 @@
-import type {LancerFlowState, FlowState} from "foundryvtt-lancer/flows";
+import {LancerFlowState, FlowState, Step, Flow} from "foundryvtt-lancer/flows";
 import {isValidTarget, localize} from "./extensions.js";
+import {MODULE_ID} from "./const.js";
 
 type State = FlowState<LancerFlowState.OverheatRollData>
 
@@ -111,3 +112,25 @@ export async function replaceEngineeringCheckButton(state: State) {
   }
   return true;
 }
+
+//@ts-expect-error
+Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
+  /**
+   * We can leave the stress rolls themselves alone and just reword the card.
+   */
+  flowSteps.set(`${MODULE_ID}:rewordStressCard`, rewordStressCard);
+  flowSteps.set(`${MODULE_ID}:rewordStressMultipleOnes`, rewordStressMultipleOnes);
+  flowSteps.set("overheatInsertEngCheckButton", replaceEngineeringCheckButton);
+
+  const stressFlow = flows.get("OverheatFlow");
+  if(stressFlow) {
+    /**
+     * Adjust the structure flow by changing how the card is assembled.
+     */
+    stressFlow.insertStepAfter("rollOverheatTable", `${MODULE_ID}:rewordStressCard`);
+    stressFlow.insertStepAfter("checkOverheatMultipleOnes", `${MODULE_ID}:rewordStressMultipleOnes`);
+  } else {
+    console.error("Lancer | Could not find OverheatFlow");
+  }
+});
+

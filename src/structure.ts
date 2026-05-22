@@ -1,6 +1,6 @@
 import type {FlowState, LancerFlowState} from "foundryvtt-lancer/flows";
 import {isValidTarget, localize} from "./extensions.js";
-import {LancerActor} from "foundryvtt-lancer/actor/lancer-actor";
+import {MODULE_ID} from "./const.js";
 
 type State = FlowState<LancerFlowState.PrimaryStructureRollData>
 
@@ -49,9 +49,8 @@ function structTableDescriptions(roll: number, remStruct: number): string {
 /**
  * We need to wrap the original roll structure so that it can be prevented from updating the structure.
  * A symetcial override is not needed for overheat, as that always destroys at the end of a round anyway.
- * @param originalRoll
  */
-export const rollStructureTable = (originalRoll: (s: State) => Promise<boolean>)=> async (state: State) => {
+export const rollStructureTable = async (state: State) => {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!actor.is_mech() && !actor.is_npc()) {
@@ -73,11 +72,10 @@ export const rollStructureTable = (originalRoll: (s: State) => Promise<boolean>)
   if (result === undefined) return false;
 
 
-
   state.data = {
     type: "structure",
     title: structTableTitles[result],
-    desc:  structTableDescriptions(result, remStruct),
+    desc: structTableDescriptions(result, remStruct),
     remStruct: remStruct,
     val: actor.system.structure.value,
     max: actor.system.structure.max,
@@ -93,8 +91,6 @@ export const rollStructureTable = (originalRoll: (s: State) => Promise<boolean>)
 export async function rewordStructureCard(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
-  // We are not changing the roll flow.
-  console.log("My structure card.")
   if (!isValidTarget(actor)) {
     return true;
   }
@@ -123,14 +119,12 @@ export async function rewordStructureCard(state: State) {
       state.data.desc = localize("StructureDescriptions.glancingBlow.description");
       break;
   }
-  console.log("My structure card.", state.data)
   return true;
 }
 
 export async function structCheckMultipleOnes(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
-  // We are not changing the roll flow.
   if (!isValidTarget(actor)) {
     return true;
   }
@@ -151,7 +145,6 @@ export async function structCheckMultipleOnes(state: State) {
 export async function insertHullCheckButton(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
-  // We are not changing the roll flow.
   if (!isValidTarget(actor)) {
     return true;
   }
@@ -179,11 +172,37 @@ export async function insertHullCheckButton(state: State) {
   return true;
 }
 
+// No secondaries with NWW
 export async function removeSystemTraumaButton(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
-  // No secondaries with NWW
   if (!isValidTarget(actor)) return true;
   state.data.embedButtons = state.data.embedButtons?.filter(x => !x.includes(`data-flow-type="secondaryStructure"`)) || [];
   return true;
 }
+
+//@ts-expect-error
+Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
+  /**
+   * We have to replace the roll with a nearly identical one, to prevent the structure from being updated.
+   * After that, reword the card normally.
+   */
+  flowSteps.set("rollStructureTable", rollStructureTable);
+  flowSteps.set(`${MODULE_ID}:rewordStructureCard`, rewordStructureCard);
+  flowSteps.set(`${MODULE_ID}:removeSystemTraumaButton`, removeSystemTraumaButton);
+  flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
+  flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
+
+  const structureFlow = flows.get("StructureFlow");
+  if(structureFlow) {
+    /**
+     * Adjust the structure flow by changing how the card is assembled.
+     * The leaves the rolls alone.
+     */
+    structureFlow.insertStepAfter("rollStructureTable", `${MODULE_ID}:rewordStructureCard`);
+    structureFlow.insertStepAfter("structureInsertSecondaryRollButton", `${MODULE_ID}:removeSystemTraumaButton`);
+    structureFlow.insertStepAfter("checkStructureMultipleOnes", `${MODULE_ID}:checkStructureMultipleOnes`);
+  } else {
+    console.error("Lancer | Could not find StructureFlow");
+  }
+});
