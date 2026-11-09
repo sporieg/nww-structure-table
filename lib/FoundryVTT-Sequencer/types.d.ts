@@ -16,10 +16,7 @@ interface CoreMethods {
   /**
    * Creates a section that will run a macro based on a name, id, UUID, or a direct reference to a macro.
    */
-  macro(
-    inMacro: string | Macro.Implementation,
-    ...arguments: unknown[]
-  ): Sequence;
+  macro(inMacro: string | Macro.Implementation, ...arguments: unknown[]): Sequence;
 
   /**
    * Causes the sequence to wait after the last section for as many milliseconds as you pass to this method. If given
@@ -48,7 +45,7 @@ interface CoreMethods {
   scrollingText(
     inTarget?: VisibleFoundryTypes | Vector2,
     inText?: string,
-    inTextStyle?: object
+    inTextStyle?: object,
   ): ScrollingTextSection;
 
   /**
@@ -57,7 +54,7 @@ interface CoreMethods {
   canvasPan(
     inTarget?: VisibleFoundryTypes | Vector2,
     inDuration?: number,
-    inSpeed?: number
+    inSpeed?: number,
   ): CanvasPanSection;
 
   /**
@@ -68,17 +65,12 @@ interface CoreMethods {
   /**
    * Adds a location to the sequence and ties it to a string so that it may be used later
    */
-  addNamedLocation(
-    inName: string,
-    inLocation: VisibleFoundryTypes | Vector2
-  ): this;
+  addNamedLocation(inName: string, inLocation: VisibleFoundryTypes | Vector2): this;
 
   /**
    * Adds the sections from a given Sequence to this Sequence
    */
-  addSequence(
-    inSequence: Sequence | EffectSection | AnimationSection | SoundSection
-  ): Sequence;
+  addSequence(inSequence: Sequence | EffectSection | AnimationSection | SoundSection): Sequence;
 
   /**
    * Plays all of this sequence's sections, resolves to the sequence instance
@@ -138,7 +130,7 @@ interface HasMovement<T> {
    */
   moveTowards(
     inTarget: VisibleFoundryTypes | Vector2 | string,
-    options?: EasingOptionsWithTarget
+    options?: EasingOptionsWithTarget,
   ): this;
 
   /**
@@ -198,20 +190,12 @@ interface HasScale<T> {
   /**
    * Causes the effect to scale when it starts playing
    */
-  scaleIn(
-    inScale: number | ScaleOptions,
-    durationMs: number,
-    options?: EasingOptions
-  ): T;
+  scaleIn(inScale: number | ScaleOptions, durationMs: number, options?: EasingOptions): T;
 
   /**
    * Causes the effect to scale at the end of the effect's duration
    */
-  scaleOut(
-    inScale: number | ScaleOptions,
-    durationMs: number,
-    options?: EasingOptions
-  ): T;
+  scaleOut(inScale: number | ScaleOptions, durationMs: number, options?: EasingOptions): T;
 }
 
 interface HasTime<T> {
@@ -276,7 +260,7 @@ interface HasAnimations<T> {
       fromEnd?: boolean;
       gridUnits?: boolean;
       screenSpace?: boolean;
-    }
+    },
   ): this;
 
   /**
@@ -297,7 +281,7 @@ interface HasAnimations<T> {
       fromEnd?: boolean;
       gridUnits?: boolean;
       screenSpace?: boolean;
-    }
+    },
   ): this;
 }
 
@@ -321,7 +305,7 @@ interface HasLocation<T> {
       randomOffset?: number;
       gridUnits?: boolean;
       local?: boolean;
-    }
+    },
   ): this;
 }
 
@@ -352,8 +336,7 @@ declare global {
   };
 
   type RequireAtLeastOne<T> = {
-    [K in keyof T]-?: Required<Pick<T, K>> &
-    Partial<Pick<T, Exclude<keyof T, K>>>;
+    [K in keyof T]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<keyof T, K>>>;
   }[keyof T];
 
   type EasingOptionsWithTarget = EasingOptions & {
@@ -468,7 +451,7 @@ declare global {
     lockManualRotation?: boolean;
   };
 
-  type CrosshairData =  TemplateData &  CrosshairsData;
+  type CrosshairData = TemplateData & CrosshairsData;
 
   type CrosshairCallbackData = {
     show: AnyFunction;
@@ -589,11 +572,7 @@ declare global {
      * Causes the effect or sound to be repeated n amount of times, with an optional delay. If given inRepeatDelayMin
      * and inRepeatDelayMax, a random repetition delay will be picked for every repetition
      */
-    repeats(
-      inRepetitions: number,
-      inRepeatDelayMin?: number,
-      inRepeatDelayMax?: number
-    ): T;
+    repeats(inRepetitions: number, inRepeatDelayMin?: number, inRepeatDelayMax?: number): T;
 
     /**
      * Causes the effect or sound to not play, and skip all delays, repetitions, waits, etc. If you pass a function,
@@ -647,7 +626,8 @@ declare global {
   };
 
   interface AnimationSection
-    extends CoreMethods,
+    extends
+      CoreMethods,
       Section<AnimationSection>,
       HasMovement<AnimationSection>,
       HasOpacity<AnimationSection>,
@@ -664,17 +644,14 @@ declare global {
     /**
      * Sets the location to teleport the target object to
      */
-    teleportTo(
-      inTarget: VisibleFoundryTypes | Vector2 | string,
-      options?: TeleportToOptions
-    ): this;
+    teleportTo(inTarget: VisibleFoundryTypes | Vector2 | string, options?: TeleportToOptions): this;
 
     /**
      * Sets the location to rotate the object to
      */
     rotateTowards(
       inTarget: VisibleFoundryTypes | Vector2 | string,
-      options?: AnimationRotateTowardsOptions
+      options?: AnimationRotateTowardsOptions,
     ): this;
 
     /**
@@ -788,7 +765,8 @@ declare global {
     | Array<string | PlaceableObject.Any | foundry.abstract.Document.Any>;
 
   interface EffectSection
-    extends CoreMethods,
+    extends
+      CoreMethods,
       Section<EffectSection>,
       HasFiles<EffectSection>,
       HasAudio<EffectSection>,
@@ -840,10 +818,7 @@ declare global {
      * A smart method that can take a reference to an object, or a direct on the canvas to attach an effect to,
      * or a string reference (see .name())
      */
-    attachTo(
-      inLocation: VisibleFoundryTypes | Vector2 | string,
-      inOptions?: AttachToOptions
-    ): this;
+    attachTo(inLocation: VisibleFoundryTypes | Vector2 | string, inOptions?: AttachToOptions): this;
 
     /**
      * Causes the effect to be rotated and stretched towards an object, or a direct on the canvas to play the effect at, or a string reference (see .name())
@@ -851,7 +826,7 @@ declare global {
      */
     stretchTo(
       inLocation: VisibleFoundryTypes | Vector2 | string,
-      inOptions?: StretchToOptions
+      inOptions?: StretchToOptions,
     ): this;
 
     /**
@@ -859,7 +834,7 @@ declare global {
      */
     rotateTowards(
       inLocation: VisibleFoundryTypes | Vector2 | string,
-      inOptions?: EffectRotateTowardsOptions
+      inOptions?: EffectRotateTowardsOptions,
     ): this;
 
     /**
@@ -871,7 +846,7 @@ declare global {
         | Tile.Implementation
         | TokenDocument.Implementation
         | TileDocument.Implementation,
-      inOptions?: CopySpriteOptions
+      inOptions?: CopySpriteOptions,
     ): this;
 
     /**
@@ -1092,10 +1067,7 @@ declare global {
     delay: number;
   };
 
-  type CanvasEffectObject =
-    | string
-    | { x: number; y: number }
-    | VisibleFoundryTypes;
+  type CanvasEffectObject = string | { x: number; y: number } | VisibleFoundryTypes;
 
   type InitializedDocument =
     | Token.Implementation
@@ -1170,7 +1142,8 @@ declare global {
   };
 
   interface SoundSection
-    extends CoreMethods,
+    extends
+      CoreMethods,
       Section<SoundSection>,
       HasFiles<SoundSection>,
       HasAudio<SoundSection>,
@@ -1183,9 +1156,7 @@ declare global {
      * Adds a function that will run at the end of the sound serialization step, but before it is played. Allows direct
      * modifications of sound's data.
      */
-    addOverride(
-      inFunc: (sound: SoundSection, data: SoundData) => SoundData
-    ): this;
+    addOverride(inFunc: (sound: SoundSection, data: SoundData) => SoundData): this;
 
     /**
      * Radius in number of squares/hexes this sound will be played within. The distance is determined by the scene's grid size.
@@ -1229,7 +1200,8 @@ declare global {
   };
 
   interface ScrollingTextSection
-    extends CoreMethods,
+    extends
+      CoreMethods,
       Section<ScrollingTextSection>,
       HasLocation<EffectSection>,
       HasText<EffectSection>,
@@ -1262,7 +1234,8 @@ declare global {
   };
 
   interface CanvasPanSection
-    extends CoreMethods,
+    extends
+      CoreMethods,
       Section<CanvasPanSection>,
       HasLocation<EffectSection>,
       HasUsers<EffectSection> {}
@@ -1333,24 +1306,19 @@ declare global {
     (
       type: "collide",
       placeable: CrosshairsPlaceable,
-      collisions: foundry.canvas.geometry.edges.PolygonVertex[]
+      collisions: foundry.canvas.geometry.edges.PolygonVertex[],
     ): void;
     (type: "stopColliding", placeable: CrosshairsPlaceable): void;
     (
       type: "invalidPlacement",
-      position: { source: ObjectCanvasData; target: ObjectCanvasData }
+      position: { source: ObjectCanvasData; target: ObjectCanvasData },
     ): void;
-    (
-      type: "placed",
-      position: { source: ObjectCanvasData; target: ObjectCanvasData }
-    ): void;
+    (type: "placed", position: { source: ObjectCanvasData; target: ObjectCanvasData }): void;
     (type: "cancel"): void;
   };
 
   interface CrosshairSection
-    extends CoreMethods,
-      Section<CrosshairSection>,
-      HasName<EffectSection> {}
+    extends CoreMethods, Section<CrosshairSection>, HasName<EffectSection> {}
 
   abstract class CrosshairSection {
     /**
@@ -1430,7 +1398,7 @@ declare global {
      */
     location(
       inLocation: VisibleFoundryTypes | Vector2 | string,
-      inOptions?: CrosshairLocationOptions
+      inOptions?: CrosshairLocationOptions,
     ): this;
 
     /**
@@ -1446,10 +1414,7 @@ declare global {
     /**
      * Adds a callback function for certain crosshair events
      */
-    callback(
-      inString: keyof CrosshairCallbackData,
-      inFunction: CrosshairCallbackFunction
-    ): this;
+    callback(inString: keyof CrosshairCallbackData, inFunction: CrosshairCallbackFunction): this;
 
     /**
      * Sets the texture used by the crosshair
@@ -1476,7 +1441,7 @@ declare global {
       inModuleName: string,
       inEntries: object,
       isPrivate?: boolean,
-      override?: boolean
+      override?: boolean,
     ): boolean;
 
     /**
@@ -1494,7 +1459,7 @@ declare global {
      */
     getEntry(
       inString: string,
-      inOptions?: GetEntryOptions
+      inOptions?: GetEntryOptions,
     ): SequencerFile | Array<SequencerFile> | boolean;
 
     /**
@@ -1517,18 +1482,12 @@ declare global {
     /**
      * Causes each connected client (including the caller) to fetch and cache the provided file(s) locally, vastly improving loading speed of those files.
      */
-    preload(
-      inSrc: string | Array<string>,
-      showProgressBar?: boolean
-    ): Promise<void>;
+    preload(inSrc: string | Array<string>, showProgressBar?: boolean): Promise<void>;
 
     /**
      * Caches provided file(s) locally, vastly improving loading speed of those files.
      */
-    preloadForClients(
-      inSrc: string | Array<string>,
-      showProgressBar?: boolean
-    ): Promise<void>;
+    preloadForClients(inSrc: string | Array<string>, showProgressBar?: boolean): Promise<void>;
   }
 
   type RandomArrayElementOptions = {
@@ -1544,7 +1503,7 @@ declare global {
 
   type RandomObjectElementReturn<
     O extends object,
-    Recurse extends boolean | undefined
+    Recurse extends boolean | undefined,
   > = Recurse extends true ? RecursiveElement<O[keyof O]> : O[keyof O];
 
   abstract class SequencerHelpers {
@@ -1581,18 +1540,15 @@ declare global {
     /**
      * Returns a random element in the given array
      */
-    random_array_element<T>(
-      inArray: readonly T[],
-      inOptions?: RandomArrayElementOptions
-    ): T;
+    random_array_element<T>(inArray: readonly T[], inOptions?: RandomArrayElementOptions): T;
 
     /**
      *  Returns a random element in the given object
      */
-    random_object_element<
-      O extends object,
-      Recurse extends boolean | undefined = undefined
-    >(inObject: O, inOptions?: RandomObjectElementOptions<Recurse>): any;
+    random_object_element<O extends object, Recurse extends boolean | undefined = undefined>(
+      inObject: O,
+      inOptions?: RandomObjectElementOptions<Recurse>,
+    ): any;
 
     /**
      *  Turns an array containing multiples of the same string, objects, etc, and removes duplications, and returns a fresh array
@@ -1608,7 +1564,7 @@ declare global {
       inModuleName: string,
       inMethodName: string,
       inClass: AnySection,
-      overwrite?: boolean
+      overwrite?: boolean,
     ): boolean;
   }
 
@@ -1662,9 +1618,9 @@ declare global {
     updateEffects(
       options: RequireAtLeastOne<
         InFilters & {
-        effects?: string | CanvasEffect | Array<string> | Array<CanvasEffect>;
-      }
-      >
+          effects?: string | CanvasEffect | Array<string> | Array<CanvasEffect>;
+        }
+      >,
     ): Promise<Array<any>>;
 
     /**
@@ -1673,9 +1629,9 @@ declare global {
     endEffects(
       options: RequireAtLeastOne<
         InFilters & {
-        effects?: string | CanvasEffect | Array<string> | Array<CanvasEffect>;
-      }
-      >
+          effects?: string | CanvasEffect | Array<string> | Array<CanvasEffect>;
+        }
+      >,
     ): Promise<void>;
 
     /**
@@ -1716,11 +1672,7 @@ declare global {
     endSounds(options: {
       name?: string;
       sceneId?: string;
-      effects:
-        | string
-        | foundry.audio.Sound.Any
-        | Array<string>
-        | Array<foundry.audio.Sound.Any>;
+      effects: string | foundry.audio.Sound.Any | Array<string> | Array<foundry.audio.Sound.Any>;
     }): Promise<void>;
 
     /**
@@ -1738,7 +1690,7 @@ declare global {
      */
     show(
       crosshair?: Partial<CrosshairData>,
-      callbacks?: CrosshairCallbackData
+      callbacks?: CrosshairCallbackData,
     ): Promise<TemplateData>;
 
     /**
@@ -1747,7 +1699,7 @@ declare global {
     showToken(
       obj: VisibleFoundryTypes,
       crosshair?: CrosshairData,
-      callbacks?: CrosshairCallbackData
+      callbacks?: CrosshairCallbackData,
     ): Promise<TemplateData>;
 
     /**
@@ -1756,7 +1708,7 @@ declare global {
     collect(
       crosshair?: CrosshairsDocument,
       types?: String | Array<string>,
-      filterMethod?: AnyFunction
+      filterMethod?: AnyFunction,
     ): Array<Document>;
   }
 
@@ -1764,11 +1716,7 @@ declare global {
     /**
      * Adds a preset that can then be used in sequences through .preset()
      */
-    add(
-      inName: string,
-      inFunction: AnyFunction,
-      overwrite?: boolean
-    ): Map<string, AnyFunction>;
+    add(inName: string, inFunction: AnyFunction, overwrite?: boolean): Map<string, AnyFunction>;
 
     /**
      * Retrieves all presets
@@ -1797,7 +1745,7 @@ declare global {
     function registerEase(
       easeName: string,
       easeFunction: (t: number) => number,
-      overwrite?: boolean
+      overwrite?: boolean,
     ): void;
   }
 }

@@ -1,12 +1,13 @@
-import type {FlowState, LancerFlowState} from "foundryvtt-lancer/flows";
-import {isValidTarget, localize} from "./extensions.js";
-import {MODULE_ID} from "./const.js";
+import type { FlowState, LancerFlowState } from "foundryvtt-lancer/flows";
+import { isValidTarget, localize } from "./extensions.js";
+import { MODULE_ID } from "./const.js";
 
-type State = FlowState<LancerFlowState.PrimaryStructureRollData>
+type State = FlowState<LancerFlowState.PrimaryStructureRollData>;
 
 const getRollCount = (roll: Roll, num_to_count: number) => {
   return roll
-    ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count).length
+    ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count)
+        .length
     : 0;
 };
 const structTableTitles = [
@@ -58,7 +59,10 @@ export const rollStructureTable = async (state: State) => {
     return false;
   }
 
-  if ((state.data?.reroll_data?.structure ?? actor.system.structure.value) >= actor.system.structure.max) {
+  if (
+    (state.data?.reroll_data?.structure ?? actor.system.structure.value) >=
+    actor.system.structure.max
+  ) {
     ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
     return false;
   }
@@ -70,7 +74,6 @@ export const rollStructureTable = async (state: State) => {
 
   let result = roll.total;
   if (result === undefined) return false;
-
 
   state.data = {
     type: "structure",
@@ -100,22 +103,22 @@ export async function rewordStructureCard(state: State) {
   switch (structRoll) {
     // Used for multiple ones
     case 0:
-      state.data.title = localize("StructureDescriptions.crushingHit.title")
+      state.data.title = localize("StructureDescriptions.crushingHit.title");
       state.data.desc = localize("StructureDescriptions.crushingHit.description");
       break;
     case 1:
     case 2:
-      state.data.title = localize("StructureDescriptions.directHit.title")
+      state.data.title = localize("StructureDescriptions.directHit.title");
       state.data.desc = localize("StructureDescriptions.directHit.description");
       break;
     case 3:
     case 4:
-      state.data.title = localize("StructureDescriptions.systemTrauma.title")
+      state.data.title = localize("StructureDescriptions.systemTrauma.title");
       state.data.desc = localize("StructureDescriptions.systemTrauma.description");
       break;
     case 5:
     case 6:
-      state.data.title = localize("StructureDescriptions.glancingBlow.title")
+      state.data.title = localize("StructureDescriptions.glancingBlow.title");
       state.data.desc = localize("StructureDescriptions.glancingBlow.description");
       break;
   }
@@ -135,7 +138,7 @@ export async function structCheckMultipleOnes(state: State) {
   // Crushing hits
   let one_count = getRollCount(roll, 1);
   if (one_count > 1) {
-    state.data.title = localize("StructureDescriptions.crushingHit.title")
+    state.data.title = localize("StructureDescriptions.crushingHit.title");
     state.data.desc = localize("StructureDescriptions.crushingHit.description");
   }
 
@@ -177,32 +180,43 @@ export async function removeSystemTraumaButton(state: State) {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
   const actor = state.actor;
   if (!isValidTarget(actor)) return true;
-  state.data.embedButtons = state.data.embedButtons?.filter(x => !x.includes(`data-flow-type="secondaryStructure"`)) || [];
+  state.data.embedButtons =
+    state.data.embedButtons?.filter((x) => !x.includes(`data-flow-type="secondaryStructure"`)) ||
+    [];
   return true;
 }
 
 //@ts-expect-error
-Hooks.once("lancer.registerFlows", (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
-  /**
-   * We have to replace the roll with a nearly identical one, to prevent the structure from being updated.
-   * After that, reword the card normally.
-   */
-  flowSteps.set("rollStructureTable", rollStructureTable);
-  flowSteps.set(`${MODULE_ID}:rewordStructureCard`, rewordStructureCard);
-  flowSteps.set(`${MODULE_ID}:removeSystemTraumaButton`, removeSystemTraumaButton);
-  flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
-  flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
-
-  const structureFlow = flows.get("StructureFlow");
-  if(structureFlow) {
+Hooks.once(
+  "lancer.registerFlows",
+  (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
     /**
-     * Adjust the structure flow by changing how the card is assembled.
-     * The leaves the rolls alone.
+     * We have to replace the roll with a nearly identical one, to prevent the structure from being updated.
+     * After that, reword the card normally.
      */
-    structureFlow.insertStepAfter("rollStructureTable", `${MODULE_ID}:rewordStructureCard`);
-    structureFlow.insertStepAfter("structureInsertSecondaryRollButton", `${MODULE_ID}:removeSystemTraumaButton`);
-    structureFlow.insertStepAfter("checkStructureMultipleOnes", `${MODULE_ID}:checkStructureMultipleOnes`);
-  } else {
-    console.error("Lancer | Could not find StructureFlow");
-  }
-});
+    flowSteps.set("rollStructureTable", rollStructureTable);
+    flowSteps.set(`${MODULE_ID}:rewordStructureCard`, rewordStructureCard);
+    flowSteps.set(`${MODULE_ID}:removeSystemTraumaButton`, removeSystemTraumaButton);
+    flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
+    flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
+    // console.log("StructureFlow:", game.lancer.Flow.get("StructureFlow"));
+    const structureFlow = flows.get("StructureFlow");
+    if (structureFlow) {
+      /**
+       * Adjust the structure flow by changing how the card is assembled.
+       * The leaves the rolls alone.
+       */
+      structureFlow.insertStepAfter("rollStructureTable", `${MODULE_ID}:rewordStructureCard`);
+      structureFlow.insertStepAfter(
+        "structureInsertSecondaryRollButton",
+        `${MODULE_ID}:removeSystemTraumaButton`,
+      );
+      structureFlow.insertStepAfter(
+        "checkStructureMultipleOnes",
+        `${MODULE_ID}:checkStructureMultipleOnes`,
+      );
+    } else {
+      console.error("Lancer | Could not find StructureFlow");
+    }
+  },
+);

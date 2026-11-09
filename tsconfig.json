@@ -5,17 +5,11 @@
     "moduleResolution": "bundler",
     "target": "esnext",
     "isolatedModules": false,
-    "lib": [
-      "DOM",
-      "ESNext"
-    ],
+    "lib": ["DOM", "ESNext"],
     /* Modules */
     "module": "esnext",
     "sourceMap": false,
-    "types": [
-      "@league-of-foundry-developers/foundry-vtt-types",
-      "jquery"
-    ],
+    "types": ["@league-of-foundry-developers/foundry-vtt-types", "jquery"],
     "forceConsistentCasingInFileNames": true,
     /* Type Checking */
     "strict": true,
@@ -36,12 +30,8 @@
     "noEmit": false,
     "resolveJsonModule": true,
     "paths": {
-      "foundryvtt-lancer/*": [
-        "./lib/foundryvtt-lancer/*"
-      ],
-      "Sequencer": [
-        "./lib/FoundryVTT-Sequencer/*"
-      ]
+      "foundryvtt-lancer/*": ["./lib/foundryvtt-lancer/*"],
+      "Sequencer": ["./lib/FoundryVTT-Sequencer/*"]
     }
   },
   "include": [

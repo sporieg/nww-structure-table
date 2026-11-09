@@ -1,12 +1,29 @@
 {
   "name": "nww-structure-table",
   "private": true,
-  "devDependencies": {
-    "@league-of-foundry-developers/foundry-vtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
-    "@typescript/native-preview": "^7.0.0-dev.20260421.2"
-  },
   "scripts": {
-    "build": "tsgo -b",
-    "watch": "tsgo -w"
+    "build": "tsc -b",
+    "watch": "tsc -w",
+    "lint": "oxlint  --type-aware --type-check",
+    "lint:fix": "oxlint  --fix --type-aware",
+    "fmt": "oxfmt",
+    "fmt:check": "oxfmt --check",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "fvtt-types": "github:League-of-Foundry-Developers/foundry-vtt-types#main",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "oxfmt": "^0.51.0",
+    "oxlint": "^1.66.0",
+    "oxlint-tsgolint": "^7.0.2003",
+    "typescript": "^7.0.2"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "oxfmt",
+      "oxlint --fix",
+      "oxlint"
+    ]
   }
 }

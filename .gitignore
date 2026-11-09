@@ -17,3 +17,5 @@
 !/package-lock.json
 !/README.md
 !/tsconfig.json
+!/.oxlintrc.json
+!/.oxfmtrc.json

@@ -25,12 +25,8 @@
       }
     ]
   },
-  "esmodules": [
-    "scripts/structure.js",
-    "scripts/stress.js"
-  ],
-  "styles": [
-  ],
+  "esmodules": ["scripts/structure.js", "scripts/stress.js"],
+  "styles": [],
   "languages": [
     {
       "lang": "en",
