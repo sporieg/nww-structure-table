@@ -1,8 +1,28 @@
-import { LancerFlowState, FlowState, Step, Flow } from "foundryvtt-lancer/flows";
-import { isValidTarget, localize } from "./extensions.js";
+import {
+  LancerFlowState,
+  FlowState,
+  Step,
+  Flow,
+  LancerActor,
+} from "foundryvtt-lancer/lancer-system.js";
+import { _runHaseCheck, isValidTarget, localize, pushEmbedButton } from "./extensions.js";
 import { MODULE_ID } from "./const.js";
 
 type State = FlowState<LancerFlowState.OverheatRollData>;
+
+
+function guard(state: State): [false, false, false] | [LancerActor, State["data"], Roll] {
+  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+  const actor = state.actor;
+  if (!isValidTarget(actor)) {
+    return [false, false, false];
+  }
+  const result = state.data.result;
+  if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
+  return [actor, state.data, result.roll]
+}
+
+
 
 function stressTableDescriptions(roll: number): { title: string; description: string } | null {
   switch (roll) {
@@ -83,37 +103,30 @@ export async function rewordStressMultipleOnes(state: State) {
 }
 
 export async function replaceEngineeringCheckButton(state: State) {
-  if (!state.data) throw new TypeError(`Stress roll flow data missing!`);
+  let [actor, data, roll] = guard(state);
+  if (!actor || !data || !roll) return true;
 
-  let actor = state.actor;
-  if (!isValidTarget(actor)) {
-    return true;
-  }
-
-  const result = state.data.result;
-  if (!result) throw new TypeError(`Stress check hasn't been rolled yet!`);
-
-  const roll = result.roll;
   const structure = state.data.remStress;
   const difficulty = 4 - structure;
 
   let one_count = getRollCount(roll, 1);
 
   if (one_count > 1) {
-    state.data.embedButtons = state.data.embedButtons || [];
-    state.data.embedButtons.push(`<a
-            class="flow-button lancer-button"
-            data-flow-type="check"
-            data-check-type="engineering"
-            data-actor-id="${actor.uuid}"
-          >
-            <i class="fas fa-dice-d20 i--sm"></i> ENGINEERING with ${difficulty} Difficulty
-          </a>`);
+    pushEmbedButton(state, {
+      label: `ENGINEERING with ${difficulty} Difficulty`,
+      actorUuid: actor.uuid
+    })
+    await _runHaseCheck(actor, "eng", difficulty, async function(actor, outcome: Record<string, any>) {
+      const title = state.data.title;
+      if(outcome.passed) {
+        return { title, description: "No Meltdown" };
+      }
+      return { title, description: "Meltodnw time."};
+    })
   }
   return true;
 }
 
-//@ts-expect-error
 Hooks.once(
   "lancer.registerFlows",
   (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
@@ -139,3 +152,18 @@ Hooks.once(
     }
   },
 );
+
+const voidState = async (_state: State) => true;
+/**
+ * LA steps are replaced after.
+ */
+Hooks.once("ready", async () => {
+  // @ts-ignore
+  const flowSteps = game.lancer.flowSteps;
+  // @ts-ignore
+  const stressFlow = game.lancer.flows.get("OverheatFlow");
+  console.table(stressFlow.steps.map(s => {
+    return [s, flowSteps.get(s)];
+  }));
+  flowSteps.set("baseApplyStressEffects", voidState);
+})

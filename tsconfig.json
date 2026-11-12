@@ -9,7 +9,7 @@
     /* Modules */
     "module": "esnext",
     "sourceMap": false,
-    "types": ["@league-of-foundry-developers/foundry-vtt-types", "jquery"],
+    "types": ["fvtt-types", "jquery"],
     "forceConsistentCasingInFileNames": true,
     /* Type Checking */
     "strict": true,
@@ -35,8 +35,6 @@
     }
   },
   "include": [
-    "./src/**/*.ts",
-    "./lib/stylish-action-hud/stylish-action-hud.d.ts",
-    "./lib/lancer-automations/types.d.ts"
+    "./src/**/*.ts"
   ]
 }

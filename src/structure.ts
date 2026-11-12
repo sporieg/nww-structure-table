@@ -1,15 +1,28 @@
-import type { FlowState, LancerFlowState } from "foundryvtt-lancer/flows";
-import { isValidTarget, localize } from "./extensions.js";
+import {
+  Flow,
+  FlowState,
+  LancerActor,
+  LancerFlowState,
+  Step,
+} from "foundryvtt-lancer/lancer-system.js";
+import { isValidTarget, localize, pushEmbedButton, _runHaseCheck, countOnes } from "./extensions.js";
 import { MODULE_ID } from "./const.js";
 
 type State = FlowState<LancerFlowState.PrimaryStructureRollData>;
 
-const getRollCount = (roll: Roll, num_to_count: number) => {
-  return roll
-    ? (roll.terms as foundry.dice.terms.Die[])[0].results.filter((v) => v.result === num_to_count)
-        .length
-    : 0;
-};
+
+function guard(state: State): [false, false, false] | [LancerActor, State["data"], Roll] {
+  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
+  const actor = state.actor;
+  if (!isValidTarget(actor)) {
+    return [false, false, false];
+  }
+  const result = state.data.result;
+  if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
+  return [actor, state.data, result.roll]
+}
+
+
 const structTableTitles = [
   "lancer.tables.structure.title.crushing",
   "lancer.tables.structure.title.direct",
@@ -48,8 +61,7 @@ function structTableDescriptions(roll: number, remStruct: number): string {
 }
 
 /**
- * We need to wrap the original roll structure so that it can be prevented from updating the structure.
- * A symetcial override is not needed for overheat, as that always destroys at the end of a round anyway.
+ * We must replace the oringal roll because the original immediately destroyes on snake eyes.
  */
 export const rollStructureTable = async (state: State) => {
   if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
@@ -58,18 +70,28 @@ export const rollStructureTable = async (state: State) => {
     ui.notifications!.warn("Only npcs and mechs can roll structure.");
     return false;
   }
+  let remStruct = state.data?.reroll_data?.structure ?? actor.system.structure.value;
 
-  if (
-    (state.data?.reroll_data?.structure ?? actor.system.structure.value) >=
-    actor.system.structure.max
-  ) {
+  if (remStruct >= actor.system.structure.max) {
     ui.notifications!.info("The mech is at full Structure, no structure check to roll.");
     return false;
   }
 
-  let remStruct = state.data?.reroll_data?.structure ?? actor.system.structure.value;
   let damage = actor.system.structure.max - remStruct;
   let formula = `${damage}d6kl1`;
+  // No need for rebake hacky fix.  :)
+  if (
+    actor.is_npc() &&
+    actor.items.some((item) =>
+      [
+        "npcf_legendary_ultra",
+        "npcf_legendary_veteran",
+        "npc-rebake_npcf_legendary_ultra",
+      ].includes(item.system.lid),
+    )
+  ) {
+    formula = `{${formula}, ${formula}}kh`;
+  }
   let roll: Roll = await new Roll(formula).evaluate();
 
   let result = roll.total;
@@ -92,13 +114,10 @@ export const rollStructureTable = async (state: State) => {
 };
 
 export async function rewordStructureCard(state: State) {
-  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
-  const actor = state.actor;
-  if (!isValidTarget(actor)) {
-    return true;
-  }
+  let [actor, data, _roll] = guard(state);
+  if (!actor || !data) return true;
 
-  const structRoll = parseInt(state.data.result.total);
+  const structRoll = parseInt(data.result.total);
 
   switch (structRoll) {
     // Used for multiple ones
@@ -126,17 +145,10 @@ export async function rewordStructureCard(state: State) {
 }
 
 export async function structCheckMultipleOnes(state: State) {
-  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
-  const actor = state.actor;
-  if (!isValidTarget(actor)) {
-    return true;
-  }
-
-  const roll = state.data.result?.roll;
-  if (!roll) throw new TypeError(`Structure check hasn't been rolled yet!`);
-
+  let [actor, data, roll] = guard(state);
+  if (!actor || !data || !roll) return true;
   // Crushing hits
-  let one_count = getRollCount(roll, 1);
+  let one_count = countOnes(roll);
   if (one_count > 1) {
     state.data.title = localize("StructureDescriptions.crushingHit.title");
     state.data.desc = localize("StructureDescriptions.crushingHit.description");
@@ -146,47 +158,76 @@ export async function structCheckMultipleOnes(state: State) {
 }
 
 export async function insertHullCheckButton(state: State) {
-  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
-  const actor = state.actor;
-  if (!isValidTarget(actor)) {
-    return true;
-  }
-
-  const result = state.data.result;
-  if (!result) throw new TypeError(`Structure check hasn't been rolled yet!`);
-
-  const roll = result.roll;
+  let [actor, _data, roll] = guard(state);
+  if (!actor || !roll) return true;
   const structure = state.data.remStruct;
   const difficulty = 4 - structure;
-
-  let one_count = getRollCount(roll, 1);
+  let one_count = countOnes(roll);
 
   if (one_count > 1) {
-    state.data.embedButtons = state.data.embedButtons || [];
-    state.data.embedButtons.push(`<a
-          class="flow-button lancer-button"
-          data-flow-type="check"
-          data-check-type="hull"
-          data-actor-id="${actor.uuid}"
-        >
-          <i class="fas fa-dice-d20 i--sm"></i> HULL with ${difficulty} Difficulty
-        </a>`);
+    pushEmbedButton(state, {
+      label: `Hull Check. ${difficulty} difficulty`,
+      actorUuid: actor.uuid
+    })
+    await _runHaseCheck(actor, "hull", difficulty, async function(actor, outcome: Record<string, any>) {
+      const title = state.data.title;
+      if(outcome.passed) {
+        return { title, description: "Not Destroyed" };
+      }
+      await actor.update({
+        "system.structure.value": 0,
+        "system.hp.value": actor.system.hp.value - actor.system.hp.max
+      });
+      return { title, description: game.i18n?.localize('LA.altStruct.result.hullFailedDestroyed') };
+    })
   }
   return true;
 }
 
 // No secondaries with NWW
 export async function removeSystemTraumaButton(state: State) {
-  if (!state.data) throw new TypeError(`Structure roll flow data missing!`);
-  const actor = state.actor;
-  if (!isValidTarget(actor)) return true;
+  let [actor, _data, roll] = guard(state);
+  if (!actor || !roll) return true;
   state.data.embedButtons =
     state.data.embedButtons?.filter((x) => !x.includes(`data-flow-type="secondaryStructure"`)) ||
     [];
   return true;
 }
 
-//@ts-expect-error
+const voidState = async (_state: State) => true;
+
+/**
+ * [
+ *   "ilysen-lancer-npc-rebake-structure:hackyLegendaryFixStructure",
+ *   "lancer-automations:onPreStructure",
+ *   "npcOneStructStep",
+ *   "preStructureRollChecks",
+ *   "rollStructureTable",
+ *   "nww-lancer-alt-structure:rewordStructureCard",
+ *   "lancer-automations:onStructure",
+ *   "ilysen-lancer-npc-rebake-structure:rewordStructureCard",
+ *   "ilysen-lancer-npc-rebake-structure:npcZeroStructureCheck",
+ *   "lancer-automations:onRoll:structureRoll",
+ *   "noStructureRemaining",
+ *   "checkStructureMultipleOnes",
+ *   "nww-lancer-alt-structure:checkStructureMultipleOnes",
+ *   "ilysen-lancer-npc-rebake-structure:rewordStructureMultipleOnes",
+ *   "structureInsertDismembermentButton",
+ *   "structureInsertHullCheckButton",
+ *   "ilysen-lancer-npc-rebake-structure:insertHullCheckButton",
+ *   "structureInsertSecondaryRollButton",
+ *   "nww-lancer-alt-structure:removeSystemTraumaButton",
+ *   "ilysen-lancer-npc-rebake-structure:removeSystemTraumaButton",
+ *   "structureInsertCascadeRollButton",
+ *   "baseApplyStructureEffects",
+ *   "printStructureCard"
+ * ]
+ */
+
+/**
+ * Replace: baseApplyStructureEffects
+ */
+
 Hooks.once(
   "lancer.registerFlows",
   (flowSteps: Map<string, Step<any, any> | Flow<any>>, flows: Map<string, typeof Flow<any>>) => {
@@ -197,26 +238,39 @@ Hooks.once(
     flowSteps.set("rollStructureTable", rollStructureTable);
     flowSteps.set(`${MODULE_ID}:rewordStructureCard`, rewordStructureCard);
     flowSteps.set(`${MODULE_ID}:removeSystemTraumaButton`, removeSystemTraumaButton);
-    flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
+    //flowSteps.set(`${MODULE_ID}:checkStructureMultipleOnes`, structCheckMultipleOnes);
     flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
     // console.log("StructureFlow:", game.lancer.Flow.get("StructureFlow"));
     const structureFlow = flows.get("StructureFlow");
+    console.table(structureFlow.steps.map(s => {
+      return [s, flowSteps.get(s)];
+    }));
     if (structureFlow) {
       /**
        * Adjust the structure flow by changing how the card is assembled.
        * The leaves the rolls alone.
        */
       structureFlow.insertStepAfter("rollStructureTable", `${MODULE_ID}:rewordStructureCard`);
-      structureFlow.insertStepAfter(
-        "structureInsertSecondaryRollButton",
-        `${MODULE_ID}:removeSystemTraumaButton`,
+      structureFlow.insertStepAfter("structureInsertSecondaryRollButton", `${MODULE_ID}:removeSystemTraumaButton`,
       );
-      structureFlow.insertStepAfter(
-        "checkStructureMultipleOnes",
-        `${MODULE_ID}:checkStructureMultipleOnes`,
-      );
+      flowSteps.set("checkStructureMultipleOnes", structCheckMultipleOnes);
     } else {
       console.error("Lancer | Could not find StructureFlow");
     }
   },
 );
+
+/**
+ * LA steps are replaced after.
+ */
+Hooks.once("ready", async () => {
+  // @ts-ignore
+  const flowSteps = game.lancer.flowSteps;
+  // @ts-ignore
+  const structureFlow = game.lancer.flows.get("StructureFlow");
+  console.table(structureFlow.steps.map(s => {
+    return [s, flowSteps.get(s)];
+  }));
+  flowSteps.set("baseApplyStructureEffects", voidState);
+  flowSteps.set("structureInsertHullCheckButton", insertHullCheckButton);
+})
